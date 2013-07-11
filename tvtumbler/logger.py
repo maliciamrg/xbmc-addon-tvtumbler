@@ -11,7 +11,7 @@ import threading
 import xbmc
 import sys
 
-__addon__ = sys.modules[ "__main__" ].__addon__
+__addon__ = sys.modules["__main__"].__addon__
 __addonname__ = __addon__.getAddonInfo('name')
 
 

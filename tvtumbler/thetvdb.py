@@ -40,7 +40,7 @@ def tvdb_series_lookup(tvdb_id):
     '''
     # if we have a cached result, we use that.
     url = 'http://thetvdb.com/api/%s/series/%s/en.xml' % (TVDB_API_KEY,
-                                                          tvdb_id)
+                                                          str(tvdb_id))
     data = cache.get(url)
     if not data:
         logger.debug('getting url %s' % url)

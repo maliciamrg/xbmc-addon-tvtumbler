@@ -23,15 +23,15 @@ import time
 import xbmc
 import xbmcaddon
 
-import tvtumbler
-import tvtumbler.logger as logger
-
 __addon__           = xbmcaddon.Addon()
 __addonversion__    = __addon__.getAddonInfo('version')
 __addonname__       = __addon__.getAddonInfo('name')
 __addonpath__       = __addon__.getAddonInfo('path').decode('utf-8')
 # __icon__         = __addon__.getAddonInfo('icon')
 # __localize__    = __addon__.getLocalizedString
+
+import tvtumbler
+import tvtumbler.logger as logger
 
 
 if __name__ == '__main__':
