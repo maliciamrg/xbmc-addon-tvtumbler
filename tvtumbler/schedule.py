@@ -1,13 +1,18 @@
-"""
+'''
+This file is part of TvTumbler.
 
-"""
+@author: Dermot Buckley
+@copyright: Copyright (c) 2013, Dermot Buckley
+@license: GPL
+@contact: info@tvtumbler.com
+'''
 
 
 import time
 import threading
 import traceback
 
-import tvtumbler.logger as logger
+from . import logger
 
 
 class SchedulerThread(threading.Thread):

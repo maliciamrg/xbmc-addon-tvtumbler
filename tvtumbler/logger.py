@@ -1,7 +1,10 @@
 '''
-Created on Jun 21, 2013
+This file is part of TvTumbler.
 
-@author: dermot@buckley.ie
+@author: Dermot Buckley
+@copyright: Copyright (c) 2013, Dermot Buckley
+@license: GPL
+@contact: info@tvtumbler.com
 '''
 
 __all__ = ['debug', 'info', 'notice', 'warning', 'severe', 'error', 'fatal',

@@ -1,22 +1,27 @@
 '''
-Created on Jun 21, 2013
+This file is part of TvTumbler.
 
-@author: dermot
+@author: Dermot Buckley
+@copyright: Copyright (c) 2013, Dermot Buckley
+@license: GPL
+@contact: info@tvtumbler.com
 '''
+
 import sys
 import xbmc
-import tvtumbler.logger as logger
+from . import logger
+import time
 
 if sys.version_info < (2, 7):
     import simplejson as json
 else:
     import json
-    
+
 
 def exec_rpc(method, params=None):
     command = {
         'method': method,
-        'id': id,
+        'id': 1,
         'jsonrpc': "2.0",
     }
 
@@ -31,13 +36,29 @@ def exec_rpc(method, params=None):
     return result['result']
 
 
-def get_tv_shows(properties=["title", "year", "imdbnumber", "file"]):
+def get_tv_shows(properties=["title", "year", "imdbnumber", "file"], max_age_secs=300):
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetTVShows
     """
-    result = exec_rpc(method="VideoLibrary.GetTVShows",
-                    params={'properties': properties})
-    return result['tvshows']
+    try:
+        lastResult = get_tv_shows._lastResult
+        lastProps = get_tv_shows._lastProps
+        lastRun = get_tv_shows._lastRun
+
+        if (time.time() - lastRun > max_age_secs or
+            set(lastProps) < set(properties)):
+            lastResult = None
+    except AttributeError:
+        lastResult = None
+
+    if not lastResult:
+        lastResult = exec_rpc(method="VideoLibrary.GetTVShows",
+                              params={'properties': properties})
+        get_tv_shows._lastRun = time.time()
+        get_tv_shows._lastResult = lastResult
+        get_tv_shows._lastProps = properties
+
+    return lastResult['tvshows']
 
 
 def get_tv_show_details(tvshowid,
@@ -66,10 +87,11 @@ def get_episodes(tvshowid, season=-1,
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetEpisodes
     """
-    return exec_rpc(method="VideoLibrary.GetEpisodes",
+    result = exec_rpc(method="VideoLibrary.GetEpisodes",
                     params={'tvshowid': tvshowid,
                             'season': season,
                             'properties': properties})
+    return result['episodes']
 
 
 def get_episode_details(episodeid,
@@ -78,9 +100,10 @@ def get_episode_details(episodeid,
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetEpisodeDetails
     """
-    return exec_rpc(method="VideoLibrary.GetEpisodeDetails",
+    result = exec_rpc(method="VideoLibrary.GetEpisodeDetails",
                     params={'episodeid': episodeid,
                             'properties': properties})
+    return result['episodedetails']
 
 
 def videolibrary_scan(directory=""):
@@ -89,4 +112,14 @@ def videolibrary_scan(directory=""):
     """
     return exec_rpc(method="VideoLibrary.Scan",
                     params={'directory': directory})
+
+
+def application_get_properties(properties=['version', 'name']):  # also 'volume' and 'muted' available
+    """
+    http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#Application.GetProperties
+    """
+    result = exec_rpc(method="Application.GetProperties",
+                    params={'properties': properties})
+    return result
+
 

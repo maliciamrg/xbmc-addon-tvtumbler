@@ -5,15 +5,18 @@
     version="0.0.1"
     provider-name="Bricky">
   <requires>
-    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="xbmc.python" version="2.1.0" />
     <import addon="xbmc.gui" version="4.0.0" />
-    <import addon="xbmc.addon" version="12.0.0"/>
-    <import addon="script.module.simplejson" version="2.0.10"/>
+    <import addon="xbmc.addon" version="12.0.0" />
+    <import addon="script.module.simplejson" version="2.0.10" />
     <!-- 
     See http://wiki.xbmc.org/index.php?title=Add-on:Common_plugin_cache
     -->
-    <import addon="script.common.plugin.cache" version="2.5.1"/>
-    <import addon="script.module.requests" version="1.1.0"/>
+    <import addon="script.common.plugin.cache" version="2.5.1" />
+    <import addon="script.module.requests" version="1.1.0" />
+    <import addon="script.module.xmltodict" version="0.2.0" />
+    <import addon="script.module.elementtree" version="1.2.7" />
+    <import addon="script.module.feedparser" version="5.1.2" />
   </requires>
   <extension point="xbmc.service" library="service.py" start="login"/>
   <!-- <extension point="xbmc.python.script" library="script.py"/>  -->

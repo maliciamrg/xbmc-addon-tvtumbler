@@ -1,15 +1,18 @@
 '''
-Created on Jun 21, 2013
+This file is part of TvTumbler.
 
-@author: dermot
+@author: Dermot Buckley
+@copyright: Copyright (c) 2013, Dermot Buckley
+@license: GPL
+@contact: info@tvtumbler.com
 '''
 
 from __future__ import with_statement
 from threading import Lock
-from tvtumbler.schedule import SchedulerThread
-import tvtumbler.feeder as feeder
-import tvtumbler.downloader as downloader
-import tvtumbler.logger as logger
+from .schedule import SchedulerThread
+from . import feeder
+from . import downloader
+from . import logger
 
 feederThread = None
 downloaderThread = None
@@ -35,12 +38,12 @@ def start():
             logger.warning('Attempt to start when already started.')
             return
 
-        feederThread = SchedulerThread(action=feeder.run(),
+        feederThread = SchedulerThread(action=feeder.run,
                                     threadName="FEEDER",
                                     runIntervalSecs=FEEDER_RUN_INTERVAL_SECS)
-        feederThread.start(60)
+        feederThread.start(20)
 
-        downloaderThread = SchedulerThread(action=downloader.run(),
+        downloaderThread = SchedulerThread(action=downloader.run,
                                 threadName='DOWNLOADER',
                                 runIntervalSecs=DOWNLOADER_RUN_INTERVAL_SECS)
         downloaderThread.start(30)

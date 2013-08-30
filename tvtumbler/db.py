@@ -1,4 +1,11 @@
+'''
+This file is part of TvTumbler.
 
+@author: Dermot Buckley
+@copyright: Copyright (c) 2013, Dermot Buckley
+@license: GPL
+@contact: info@tvtumbler.com
+'''
 
 from __future__ import with_statement
 
@@ -9,7 +16,7 @@ import xbmc
 import sys
 import xbmcvfs
 
-import tvtumbler.logger as logger
+from . import logger
 
 
 try:
@@ -124,8 +131,8 @@ class Connection(object):
                     # get out of the loop since we were successful
                     break
                 except sqlite.OperationalError, e:
-                    if ("unable to open database file" in e.message or
-                        "database is locked" in e.message):
+                    if ("unable to open database file" in str(e) or
+                        "database is locked" in str(e)):
                         logger.warning(u"DB error: %s" % e)
                         attempt += 1
                         time.sleep(1)

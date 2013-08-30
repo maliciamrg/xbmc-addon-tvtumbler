@@ -1,13 +1,18 @@
 '''
-Created on Jun 22, 2013
+This file is part of TvTumbler.
 
-@author: dermot
+@author: Dermot Buckley
+@copyright: Copyright (c) 2013, Dermot Buckley
+@license: GPL
+@contact: info@tvtumbler.com
 '''
-from xml.dom.minidom import Node, parseString
+
 import requests
-import tvtumbler.logger as logger
+from . import logger
 import xbmc
 import sys
+
+import elementtree.ElementTree as etree
 
 # see http://wiki.xbmc.org/index.php?title=Add-on:Common_plugin_cache
 try:
@@ -22,12 +27,12 @@ __addonname__ = __addon__.getAddonInfo('name')
 cache = StorageServer.StorageServer(__addonname__ + __name__, 6)  # 6 hrs
 
 
-def _get_xml_text(node):
-    text = ""
-    for child_node in node.childNodes:
-        if child_node.nodeType in (Node.CDATA_SECTION_NODE, Node.TEXT_NODE):
-            text += child_node.data
-    return text.strip()
+# def _get_xml_text(node):
+#     text = ""
+#     for child_node in node.childNodes:
+#         if child_node.nodeType in (Node.CDATA_SECTION_NODE, Node.TEXT_NODE):
+#             text += child_node.data
+#     return text.strip()
 
 
 def tvdb_series_lookup(tvdb_id):
@@ -46,36 +51,36 @@ def tvdb_series_lookup(tvdb_id):
         logger.debug('getting url %s' % url)
         r = requests.get(url)
         if r.status_code == requests.codes.ok:
-            data = r.text
-            cache.set(url, r.text)
+            # logger.debug('encoding is ' + r.encoding)
+            logger.debug('raw data returned is ' + repr(r.text))
+            data = r.text.encode('ascii', 'ignore')
+            cache.set(url, data)
         else:
             logger.notice('No data returned from tvdb for %s, ' +
                           'status code %d' % (tvdb_id, r.status_code))
             return None
 
-    logger.debug('got data: %s' % data)
-    parsedXML = parseString(data)
-    series = parsedXML.getElementsByTagName('Series')
-    if series.length == 0:
+    logger.debug(u'got data: %s' % data)
+    parsedXML = etree.fromstring(data)
+    series = parsedXML.find('Series')
+    if not series:
         logger.debug('No series tag for %s' % tvdb_id)
         return None
 
-    series = series[0]  # "there can be only one"
-
-    def _text_from_node(nodeName):
-        n = series.getElementsByTagName(nodeName)
-        if n.length == 0:
-            return None
-        else:
-            return _get_xml_text(n[0])
+#     def _text_from_node(nodeName):
+#         n = series.getElementsByTagName(nodeName)
+#         if n.length == 0:
+#             return None
+#         else:
+#             return _get_xml_text(n[0])
 
     # http://thetvdb.com/api/FCC2D40061D489B4/series/256204/en.xml
     return {
         'id'        : tvdb_id,
-        'SeriesName': _text_from_node('SeriesName'),
-        'IMDB_ID'   : _text_from_node('IMDB_ID'),
-        'SeriesID'  : _text_from_node('SeriesID'),
-        'zap2it_id' : _text_from_node('zap2id_id'),
-        'Network'   : _text_from_node('Network'),
+        'SeriesName': series.findtext('SeriesName'),
+        'IMDB_ID'   : series.findtext('IMDB_ID'),
+        'SeriesID'  : series.findtext('SeriesID'),
+        'zap2it_id' : series.findtext('zap2id_id'),
+        'Network'   : series.findtext('Network'),
     }
 

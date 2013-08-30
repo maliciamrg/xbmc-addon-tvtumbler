@@ -7,9 +7,5 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-from . import logger
-
-
-def run():
-    logger.debug('downloader - run')
-    pass
+SCENE_NUMBERING = 1
+TVDB_NUMBERING = 2
