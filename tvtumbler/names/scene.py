@@ -165,7 +165,7 @@ class SceneNameParser(NameParser):
                                                                   tvdb_episode=ep))
             else:
                 if 'air_year' in named_groups and 'air_month' in named_groups and 'air_day' in named_groups:
-                    logger.debug('"%s" matched on abd, but we do not support that yet, sorry',
+                    logger.debug('"%s" matched on abd, but we do not support that yet, sorry' %
                                  (self._filename,))
                 return
 

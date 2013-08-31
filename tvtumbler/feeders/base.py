@@ -34,6 +34,19 @@ class BaseFeeder(object):
         self._last_update_datetime = None
 
     @classmethod
+    def get_instance(cls):
+        '''Get the singleton instance of this class
+
+        @return: The singleton instance of this class
+        @rtype: cls
+        '''
+        try:
+            return cls._instance
+        except AttributeError:
+            cls._instance = cls()
+            return cls._instance
+
+    @classmethod
     def get_name(cls):
         '''
         Human-readable name.

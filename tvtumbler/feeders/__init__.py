@@ -21,7 +21,7 @@ def get_active_feeders():
     '''
     global _active_feeders
     if _active_feeders is None:
-        _active_feeders = [EZRSSFeeder(), ShowRSSFeeder()]
+        _active_feeders = [EZRSSFeeder.get_instance(), ShowRSSFeeder.get_instance()]
     return _active_feeders
 
 
@@ -34,5 +34,4 @@ def get_latest():
     latest = []
     for f in get_active_feeders():
         latest.extend(f.get_latest())
-
     return latest

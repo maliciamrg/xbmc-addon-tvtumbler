@@ -16,7 +16,6 @@ from . import logger
 
 
 class SchedulerThread(threading.Thread):
-
     """
     Base class for all scheduler threads.
 
