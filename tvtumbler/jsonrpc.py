@@ -91,7 +91,11 @@ def get_episodes(tvshowid, season=-1,
                     params={'tvshowid': tvshowid,
                             'season': season,
                             'properties': properties})
-    return result['episodes']
+    try:
+        return result['episodes']
+    except KeyError:
+        # no 'episodes' => there are none in the season.
+        return []
 
 
 def get_episode_details(episodeid,

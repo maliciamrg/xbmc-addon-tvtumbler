@@ -261,6 +261,8 @@ def simplify_show_name(showName):
     @param showName: (unicode) Show name to be simplified.  Must be unicode.
     @return: (str)
     '''
+    # Replace '&' with 'and'
+    showName = showName.replace('&', 'and')
     # Replace any unicode chars with their nearest ascii equivalents
     showName = unidecode(showName)
     # strip chars that don't generally appear in scene naming

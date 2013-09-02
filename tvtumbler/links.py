@@ -7,11 +7,11 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-from . import logger, quality
+from . import logger, quality, utils
+import base64
 import datetime
 import hashlib
 import re
-import base64
 
 
 class Downloadable(object):
@@ -265,7 +265,50 @@ class Torrent(Downloadable):
                 self._unique_key = ih
                 return ih
 
-        return super(Torrent, self).unique_key()
+        return super(Torrent, self).unique_key
+
+    @classmethod
+    def is_valid_torrent_data(cls, torrent_file_contents):
+        '''Is torrent_file_contents a valid torrent file?
+
+        According to /usr/share/file/magic/archive, the magic number for
+        torrent files is
+           d8:announce
+        So instead of messing with buggy parsers (as was done here before)
+        we just check for this magic instead.
+        Note that a significant minority of torrents have a not-so-magic of "d12:_info_length",
+        which while not explicit in the spec is valid bencode and works with Transmission and uTorrent.
+
+        @rtype: bool
+        '''
+        return (torrent_file_contents and
+                (torrent_file_contents.startswith("d8:announce") or
+                 torrent_file_contents.startswith("d12:_info_length")))
+
+    def get_torrent(self):
+        '''
+        If self has a url that is not a magnet, or exists in one of the cache links,
+        this will download that url and return the file contents.
+
+        @return: a raw torrent file (as a str).  Returns None if the download fails, or the downloaded torrent
+            file is not a valid torrent.
+        @rtype: str
+        '''
+        for u in [u for u in self._urls if u.startswith('http')]:
+            raw = utils.get_url(u)
+            if self.is_valid_torrent_data(raw):
+                return raw
+
+        # if we get to here, then we had no valid torrent links.  Try a hail
+        # mary on the the infohash against the various cache links we have.
+        if self.infohash:
+            for u in self.MAGNET_TO_TORRENT_URLS:
+                raw = utils.get_url(u)
+                if self.is_valid_torrent_data(raw):
+                    return raw
+
+        # No valid torrent files found.
+        return None
 
 
 class VOD(Downloadable):

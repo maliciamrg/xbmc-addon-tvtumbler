@@ -11,6 +11,8 @@ import sys
 import requests
 import platform
 import uuid
+import re
+import xbmc
 from . import logger, jsonrpc
 
 __addon__ = sys.modules["__main__"].__addon__
@@ -19,6 +21,45 @@ __addonversion__ = __addon__.getAddonInfo('version')
 
 INSTANCE_ID = str(uuid.uuid1())
 _user_agent = None
+
+
+def is_video_file(filename):
+    '''Identify if filename is a video file by its extension.
+
+    @rtype: bool
+    '''
+    filename = filename.lower()
+    # ignore samples
+    if (re.search('(^|[\W_])sample\d*[\W_]', filename) or  # ignore samples
+        filename.startswith('._') or  # ignore max osx special files
+        '.partial.' in filename):  # ignore iplayer partials
+        return False
+
+    return filename.rpartition(".")[2] in get_video_extensions()
+
+
+def get_video_extensions():
+    '''Get the video extensions supported by xbmc.
+
+    @return: a lowercase list of media extensions that xbmc claims to support (extensions only, no dots).
+    @rtype: [str]
+    '''
+    try:
+        return get_video_extensions._supported
+    except AttributeError:
+        get_video_extensions._supported = [ext.lstrip('.').lower()
+                                           for ext in xbmc.getSupportedMedia('video').split('|')]
+        return get_video_extensions._supported
+
+
+def get_url(url):
+    headers = {'User-Agent': get_user_agent()}
+    r = requests.get(url, headers=headers)
+    if r.status_code != requests.codes.ok:
+        logger.notice('Bad status from %s, status code %d' % (url, r.status_code))
+        return None
+
+    return r.text
 
 
 def get_url_as_json(url):

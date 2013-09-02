@@ -9,18 +9,28 @@ Created on Aug 30, 2013
 @contact: info@tvtumbler.com
 '''
 from ..schedule import SchedulerThread
+from .. import logger
+from . import on_download_failed, on_download_downloaded
 
 
 class BaseDownloader(object):
-    '''Base class for all downloaders'''
+    '''Base class for all downloaders.
+
+    Lifecycle of a download:
+    1. Ask something that inherits from this class if it can handle your download: cls.can_download()
+    2. Get an instance of it: d = cls.get_instance(downloadable)
+    3. Tell it to start the download: started = d.download(downloadable)
+    4. The download (if successful) will manage itself thereafter, calling:
+           on_download_downloaded() when it finishes the download.
+           on_download_finished() when it is truly finished (eg. after seeding)
+           on_download_failed() if it fails.
+       The default implementation of these is probably ok for most cases.
+    '''
 
     def __init__(self):
         '''Private Xtor.  Use get_instance() instead.'''
         self._current_ptr = 0
         self._running_downloads = {}
-        self._poller = SchedulerThread(action=self._poll,
-                                       threadName=self.__class__.__name__,
-                                       runIntervalSecs=3)
 
     @classmethod
     def get_instance(cls):
@@ -51,6 +61,17 @@ class BaseDownloader(object):
         Is this downloader enabled?
         (i.e. willing to accept downloads)
 
+        @rtype: bool
+        '''
+        return False
+
+    @classmethod
+    def can_download(cls, downloadable):
+        '''
+        Can this downloader download this downloadable?
+        Obviously you'll want to override this one.
+
+        @return: True/False.  Generally a decision made on the class of downloadable.
         @rtype: bool
         '''
         return False
@@ -89,12 +110,10 @@ class BaseDownloader(object):
         '''
         return self._running_downloads[key]
 
-    def add(self, downloadable):
+    def download(self, downloadable):
         '''
         Override in your derived class.
-        Be sure to start the self._poller if needed (i.e. add was successful,
-        and it's not already running), and add the 'Download' to
-        _running_downloads.
+        Be sure to add the 'Download' to _running_downloads.
 
         @param downloadable: What we want to download.
         @type downloadable: Downloadable
@@ -102,41 +121,34 @@ class BaseDownloader(object):
         @rtype: bool
         '''
         # Sample Implementation:
-        # if not self._poller.is_alive():
-        #     self._poller.start(delayBeforeFirstRunSecs=5)
-        # rd = Download(downloadable)
+        #
+        # rd = Download(downloadable, self)
+        # key = rd.key
+        # if key in self._running_downloads:
+        #     logger.notice('%s is already downloading!' % (key,))
+        #     return False
         # if rd.start():
-        #     self._running_downloads[rd.key] = rd
+        #     self._running_downloads[key] = rd
         #     return True
         return False
 
-    def remove(self, key):
-        rd = self._running_downloads[key]
-        rd.stop(delete_files=True)
-        del rd
+    def on_download_failed(self, download):
+        '''Called (by the download), when it fails.'''
+        del self._running_downloads[download.key]
+        on_download_failed(download)
 
-    def _poll(self):
+    def on_download_downloaded(self, download):
+        '''Called when the download has completed (i.e. no more data).
+
+        Care here: we can't just delete at this point because the download
+        may have future work (e.g. seeding).
         '''
-        Called by self._poller every 2 secs while we have a download running.
-        Responsible for stopping itself when there are no more downloads.
+        on_download_downloaded(download)
 
-        Override this and call this implementation in your derived class.
-
-        @return: Returns False if the poller was aborted, true otherwise
-        @rtype: bool
-        '''
-        if len(self._running_downloads) == 0:
-            self._poller.abort = True
-            return False
-
-        for (k, d) in self._running_downloads:
-            old_status = d.get_status()
-            d.update_stats()
-            new_status = d.get_status()
-            if old_status != new_status:
-                d.on_status_change(old_status, new_status)
-
-        return True
+    def on_download_finished(self, download):
+        '''Download is completely complete.'''
+        download.remove_files()
+        del self._running_downloads[download.key]
 
 
 class Download(object):
@@ -166,15 +178,21 @@ class Download(object):
     RUNNING_STATE = STARTING | DOWNLOADING | POST_DOWNLOAD
     DOWNLOADED_STATE = POST_DOWNLOAD | FINISHED
 
-    def __init__(self, downloadable):
+    def __init__(self, downloadable, downloader):
         '''
         XTor.
 
         @param downloadable: the Downloadable we're downloading.
         @type downloadable: Downloadable
+        @param downloader: the Downloader to which this download belongs.
+        @type downloader: BaseDownloader
         '''
         self._downloadable = downloadable
+        self._downloader = downloader
         self._status = self.NOT_STARTED
+        self._poller = SchedulerThread(action=self._poll,
+                                       threadName=self.__class__.__name__,
+                                       runIntervalSecs=3)
 
     @property
     def key(self):
@@ -183,6 +201,10 @@ class Download(object):
     @property
     def name(self):
         return self._downloadable.name
+
+    @property
+    def downloader(self):
+        return self._downloader
 
     def get_status_text(self):
         '''
@@ -230,9 +252,60 @@ class Download(object):
         '''
         return 0.0
 
-    def update_stats(self):
+    def start(self):
         '''
-        Called (by the downloader) every two seconds during download.
+        Start the download.
+
+        In your derived class, override this and call it from the overridden
+        method (where you will also start whatever is needed to run the download).
+
+        @return: True if the download begins successfully, false otherwise.
+        @rtype: bool
+        '''
+        if self._status != self.NOT_STARTED:
+            logger.notice('Attempt to start Download, but the status is %s.  Not starting' %
+                          (self._status_names[self._status]))
+            return False
+        self._poller.start(2)
+
+    def remove_files(self):
+        '''
+        Do whatever is necessary to remove any downloaded files.
+        '''
+        pass
+
+    def _poll(self):
+        '''
+        Called by self._poller every 3 secs while we have a download running.
+        Responsible for telling the downloader when the download is complete, and
+        then for stopping the self._poller.
+
+        The default implementation below calls on_status_change for any significant
+        change, which in turns calls the appropriate _on_* method (which, for download
+        complete, finished, or failure, in turns calls the downloader).
+
+        You can override this method if it makes sense, but beware of the responsibility
+        to notify the downloader.
+
+        @return: Returns False if the poller was aborted, true otherwise
+        @rtype: bool
+        '''
+        old_status = self.get_status()
+        self._update_stats()
+        new_status = self.get_status()
+        if old_status != new_status:
+            self.on_status_change(old_status, new_status)
+
+        if self.get_status() & self.FINAL_STATE:
+            logger.debug('Download has reached a final state.  Stopping poller.')
+            self._poller.abort = True
+            return False
+
+        return True
+
+    def _update_stats(self):
+        '''
+        Called (by _poll) every three seconds during download.
         Use this method to update stats, status etc.
 
         It is important that you *do* update the self._status field here (or override the
@@ -241,9 +314,9 @@ class Download(object):
         '''
         pass
 
-    def on_status_change(self, old_status, new_status):
+    def _on_status_change(self, old_status, new_status):
         '''
-        Called (by the downloader) when the status changes.
+        Called (by self._poller) when the status changes.
         You can override this method and use your own handling, or leave this
         implementation and handle all significant changes in the _on_* methods
         that this implementation calls.
@@ -253,6 +326,7 @@ class Download(object):
 
         if new_status == self.FAILED and old_status != self.FAILED:
             self._on_failed()
+            self._downloader.on_download_failed(self)
 
         try:
             prev_downloaded = self.on_status_change._prev_downloaded
@@ -269,9 +343,11 @@ class Download(object):
 
         if (new_status & self.DOWNLOADED_STATE) and not (old_status & self.DOWNLOADED_STATE):
             self._on_downloaded()
+            self._downloader.on_download_downloaded(self)
 
         if new_status == self.FINISHED and old_status != self.FINISHED:
             self._on_finished()
+            self._downloader.on_download_finished(self)
 
     def _on_started(self):
         '''Called by on_status_change()'''
