@@ -78,6 +78,16 @@ def get_url_as_json(url):
     return json_obj
 
 
+def get_url_as_binary(url):
+    headers = {'User-Agent': get_user_agent()}
+    r = requests.get(url, headers=headers)
+    if r.status_code != requests.codes.ok:
+        logger.notice('Bad status from %s, status code %d' % (url, r.status_code))
+        return None
+
+    return r.content
+
+
 def get_user_agent():
     global _user_agent
     if not _user_agent:

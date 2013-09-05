@@ -238,3 +238,34 @@ _ep_regexes = [
                '''),
               ]
 
+# Anything matching these in either the extra_info or the release_group
+# (i.e. the end of the name), will be rejected.
+_bad_filters = ["sub(pack|s|bed)", "nlsub(bed|s)?", "swesub(bed)?",
+                 "(dir|sample|sub|nfo)fix", "sample", "(dvd)?extras",
+                 "dub(bed)?", 'german', 'french', 'core2hd', 'dutch',
+                 'swedish']
+
+_compiled_bad_regexes = []
+
+
+def get_bad_regexes():
+    '''
+    Get a list of compiled bad regexes.
+
+    @return: list of regexes
+    @rtype: [RegexObject]
+    '''
+    global _compiled_bad_regexes, _bad_filters
+    if _compiled_bad_regexes:
+        return _compiled_bad_regexes
+
+    for x in _bad_filters:
+        cur_pattern = '(^|[\W_])' + x + '($|[\W_])'
+        try:
+            cur_regex = re.compile(cur_pattern, re.IGNORECASE)
+        except re.error, errormsg:
+            logger.warning(u"WARNING: Invalid episode_pattern, %s. %s" % (errormsg, cur_pattern))
+        else:
+            _compiled_bad_regexes.append(cur_regex)
+
+    return _compiled_bad_regexes

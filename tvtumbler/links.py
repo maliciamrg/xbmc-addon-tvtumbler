@@ -242,8 +242,8 @@ class Torrent(Downloadable):
         Returns the 40 byte hex string on success, None on failure.
         """
         for m_to_u in cls.MAGNET_TO_TORRENT_URLS:
-            m_to_u.replace('%%s', '([0-9A-Z]{40})', re.I)
-            hash_search = re.search(m_to_u, link)
+            m_to_u = m_to_u.replace('%s', '([0-9A-F]{40})')
+            hash_search = re.search(m_to_u, link, re.I)
             if hash_search:
                 return hash_search.group(1).upper()
 
@@ -295,7 +295,7 @@ class Torrent(Downloadable):
         @rtype: str
         '''
         for u in [u for u in self._urls if u.startswith('http')]:
-            raw = utils.get_url(u)
+            raw = utils.get_url_as_binary(u)
             if self.is_valid_torrent_data(raw):
                 return raw
 

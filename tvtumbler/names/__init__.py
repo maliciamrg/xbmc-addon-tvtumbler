@@ -46,6 +46,7 @@ class NameParser(object):
         '''
         self._parsed = True
         self._known = False
+        self._bad = False
 
     @property
     def is_known(self):
@@ -57,6 +58,17 @@ class NameParser(object):
         '''
         if not self._parsed: self._parse()
         return self._known
+
+    @property
+    def is_bad(self):
+        '''
+        Return True if the filename matches scene_regexes.get_bad_regexes.
+        (and hence shouldn't be downloaded)
+
+        @rtype: bool
+        '''
+        if not self._parsed: self._parse()
+        return self._bad
 
     @property
     def filename(self):

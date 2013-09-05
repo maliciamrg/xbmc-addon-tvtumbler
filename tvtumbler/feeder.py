@@ -36,11 +36,16 @@ def run():
                 if not qual in wanted_dict[key]:
                     wanted_dict[key][qual] = w
 
-    for (tvdb_id, season, episode), dlables in wanted_dict.iteritems():
-        qualities = dlables.keys()
-        known_qualities = [q for q in qualities if q != quality.UNKNOWN_QUALITY]
-        if known_qualities:
-            use_dlable = dlables[max(known_qualities)]
-        else:
-            use_dlable = dlables[quality.UNKNOWN_QUALITY]
-        downloaders.download(use_dlable)
+    if not wanted_dict:
+        logger.debug('-' * 50)
+        logger.info('No wanted downloads found in feeds')
+        logger.debug('-' * 50)
+    else:
+        for (tvdb_id, season, episode), dlables in wanted_dict.iteritems():
+            qualities = dlables.keys()
+            known_qualities = [q for q in qualities if q != quality.UNKNOWN_QUALITY]
+            if known_qualities:
+                use_dlable = dlables[max(known_qualities)]
+            else:
+                use_dlable = dlables[quality.UNKNOWN_QUALITY]
+            downloaders.download(use_dlable)

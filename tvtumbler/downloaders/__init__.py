@@ -20,7 +20,9 @@ def get_enabled_downloaders():
     global _enabled_downloaders
     if _enabled_downloaders is None:
         from . import rasterbar
-        enabled_downloaders = [rasterbar.LibtorrentDownloader.get_instance()]
+        from . import trpc
+        _all_downloaders = [rasterbar.LibtorrentDownloader, trpc.TRPCDownloader]
+        enabled_downloaders = [ad.get_instance() for ad in _all_downloaders if ad.is_available() and ad.is_enabled()]
     return enabled_downloaders
 
 
@@ -41,6 +43,9 @@ def download(downloadable):
         if d.can_download(downloadable):
             return d.download(downloadable)
 
+    logger.notice('No downloader accepted the download.  Sorry.')
+    return False
+
 
 def is_downloading(episode):
     '''
@@ -51,6 +56,11 @@ def is_downloading(episode):
     @return: If any downloader currently has this episode, returns True, False otherwise.
     @rtype: bool
     '''
+    for dler in get_enabled_downloaders():
+        for dl in dler.downloads:
+            for ep in dl.downloadable.episodes:
+                if ep == episode:
+                    return True
     return False
 
 

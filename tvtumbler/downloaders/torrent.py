@@ -56,3 +56,19 @@ class TorrentDownload(base.Download):
         @rtype: float
         '''
         return 0.0
+
+    def get_uploaded_size(self):
+        '''In bytes.
+
+        @rtype: int
+        '''
+        return 0
+
+    def get_ratio(self):
+        dled = self.get_downloaded_size()
+        uped = self.get_uploaded_size()
+        if dled:
+            return uped / dled
+        else:
+            return None
+

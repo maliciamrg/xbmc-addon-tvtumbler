@@ -11,16 +11,16 @@ from __future__ import with_statement
 from threading import Lock
 from .schedule import SchedulerThread
 from . import feeder
-from . import downloader
+# from . import downloader
 from . import logger
 
 feederThread = None
-downloaderThread = None
+# downloaderThread = None
 started = False
 start_stop_lock = Lock()
 
 FEEDER_RUN_INTERVAL_SECS = 15 * 60
-DOWNLOADER_RUN_INTERVAL_SECS = 5
+# DOWNLOADER_RUN_INTERVAL_SECS = 5
 
 
 def start():
@@ -28,7 +28,7 @@ def start():
     Startup
     '''
     global feederThread, FEEDER_RUN_INTERVAL_SECS
-    global downloaderThread, DOWNLOADER_RUN_INTERVAL_SECS
+    # global downloaderThread, DOWNLOADER_RUN_INTERVAL_SECS
     global started, start_stop_lock
 
     logger.info(u'Starting')
@@ -43,10 +43,10 @@ def start():
                                     runIntervalSecs=FEEDER_RUN_INTERVAL_SECS)
         feederThread.start(20)
 
-        downloaderThread = SchedulerThread(action=downloader.run,
-                                threadName='DOWNLOADER',
-                                runIntervalSecs=DOWNLOADER_RUN_INTERVAL_SECS)
-        downloaderThread.start(30)
+#         downloaderThread = SchedulerThread(action=downloader.run,
+#                                 threadName='DOWNLOADER',
+#                                 runIntervalSecs=DOWNLOADER_RUN_INTERVAL_SECS)
+#         downloaderThread.start(30)
 
         started = True
         logger.info(u'Started')
@@ -68,7 +68,7 @@ def halt():
 
         logger.debug(u'setting abort on threads')
         feederThread.abort = True
-        downloaderThread.abort = True
+#         downloaderThread.abort = True
 
 #         time.sleep(4)
 #

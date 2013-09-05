@@ -29,7 +29,6 @@ class BaseDownloader(object):
 
     def __init__(self):
         '''Private Xtor.  Use get_instance() instead.'''
-        self._current_ptr = 0
         self._running_downloads = {}
 
     @classmethod
@@ -76,20 +75,14 @@ class BaseDownloader(object):
         '''
         return False
 
-    def __iter__(self):
+    @property
+    def downloads(self):
         '''
-        Makes this class iterable.
-        (i.e. you can iterate over an instance of this class to get its running downloads)
-        '''
-        return self
+        Get all running download for this downloader
 
-    def next(self):
-        '''Return the next Download'''
-        if self._current_ptr >= len(self._running_downloads):
-            raise StopIteration
-        else:
-            self._current_ptr += 1
-            return self._running_downloads[self._current_ptr - 1]
+        @rtype: [Download]
+        '''
+        return self._running_downloads.values()
 
     def __len__(self):
         '''Implements len().
@@ -135,7 +128,7 @@ class BaseDownloader(object):
     def on_download_failed(self, download):
         '''Called (by the download), when it fails.'''
         del self._running_downloads[download.key]
-        on_download_failed(download)
+        on_download_failed(download)  # call the module implementation
 
     def on_download_downloaded(self, download):
         '''Called when the download has completed (i.e. no more data).
@@ -143,7 +136,7 @@ class BaseDownloader(object):
         Care here: we can't just delete at this point because the download
         may have future work (e.g. seeding).
         '''
-        on_download_downloaded(download)
+        on_download_downloaded(download)  # call the module implementation
 
     def on_download_finished(self, download):
         '''Download is completely complete.'''
@@ -206,6 +199,10 @@ class Download(object):
     def downloader(self):
         return self._downloader
 
+    @property
+    def downloadable(self):
+        return self._downloadable
+
     def get_status_text(self):
         '''
         Return a text description of the current status.
@@ -267,6 +264,7 @@ class Download(object):
                           (self._status_names[self._status]))
             return False
         self._poller.start(2)
+        return True
 
     def remove_files(self):
         '''
@@ -294,7 +292,7 @@ class Download(object):
         self._update_stats()
         new_status = self.get_status()
         if old_status != new_status:
-            self.on_status_change(old_status, new_status)
+            self._on_status_change(old_status, new_status)
 
         if self.get_status() & self.FINAL_STATE:
             logger.debug('Download has reached a final state.  Stopping poller.')
@@ -329,12 +327,12 @@ class Download(object):
             self._downloader.on_download_failed(self)
 
         try:
-            prev_downloaded = self.on_status_change._prev_downloaded
+            prev_downloaded = self._on_status_change._prev_downloaded
             if prev_downloaded == 0 and self.get_downloaded_size():
                 self._on_first_data()
         except AttributeError:
             pass
-        self.on_status_change._prev_downloaded = self.get_downloaded_size()
+        self._on_status_change.__func__._prev_downloaded = self.get_downloaded_size()
 
         if new_status == self.PAUSED and old_status != self.PAUSED:
             self._on_paused()

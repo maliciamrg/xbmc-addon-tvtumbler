@@ -12,7 +12,9 @@ http://www.rasterbar.com/products/libtorrent/manual.html
 '''
 from .. import logger, utils
 from .torrent import TorrentDownloader, TorrentDownload
+from ..schedule import SchedulerThread
 import os
+import shutil
 import sys
 import time
 import traceback
@@ -31,8 +33,8 @@ try:
     else:
         logger.notice('libtorrent import succeeded, libtorrent is available')
         LIBTORRENT_AVAILABLE = True
-except ImportError:
-    LIBTORRENT_FAILURE_REASON = 'libtorrent import failed, functionality will not be available'
+except ImportError, e:
+    LIBTORRENT_FAILURE_REASON = 'libtorrent import failed, functionality will not be available: ' + str(e)
     logger.notice(LIBTORRENT_FAILURE_REASON)
 
 __addon__ = sys.modules["__main__"].__addon__
@@ -47,14 +49,33 @@ _lt_sess = None
 
 class LibtorrentDownloader(TorrentDownloader):
 
+    def __init__(self):
+        '''Private Xtor.  Overridden here so that we can create a polling thread'''
+        super(TorrentDownloader, self).__init__()
+        self._poller = SchedulerThread(action=self._poll,
+                               threadName=self.__class__.__name__,
+                               runIntervalSecs=3)
+
+    def _poll(self):
+        # @todo: pop any libtorrent messages
+        sess = self._get_session(createIfNeeded=False)
+        while sess:
+            a = sess.pop_alert()
+            if not a:
+                break
+
+            if type(a) == str:
+                logger.debug(a)
+            else:
+                logger.debug(u'(%s): %s' % (type(a).__name__, str(a.message())))
+
     @classmethod
     def is_available(cls):
         return LIBTORRENT_AVAILABLE
 
     @classmethod
     def is_enabled(cls):
-        # @todo: this should be a config thing
-        return True
+        return (__addon__.getSetting('libtorrent_enable') == 'true')
 
     def download(self, downloadable):
         '''
@@ -73,6 +94,8 @@ class LibtorrentDownloader(TorrentDownloader):
             return False
         if rd.start():
             self._running_downloads[key] = rd
+            if not self._poller.is_alive():
+                self._poller.start(delayBeforeFirstRunSecs=2)
             return True
         return False
 
@@ -91,6 +114,8 @@ class LibtorrentDownloader(TorrentDownloader):
             settings.active_downloads = 8
             settings.active_seeds = 12
             settings.active_limit = 20
+            settings.share_ratio_limit = 0.1  # for test.  use >1 in real life
+            settings.seed_time_limit = 60 * 60 * 24  # don't seed for longer than a day
 
             # _lt_sess.listen_on(sickbeard.LIBTORRENT_PORT_MIN, sickbeard.LIBTORRENT_PORT_MAX)
             _lt_sess.set_settings(settings)
@@ -196,6 +221,23 @@ class LibtorrentDownload(TorrentDownload):
         except AttributeError:
             return 0.0
 
+    def get_uploaded_size(self):
+        '''In bytes.
+
+        @rtype: int
+        '''
+        try:
+            return self._all_time_upload
+        except AttributeError:
+            return 0
+
+    def get_ratio(self):
+        try:
+            currentRatio = 0.0 if self._all_time_download == 0 else float(self._all_time_upload) / float(self._all_time_download)
+            return currentRatio
+        except AttributeError:
+            return 0.0
+
     def _update_stats(self):
         '''
         Called (by _poll) every three seconds during download.
@@ -241,12 +283,21 @@ class LibtorrentDownload(TorrentDownload):
         self._list_seeds = s.list_seeds
         self._list_peers = s.list_peers
         self._total_done = s.total_done
+        self._all_time_download = s.all_time_download
+        self._all_time_upload = s.all_time_upload
 
     def remove_files(self):
         '''
         Do whatever is necessary to remove any downloaded files.
         '''
-        logger.warning('@todo: remove_files')
+        self.stop(deleteFilesTo=True)  # if the torrent is still in the session, this will delete also
+        try:
+            # but we try to make sure that the files are really deleted - just in case
+            the_files = os.path.join(self.downloader.get_libtorrent_download_dir(False),
+                                   self.name)
+            shutil.rmtree(the_files)
+        except Exception:
+            pass
 
     @staticmethod
     def _torrent_has_any_media_files(torrent_info):
@@ -366,3 +417,26 @@ class LibtorrentDownload(TorrentDownload):
             logger.debug(traceback.format_exc())
             self._status = self.FAILED
             return False
+
+    def stop(self, deleteFilesToo=True):
+        sess = self.downloader._get_session()
+        try:
+            handle = self._handle
+        except AttributeError:
+            logger.notice('attempt to stop torrent with no handle set?')
+            return
+
+        if not handle.is_valid():
+            logger.error(u'Torrent handle is no longer valid.')
+            self._status = self.FAILED
+            return
+
+            try:
+                fr_file = os.path.join(self.downloader.get_libtorrent_download_dir(False),
+                                       self.name + '.fastresume')
+                os.remove(fr_file)
+            except Exception:
+                pass
+            sess.remove_torrent(handle, 1 if deleteFilesToo else 0)
+            del self._handle
+            self._status = self.FINISHED

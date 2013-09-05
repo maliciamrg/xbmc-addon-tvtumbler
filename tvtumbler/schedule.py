@@ -23,7 +23,7 @@ class SchedulerThread(threading.Thread):
     class, passing a function to 'action' in the xtor.
     """
 
-    def __init__(self, action=None, threadName="Scheduler", 
+    def __init__(self, action=None, threadName="Scheduler",
                  runIntervalSecs=10 * 60):
         '''
         Xtor.  Creates a new thread.
