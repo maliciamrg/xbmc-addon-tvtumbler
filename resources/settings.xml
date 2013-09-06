@@ -3,6 +3,11 @@
 	<category label="General">
         <setting id="new_show_path" label="Directory for New TV Shows" type="folder" subsetting="true" value="" />
     </category>
+    <category label="Feeders">
+        <setting id="ezrss_enable" label="EZRSS (eztv)" type="bool" default="true" />
+        <setting id="showrss_enable" label="ShowRSS" type="bool" default="false" />
+        <setting id="publichd_enable" label="PublicHD" type="bool" default="false" />
+    </category>
     <category label="Libtorrent">
         <setting id="libtorrent_enable" label="Use Libtorrent for downloads" type="bool" default="false"/>
     </category>

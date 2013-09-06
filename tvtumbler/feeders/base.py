@@ -108,9 +108,29 @@ class BaseFeeder(object):
         Override this in derived classes to return the correct type of Downloadable.
 
         @param item: (dict)
-        @return: (Downloadable|None) If the item does not have any known TvEpisodes, return None. 
+        @return: (Downloadable|None) If the item does not have any known TvEpisodes, return None.
         '''
         return None
+
+    @classmethod
+    def is_available(cls):
+        '''
+        Is this feeder available?
+        (i.e. could it operate if enabled)
+
+        @rtype: bool
+        '''
+        return False
+
+    @classmethod
+    def is_enabled(cls):
+        '''
+        Is this feeder enabled?
+        (i.e. in the config)
+
+        @rtype: bool
+        '''
+        return False
 
 
 class TorrentFeeder(BaseFeeder):

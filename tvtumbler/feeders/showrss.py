@@ -7,8 +7,13 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-from .base import TorrentFeeder
+import sys
+
 from .. import quality
+from .base import TorrentFeeder
+
+
+__addon__ = sys.modules["__main__"].__addon__
 
 
 class ShowRSSFeeder(TorrentFeeder):
@@ -16,7 +21,14 @@ class ShowRSSFeeder(TorrentFeeder):
     def __init__(self):
         super(ShowRSSFeeder, self).__init__()
         self.rss_url = 'http://showrss.karmorra.info/feeds/all.rss'
-        # self.rss_url = 'http://www.ezrss.it/feed/'
+
+    @classmethod
+    def is_available(cls):
+        return True
+
+    @classmethod
+    def is_enabled(cls):
+        return (__addon__.getSetting('showrss_enable') == 'true')
 
     def _parse_rss_item(self, item):
         '''

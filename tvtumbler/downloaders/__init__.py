@@ -9,10 +9,17 @@ This file is part of TvTumbler.
 import os
 import xbmcvfs
 
-from .. import logger, utils, jsonrpc
-
+from .. import logger, utils, jsonrpc, events
 
 _enabled_downloaders = None
+
+
+def on_settings_changed():
+    logger.debug('Settings changed, resetting enabled downloaders')
+    global _enabled_downloaders
+    _enabled_downloaders = None
+
+events.add_event_listener(events.SETTINGS_CHANGED, on_settings_changed)
 
 
 def get_enabled_downloaders():
@@ -23,11 +30,10 @@ def get_enabled_downloaders():
     '''
     global _enabled_downloaders
     if _enabled_downloaders is None:
-        from . import rasterbar
-        from . import trpc
+        from . import rasterbar, trpc
         _all_downloaders = [rasterbar.LibtorrentDownloader, trpc.TRPCDownloader]
-        enabled_downloaders = [ad.get_instance() for ad in _all_downloaders if ad.is_available() and ad.is_enabled()]
-    return enabled_downloaders
+        _enabled_downloaders = [ad.get_instance() for ad in _all_downloaders if ad.is_available() and ad.is_enabled()]
+    return _enabled_downloaders
 
 
 def download(downloadable):
@@ -97,6 +103,13 @@ def on_download_downloaded(download):
                 # if the filename is parsable, then we use the season for the first
                 # episode in the filename (using tvdb numbering)
                 season = np.episodes[0].tvdb_episodes[0][0]
+
+                # quick safety check: if the filename triggered any of our 'bad' regexes,
+                # then we had better ignore it.
+                if np.is_bad:
+                    logger.notice(u'Downloaded file "%s" triggered a bad regex, not copying.' % (f,))
+                    continue
+
             elif len(all_tvdb_seasons) == 1:
                 # file name is not parsable, but there is only one
                 # season in this download, so we know where to put it.

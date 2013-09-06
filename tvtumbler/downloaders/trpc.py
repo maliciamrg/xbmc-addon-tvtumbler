@@ -46,7 +46,6 @@ class TRPCDownloader(TorrentDownloader):
 
     @classmethod
     def is_enabled(cls):
-        # @todo: this should be a config thing
         return (__addon__.getSetting('trpc_enable') == 'true')
 
     def download(self, downloadable):

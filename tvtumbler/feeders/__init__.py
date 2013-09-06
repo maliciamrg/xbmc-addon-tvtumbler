@@ -9,20 +9,31 @@ This file is part of TvTumbler.
 
 from .showrss import ShowRSSFeeder
 from .ezrss import EZRSSFeeder
+from .. import events, logger
 
-_active_feeders = None
+_enabled_feeders = None
 
 
-def get_active_feeders():
+def on_settings_changed():
+    logger.debug('Settings changed, resetting enabled feeders')
+    global _enabled_feeders
+    _enabled_feeders = None
+
+events.add_event_listener(events.SETTINGS_CHANGED, on_settings_changed)
+
+
+def get_enabled_feeders():
     '''
-    Get a list of all currently active (enabled) feeders.
+    Get a list of all currently enabled feeders.
 
     @return: ([BaseFeeder]) Returns a list of BaseFeeder objects, ordered by preference (highest first)
     '''
-    global _active_feeders
-    if _active_feeders is None:
-        _active_feeders = [EZRSSFeeder.get_instance(), ShowRSSFeeder.get_instance()]
-    return _active_feeders
+    global _enabled_feeders
+    if _enabled_feeders is None:
+        from . import ezrss, showrss, publichd
+        _all_feeders = [ezrss.EZRSSFeeder, showrss.ShowRSSFeeder, publichd.PublicHDFeeder]
+        _enabled_feeders = [f.get_instance() for f in _all_feeders if f.is_available() and f.is_enabled()]
+    return _enabled_feeders
 
 
 def get_latest():
@@ -32,6 +43,6 @@ def get_latest():
     @return: ([Downloadable]) Returns a list of Downloadable's
     '''
     latest = []
-    for f in get_active_feeders():
+    for f in get_enabled_feeders():
         latest.extend(f.get_latest())
     return latest
