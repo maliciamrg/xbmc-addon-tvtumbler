@@ -367,7 +367,7 @@ class LibtorrentDownload(TorrentDownload):
 
             startedDownload = False
             while not startedDownload:
-                time.sleep(0.5)
+                xbmc.sleep(500)
 
                 if not self._handle.is_valid():
                     logger.notice(u'Torrent handle is no longer valid.')

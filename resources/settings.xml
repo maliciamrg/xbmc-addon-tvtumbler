@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
+	<category label="General">
+        <setting id="new_show_path" label="Directory for New TV Shows" type="folder" subsetting="true" value="" />
+    </category>
     <category label="Libtorrent">
         <setting id="libtorrent_enable" label="Use Libtorrent for downloads" type="bool" default="false"/>
     </category>

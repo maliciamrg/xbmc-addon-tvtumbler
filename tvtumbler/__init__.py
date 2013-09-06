@@ -8,11 +8,12 @@ This file is part of TvTumbler.
 '''
 
 from __future__ import with_statement
+
 from threading import Lock
+
+from . import events, feeder, logger
 from .schedule import SchedulerThread
-from . import feeder
-# from . import downloader
-from . import logger
+
 
 feederThread = None
 # downloaderThread = None

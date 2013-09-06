@@ -95,7 +95,7 @@ class Connection(object):
                         "database is locked" in e.message):
                         logger.warning(u"DB error: %s" % e)
                         attempt += 1
-                        time.sleep(1)
+                        xbmc.sleep(1000)
                     else:
                         logger.error(u"DB error: %s" % e)
                         raise
@@ -135,7 +135,7 @@ class Connection(object):
                         "database is locked" in str(e)):
                         logger.warning(u"DB error: %s" % e)
                         attempt += 1
-                        time.sleep(1)
+                        xbmc.sleep(1000)
                     else:
                         logger.error(u"DB error: %s" % e)
                         raise

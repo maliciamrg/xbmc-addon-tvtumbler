@@ -272,6 +272,14 @@ class Download(object):
         '''
         pass
 
+    def get_files(self):
+        '''
+        Get a list of downloaded files (full paths).
+
+        @rtype: [str]
+        '''
+        return []
+
     def _poll(self):
         '''
         Called by self._poller every 3 secs while we have a download running.
@@ -375,5 +383,11 @@ class Download(object):
         '''Called by on_status_change()'''
         pass
 
+    @property
+    def episodes(self):
+        '''
+        Get a list of episodes in this download (obtained from the downloadable)
 
-
+        @rtype: [TvEpisode]
+        '''
+        return self._downloadable.episodes

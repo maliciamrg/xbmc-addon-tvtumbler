@@ -36,22 +36,25 @@ def exec_rpc(method, params=None):
     return result['result']
 
 
-def get_tv_shows(properties=["title", "year", "imdbnumber", "file"], max_age_secs=300):
+def get_tv_shows(properties=["title", "year", "imdbnumber", "file"]
+                 # , max_age_secs=300
+                 ):
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetTVShows
     """
-    try:
-        lastResult = get_tv_shows._lastResult
-        lastProps = get_tv_shows._lastProps
-        lastRun = get_tv_shows._lastRun
-
-        if (time.time() - lastRun > max_age_secs or
-            set(lastProps) < set(properties)):
-            lastResult = None
-    except AttributeError:
-        lastResult = None
-
-    if not lastResult:
+#     try:
+#         lastResult = get_tv_shows._lastResult
+#         lastProps = get_tv_shows._lastProps
+#         lastRun = get_tv_shows._lastRun
+#
+#         if (time.time() - lastRun > max_age_secs or
+#             set(lastProps) < set(properties)):
+#             lastResult = None
+#     except AttributeError:
+#         lastResult = None
+#
+#    if not lastResult:
+    if True:
         lastResult = exec_rpc(method="VideoLibrary.GetTVShows",
                               params={'properties': properties})
         get_tv_shows._lastRun = time.time()
@@ -99,7 +102,7 @@ def get_episodes(tvshowid, season=-1,
 
 
 def get_episode_details(episodeid,
-                        properties=['title', 'season', 'episode', 'file', 
+                        properties=['title', 'season', 'episode', 'file',
                                     'tvshowid']):
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetEpisodeDetails

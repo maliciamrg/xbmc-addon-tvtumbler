@@ -8,9 +8,11 @@ This file is part of TvTumbler.
 '''
 
 
-import time
 import threading
+import time
 import traceback
+
+import xbmc
 
 from . import logger
 
@@ -77,7 +79,7 @@ class SchedulerThread(threading.Thread):
                     logger.debug(repr(traceback.format_exc()))
 
             if not self.abort:
-                time.sleep(1)
+                xbmc.sleep(1000)
         logger.debug(u'Thread %s is stopping' % self.threadName)
 
     def runAction(self):

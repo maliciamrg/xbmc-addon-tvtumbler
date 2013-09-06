@@ -35,6 +35,6 @@ if __name__ == '__main__':
     tvtumbler.start()
 
     while (not xbmc.abortRequested):
-        time.sleep(1)
+        xbmc.sleep(1000)
 
     tvtumbler.halt()

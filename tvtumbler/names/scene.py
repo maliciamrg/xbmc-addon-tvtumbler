@@ -107,7 +107,7 @@ class SceneNameParser(NameParser):
 
         if self._has_ext:
             ext_match = re.match('(.*)\.\w{3,4}$', self._filename)
-            if ext_match and self.file_name:
+            if ext_match and self._filename:
                 file_name = ext_match.group(1)
             else:
                 file_name = self._filename
@@ -239,15 +239,16 @@ _last_refresh_timestamp = 0
 
 
 def _get_db():
+    _db = db.Connection()
     try:
-        return _get_db.db
+        dummy = _get_db._init_done
     except:
-        _get_db.db = db.Connection()
-        _get_db.db.action('CREATE TABLE if not exists scene_names ' +
-                          '(exception_id INTEGER PRIMARY KEY, ' +
-                          'tvdb_id INTEGER KEY, show_name TEXT, ' +
-                          'simplified_name TEXT)')
-        return _get_db.db
+        _db.action('CREATE TABLE if not exists scene_names '
+                   '(exception_id INTEGER PRIMARY KEY, '
+                   'tvdb_id INTEGER KEY, show_name TEXT, '
+                   'simplified_name TEXT)')
+        _get_db._init_done = True
+    return _db
 
 
 def get_scene_names(tvdb_id):

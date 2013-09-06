@@ -6,7 +6,11 @@ This file is part of TvTumbler.
 @license: GPL
 @contact: info@tvtumbler.com
 '''
-from .. import logger
+import os
+import xbmcvfs
+
+from .. import logger, utils, jsonrpc
+
 
 _enabled_downloaders = None
 
@@ -65,10 +69,55 @@ def is_downloading(episode):
 
 
 def on_download_downloaded(download):
+    '''
+    Called when a download downloads.
+
+    @param download: The download that has downloaded.
+    @type download: base.Download
+    '''
     logger.debug('------------------------------------------------------------')
     logger.notice('Download has downloaded: ' + repr(download))
     logger.debug('------------------------------------------------------------')
+    tv_show_dir = download.downloadable.tvshow.get_path()
+    all_tvdb_episodes = [ep.tvdb_episodes for ep in download.episodes]  # this is a list of tuples (season, episode)
+    all_tvdb_seasons = list(set([x[0] for x in all_tvdb_episodes]))
+    feeder = download.downloadable.feeder
+    name_parser = feeder.get_nameparser()
+    any_files_copied = False
+    for f in download.get_files():
+        if utils.is_video_file(f):
+            if not xbmcvfs.exists(f):
+                logger.notice(u'Downloader reported that file "%s" is downloaded, but it cannot '
+                              u'be found.' % (f,))
+                continue
 
+            np = name_parser(os.path.basename(f), has_ext=True,
+                             numbering_system=feeder.get_numbering())
+            if np.is_known:
+                # if the filename is parsable, then we use the season for the first
+                # episode in the filename (using tvdb numbering)
+                season = np.episodes[0].tvdb_episodes[0][0]
+            elif len(all_tvdb_seasons) == 1:
+                # file name is not parsable, but there is only one
+                # season in this download, so we know where to put it.
+                season = all_tvdb_seasons[0]
+            else:
+                logger.notice(u'Problem dealing with file %s after download. '
+                              u'The download spans seasons, and we cannot work out the season '
+                              u'for this particular file, so we don\'t know where to put it.' % (f,))
+                continue
+
+            dest_dir = os.path.join(tv_show_dir, 'Season %d' % (season,))
+            xbmcvfs.mkdirs(dest_dir)
+            dest_file = os.path.join(dest_dir, os.path.basename(f))
+            logger.info(u'Copying file from "%s" to "%s".' % (f, dest_file))
+            if xbmcvfs.copy(f, dest_file):
+                logger.info('Success!')
+                any_files_copied = True
+            else:
+                logger.info('Failed!')
+    if any_files_copied:
+        jsonrpc.videolibrary_scan(tv_show_dir)
 
 def on_download_failed(download):
     logger.debug('------------------------------------------------------------')

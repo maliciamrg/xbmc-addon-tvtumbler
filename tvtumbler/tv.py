@@ -6,12 +6,16 @@ This file is part of TvTumbler.
 @license: GPL
 @contact: info@tvtumbler.com
 '''
+import os
+import sys
 
-from . import jsonrpc
-from . import thetvdb
-from . import logger, quality, downloaders
+import xbmc
+
+from . import jsonrpc, logger, quality, downloaders, thetvdb
 from .numbering import xem
 
+
+__addon__ = sys.modules["__main__"].__addon__
 
 class TvShow(object):
 
@@ -121,6 +125,21 @@ class TvShow(object):
             self._get_xbmc_details()
 
         return self._imdbnumber
+
+    def get_path(self):
+        '''
+        Get the full path to the folder containing the show.
+        This is a method (rather than a property) because new shows won't
+        have a path yet and one will need to deduced.
+
+        @rtype: unicode
+        '''
+        if self._path:
+            return self._path
+        else:
+            root_dir = xbmc.translatePath(__addon__.getSetting('new_show_path').decode('utf-8'))
+            show_dir = xbmc.makeLegalFilename(self.name, False).decode('utf-8')
+            return os.path.join(root_dir, show_dir)
 
     def _get_xbmc_details(self):
         '''

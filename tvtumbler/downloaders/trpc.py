@@ -39,22 +39,6 @@ class TRPCDownloader(TorrentDownloader):
     def __init__(self):
         '''Private Xtor.  Overridden here so that we can create a polling thread'''
         super(TorrentDownloader, self).__init__()
-#         self._poller = SchedulerThread(action=self._poll,
-#                                threadName=self.__class__.__name__,
-#                                runIntervalSecs=3)
-
-#     def _poll(self):
-#         # @todo: pop any libtorrent messages
-#         sess = self._get_session(createIfNeeded=False)
-#         while sess:
-#             a = sess.pop_alert()
-#             if not a:
-#                 break
-#
-#             if type(a) == str:
-#                 logger.debug(a)
-#             else:
-#                 logger.debug(u'(%s): %s' % (type(a).__name__, str(a.message())))
 
     @classmethod
     def is_available(cls):
@@ -111,6 +95,31 @@ class TRPCDownloader(TorrentDownloader):
             # @todo: settings for the client/session should go here
 
         return _trcp_client
+
+    def on_download_downloaded(self, download):
+        '''Called when the download has completed (i.e. no more data).
+
+        We override the BaseDownloader implementation here because sometimes
+        transmission reports that it has finished a download before all the files
+        are actually available in the download dir.
+        So we delay a little while if that happens.
+        '''
+        delay_needed = True
+        total_delayed = 0
+        while delay_needed and total_delayed <= 60000:
+            delay_needed = False
+            for f in download.get_files():
+                if not xbmcvfs.exists(f):
+                    logger.debug(u'Downloader reported that file "%s" is downloaded, but it cannot '
+                                  u'be found.' % (f,))
+                    delay_needed = True
+                    break
+            if delay_needed:
+                logger.debug(u'Waiting 10 seconds ...')
+                xbmc.sleep(10000)
+                total_delayed += 10000
+
+        super(TRPCDownloader, self).on_download_downloaded(download)  # call the base class implmentation
 
     @classmethod
     def get_download_dir(cls, ensure_exists=False):
@@ -226,7 +235,7 @@ class TRPCDownload(TorrentDownload):
                 try:
                     infohash = infohash.lower()  # transmission uses lowercase hashes
                     logger.debug('checking for already-running torrent with hash: ' + infohash)
-                    torrent_temp = client.get_torrent(infohash)  # will raise a 'KeyError' on failure
+                    client.get_torrent(infohash)  # will raise a 'KeyError' on failure
                     logger.notice('Failed to add torrent - transmission already has a torrent with this hash')
                     self._status = self.FAILED
                     return False
@@ -238,15 +247,15 @@ class TRPCDownload(TorrentDownload):
 
             startedDownload = False
             while not startedDownload:
-                time.sleep(0.5)
+                xbmc.sleep(500)
 
                 self._torrent.update()
 
                 if self._torrent.metadataPercentComplete == 1.0:
                     if not self._checkedForMedia:
                         # Torrent has metadata, but hasn't been checked for valid media yet.  Do so now.
-                        if not self._torrent_has_any_media_files(self._torrent):
-                            logger.notice(u'Torrent %s has no media files! Deleting it.' % (self.name))
+                        if not self._torrent_has_any_video_files(self._torrent):
+                            logger.notice(u'Torrent %s has no video files! Deleting it.' % (self.name))
                             client.remove_torrent([self._torrent.id], delete_data=True)
                             self._status = self.FAILED
                             return False
@@ -321,8 +330,8 @@ class TRPCDownload(TorrentDownload):
 
         if not self._checkedForMedia and torrent.metadataPercentComplete == 1.0:
             # Torrent has metadata, but hasn't been checked for valid media yet.  Do so now.
-            if not self._torrent_has_any_media_files(self._torrent):
-                logger.notice(u'Torrent %s has no media files! Deleting it.' % (self.name))
+            if not self._torrent_has_any_video_files(self._torrent):
+                logger.notice(u'Torrent %s has no video files! Deleting it.' % (self.name))
                 self.downloader._get_client().remove_torrent([self._torrent.id], delete_data=True)
                 self._status = self.FAILED
                 return False
@@ -332,10 +341,22 @@ class TRPCDownload(TorrentDownload):
         '''
         Do whatever is necessary to remove any downloaded files.
         '''
-        self.stop(deleteFilesTo=True)  # if the torrent is still in the session, this will delete also
+        self.stop(deleteFilesToo=True)  # if the torrent is still in the session, this will delete also
+
+    def get_files(self):
+        '''
+        Get a list of downloaded files (full paths).
+
+        @rtype: [str]
+        '''
+        if self.get_status() & self.DOWNLOADED_STATE:
+            ddir = self.downloader.get_download_dir()
+            return [os.path.join(ddir, v['name']) for v in self._torrent.files().itervalues()]
+        else:
+            return []
 
     @staticmethod
-    def _torrent_has_any_media_files(torrent):
+    def _torrent_has_any_video_files(torrent):
         """
         Internal function to check if a torrent has any useful media files.
 
@@ -343,9 +364,9 @@ class TRPCDownload(TorrentDownload):
         @type torrent: transmissionrpc.Torrent
         @return: (bool) True if any useful media is found, false otherwise.
         """
-        for k, f in torrent.files().iteritems():
+        for f in torrent.files().itervalues():
             if utils.is_video_file(f['name']):
-                logger.debug('File "%s" in torrent "%s" is a media file' % (f['name'], torrent.name))
+                logger.debug('File "%s" in torrent "%s" is a video file' % (f['name'], torrent.name))
                 return True
         logger.info('Iterated over all the files in "%s" and found no video files.' % (torrent.name,))
         return False

@@ -16,22 +16,23 @@ MAX_XEM_AGE_SECS = 86400  # 1 day
 
 
 def _get_db():
+    _db = db.Connection()
     try:
-        return _get_db.db
+        dummy = _get_db._init_done
     except:
-        _get_db.db = db.Connection()
-        _get_db.db.action('''CREATE TABLE if not exists xem_num (
-                                  tvdb_id INTEGER,
-                                  tvdb_season INTEGER,
-                                  tvdb_episode INTEGER,
-                                  scene_season INTEGER,
-                                  scene_episode INTEGER,
-                          PRIMARY KEY (tvdb_id, tvdb_season, tvdb_episode,
-                                       scene_season, scene_episode))''')
-        _get_db.db.action('''CREATE TABLE if not exists xem_refresh (
-                                  tvdb_id INTEGER PRIMARY KEY,
-                                  last_refreshed INTEGER)''')
-        return _get_db.db
+        _db.action('''CREATE TABLE if not exists xem_num (
+                              tvdb_id INTEGER,
+                              tvdb_season INTEGER,
+                              tvdb_episode INTEGER,
+                              scene_season INTEGER,
+                              scene_episode INTEGER,
+                      PRIMARY KEY (tvdb_id, tvdb_season, tvdb_episode,
+                                   scene_season, scene_episode))''')
+        _db.action('''CREATE TABLE if not exists xem_refresh (
+                              tvdb_id INTEGER PRIMARY KEY,
+                              last_refreshed INTEGER)''')
+        _get_db._init_done = True
+    return _db
 
 
 def get_scene_numbering_from_xem(tvdb_id, tvdbSeason, tvdbEpisode):
