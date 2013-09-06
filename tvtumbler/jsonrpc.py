@@ -9,7 +9,7 @@ This file is part of TvTumbler.
 
 import sys
 import xbmc
-from . import logger
+from . import logger, events
 import time
 
 if sys.version_info < (2, 7):
@@ -17,20 +17,25 @@ if sys.version_info < (2, 7):
 else:
     import json
 
-class DbMonitor(xbmc.Monitor):
-    def onDatabaseUpdated(self, database):
-        logger.debug("DbMonitor: onDatabaseUpdated('%s')" % (database,))
-        if database == 'video':
-            clear_rpc_cache('VideoLibrary.GetTVShows')
-            clear_rpc_cache('VideoLibrary.GetTVShowDetails')
-            clear_rpc_cache('VideoLibrary.GetSeasons')
-            clear_rpc_cache('VideoLibrary.GetEpisodes')
 
-_dbMon = DbMonitor()  # just need to instanciate this once in the module
+def on_video_library_changed():
+    logger.debug('Video library changed, resetting json cache related to it')
+    clear_rpc_cache('VideoLibrary.GetTVShows')
+    clear_rpc_cache('VideoLibrary.GetTVShowDetails')
+    clear_rpc_cache('VideoLibrary.GetSeasons')
+    clear_rpc_cache('VideoLibrary.GetEpisodes')
+
+events.add_event_listener(events.VIDEO_LIBRARY_UPDATED, on_video_library_changed)
 
 # This is a quick-and-dirty (but very fast) cache of rpc results.
 # To clear the cache for a particular method, call clear_rpc_cache(method).
 _rpc_cache = {}
+
+
+class JsonRPCException(Exception):
+    def __init__(self, message, code=None):
+        self.message = message
+        self.code = code
 
 
 def exec_rpc(method, params=None):
@@ -48,6 +53,9 @@ def exec_rpc(method, params=None):
     result_json = xbmc.executeJSONRPC(json.dumps(command))
     logger.debug('JSONRPC >> %s' % result_json)
     result = json.loads(result_json)
+    if 'error' in result:
+        raise JsonRPCException(result['message'], result['code'])
+
     return result['result']
 
 
