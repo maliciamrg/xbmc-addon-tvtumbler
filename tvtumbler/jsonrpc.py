@@ -17,6 +17,21 @@ if sys.version_info < (2, 7):
 else:
     import json
 
+class DbMonitor(xbmc.Monitor):
+    def onDatabaseUpdated(self, database):
+        logger.debug("DbMonitor: onDatabaseUpdated('%s')" % (database,))
+        if database == 'video':
+            clear_rpc_cache('VideoLibrary.GetTVShows')
+            clear_rpc_cache('VideoLibrary.GetTVShowDetails')
+            clear_rpc_cache('VideoLibrary.GetSeasons')
+            clear_rpc_cache('VideoLibrary.GetEpisodes')
+
+_dbMon = DbMonitor()  # just need to instanciate this once in the module
+
+# This is a quick-and-dirty (but very fast) cache of rpc results.
+# To clear the cache for a particular method, call clear_rpc_cache(method).
+_rpc_cache = {}
+
 
 def exec_rpc(method, params=None):
     command = {
@@ -36,32 +51,37 @@ def exec_rpc(method, params=None):
     return result['result']
 
 
+def exec_rpc_with_cache(method, params=None, max_age_secs=7200):
+    global _rpc_cache
+    if not method in _rpc_cache:
+        _rpc_cache[method] = {}
+    repr_params = repr(params)
+    if repr_params in _rpc_cache[method]:
+        last_val = _rpc_cache[method][repr_params]['val']
+        last_run = _rpc_cache[method][repr_params]['age']
+        if time.time() - last_run < max_age_secs:
+            return last_val  # still fresh!
+
+    new_val = exec_rpc(method, params)
+    _rpc_cache[method][repr_params] = {'val': new_val, 'age': time.time()}
+    return new_val
+
+
+def clear_rpc_cache(method):
+    global _rpc_cache
+    if method in _rpc_cache:
+        del _rpc_cache[method]
+
+
 def get_tv_shows(properties=["title", "year", "imdbnumber", "file"]
                  # , max_age_secs=300
                  ):
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetTVShows
     """
-#     try:
-#         lastResult = get_tv_shows._lastResult
-#         lastProps = get_tv_shows._lastProps
-#         lastRun = get_tv_shows._lastRun
-#
-#         if (time.time() - lastRun > max_age_secs or
-#             set(lastProps) < set(properties)):
-#             lastResult = None
-#     except AttributeError:
-#         lastResult = None
-#
-#    if not lastResult:
-    if True:
-        lastResult = exec_rpc(method="VideoLibrary.GetTVShows",
-                              params={'properties': properties})
-        get_tv_shows._lastRun = time.time()
-        get_tv_shows._lastResult = lastResult
-        get_tv_shows._lastProps = properties
-
-    return lastResult['tvshows']
+    result = exec_rpc_with_cache(method="VideoLibrary.GetTVShows",
+                                 params={'properties': properties})
+    return result['tvshows']
 
 
 def get_tv_show_details(tvshowid,
@@ -69,9 +89,9 @@ def get_tv_show_details(tvshowid,
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetTVShowDetails
     """
-    result = exec_rpc(method="VideoLibrary.GetTVShowDetails",
-                      params={'tvshowid': tvshowid,
-                              'properties': properties})
+    result = exec_rpc_with_cache(method="VideoLibrary.GetTVShowDetails",
+                                 params={'tvshowid': tvshowid,
+                                         'properties': properties})
     return result['tvshowdetails']
 
 
@@ -80,9 +100,9 @@ def get_seasons(tvshowid,
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetSeasons
     """
-    return exec_rpc(method="VideoLibrary.GetSeasons",
-                    params={'tvshowid': tvshowid,
-                            'properties': properties})
+    return exec_rpc_with_cache(method="VideoLibrary.GetSeasons",
+                               params={'tvshowid': tvshowid,
+                                       'properties': properties})
 
 
 def get_episodes(tvshowid, season=-1,
@@ -90,10 +110,10 @@ def get_episodes(tvshowid, season=-1,
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetEpisodes
     """
-    result = exec_rpc(method="VideoLibrary.GetEpisodes",
-                    params={'tvshowid': tvshowid,
-                            'season': season,
-                            'properties': properties})
+    result = exec_rpc_with_cache(method="VideoLibrary.GetEpisodes",
+                                 params={'tvshowid': tvshowid,
+                                         'season': season,
+                                         'properties': properties})
     try:
         return result['episodes']
     except KeyError:
