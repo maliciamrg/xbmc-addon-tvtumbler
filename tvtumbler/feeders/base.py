@@ -7,7 +7,7 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-import datetime
+import time, datetime
 import feedparser
 
 from .. import logger
@@ -21,17 +21,18 @@ class BaseFeeder(object):
 
     def __init__(self):
 
-        # The minimum update freq (in secs)
-        self.min_update_freq_secs = 15 * 60
-
         # e.g. http://example.com/rss
         self.rss_url = None
 
         # Cache of latest entries (a list of Downloadable's)
         self._latest = []
 
-        # timestamp of last update (datetime.datetime)
-        self._last_update_datetime = None
+        # timestamp of last update
+        self._last_update_timestamp = None
+
+    @property
+    def update_freq_secs(self):
+        return 15 * 60  # our default is 15 minutes
 
     @classmethod
     def get_instance(cls):
@@ -73,6 +74,10 @@ class BaseFeeder(object):
         '''
         return SCENE_NUMBERING
 
+    def is_update_due(self):
+        return (self._last_update_timestamp is None or
+                self._last_update_timestamp + self.update_freq_secs < time.time())
+
     def get_latest(self):
         '''
         Return a list of available downloads.
@@ -80,9 +85,7 @@ class BaseFeeder(object):
 
         @return: ([Downloadable]) A list of Downloadable's
         '''
-        if (self._last_update_datetime is None or
-            self._last_update_datetime + datetime.timedelta(seconds=self.min_update_freq_secs)
-                    < datetime.datetime.now()):
+        if self.is_update_due():
             self._update()
 
         return self._latest
@@ -91,7 +94,7 @@ class BaseFeeder(object):
         '''
         '''
         feed = feedparser.parse(self.rss_url)
-        self._last_update_datetime = datetime.datetime.now()
+        self._last_update_timestamp = time.time()
         self._latest = []
 
         if feed:

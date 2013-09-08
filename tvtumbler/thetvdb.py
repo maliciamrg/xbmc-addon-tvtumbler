@@ -27,14 +27,7 @@ __addonname__ = __addon__.getAddonInfo('name')
 cache = StorageServer.StorageServer(__addonname__ + __name__, 6)  # 6 hrs
 
 
-# def _get_xml_text(node):
-#     text = ""
-#     for child_node in node.childNodes:
-#         if child_node.nodeType in (Node.CDATA_SECTION_NODE, Node.TEXT_NODE):
-#             text += child_node.data
-#     return text.strip()
-
-
+# This is now unused.  Leaving it here for reference though.
 def tvdb_series_lookup(tvdb_id):
     '''
     Look up a series from thetvdb.

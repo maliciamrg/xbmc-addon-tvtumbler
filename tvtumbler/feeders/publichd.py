@@ -23,6 +23,10 @@ class PublicHDFeeder(TorrentFeeder):
         super(PublicHDFeeder, self).__init__()
         self.rss_url = 'http://publichd.se/rss.php'
 
+    @property
+    def update_freq_secs(self):
+        return 60 * int(__addon__.getSetting('publichd_freq'))
+
     @classmethod
     def is_available(cls):
         return True

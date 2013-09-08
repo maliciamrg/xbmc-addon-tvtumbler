@@ -7,15 +7,17 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-from .. import db, jsonrpc, logger, quality, utils
-from . import NameParser
-from ..numbering import SCENE_NUMBERING
-from .scene_regexes import get_regexes, get_bad_regexes
-from ..tv import TvShow, TvEpisode
-from unidecode import unidecode
 import re
 import time
+
+from unidecode import unidecode
 import xbmc
+
+from . import NameParser
+from .. import db, jsonrpc, logger, quality, utils, api
+from ..numbering import SCENE_NUMBERING
+from ..tv import TvShow, TvEpisode
+from .scene_regexes import get_regexes, get_bad_regexes
 
 
 class SceneNameParser(NameParser):
@@ -194,45 +196,6 @@ class SceneNameParser(NameParser):
 
             return
 
-# def filterBadReleases(name):
-#     """
-#     Filters out non-english and just all-around stupid releases by comparing them
-#     to the resultFilters contents.
-#
-#     name: the release name to check
-#
-#     Returns: True if the release name is OK, False if it's bad.
-#     """
-#
-#     try:
-#         fp = NameParser()
-#         parse_result = fp.parse(name)
-#     except InvalidNameException:
-#         logger.log(u"Unable to parse the filename " + name + " into a valid episode", logger.WARNING)
-#         return False
-#
-#     # use the extra info and the scene group to filter against
-#     check_string = ''
-#     if parse_result.extra_info:
-#         check_string = parse_result.extra_info
-#     if parse_result.release_group:
-#         if check_string:
-#             check_string = check_string + '-' + parse_result.release_group
-#         else:
-#             check_string = parse_result.release_group
-#
-#     # if there's no info after the season info then assume it's fine
-#     if not check_string:
-#         return True
-#
-#     # if any of the bad strings are in the name then say no
-#     for x in resultFilters + sickbeard.IGNORE_WORDS.split(','):
-#         if re.search('(^|[\W_])' + x + '($|[\W_])', check_string, re.I):
-#             logger.log(u"Invalid scene release: " + name + " contains " + x + ", ignoring it", logger.DEBUG)
-#             return False
-#
-#     return True
-
 
 SCENE_NAME_REFRESH_INTERVAL_SECS = 60 * 60 * 24
 _last_refresh_timestamp = 0
@@ -260,8 +223,8 @@ def get_scene_names(tvdb_id):
 
     _update_if_needed()
 
-    return [x["show_name"] for x in _get_db().select('SELECT show_name ' +
-                                                     'FROM scene_names ' +
+    return [x["show_name"] for x in _get_db().select('SELECT show_name '
+                                                     'FROM scene_names '
                                                      'WHERE tvdb_id = ?',
                                                      [tvdb_id])]
 
@@ -299,9 +262,9 @@ def get_tvdb_id(scene_name):
     myDB = _get_db()
 
     # try the obvious case first
-    result = myDB.select(u'SELECT tvdb_id FROM scene_names ' +
-                                   'WHERE simplified_name = ?',
-                                   [simplified])
+    result = myDB.select(u'SELECT tvdb_id FROM scene_names '
+                         u'WHERE simplified_name = ?',
+                         [simplified])
     if result:
         return int(result[0]["tvdb_id"])
 
@@ -334,10 +297,7 @@ def simplify_show_name(showName):
 def _update_scene_names():
     """
     """
-    url = 'http://show-api.tvtumbler.com/api/exceptions'
-
-    logger.debug(u"Updating scene names from %s" % (url,))
-    exception_dict = utils.get_url_as_json(url)
+    exception_dict = api.exceptions()
     if not exception_dict:
         return False
 
@@ -349,8 +309,8 @@ def _update_scene_names():
 
         # get a list of the existing exceptions for this ID
         existing_exceptions = [x["show_name"] for x in
-                               myDB.select('''SELECT * FROM scene_names
-                                           WHERE tvdb_id = ?''',
+                               myDB.select('SELECT * FROM scene_names '
+                                           'WHERE tvdb_id = ?',
                                            [cur_tvdb_id])]
 
         for cur_exception in exception_dict[cur_tvdb_id]:
@@ -358,11 +318,11 @@ def _update_scene_names():
             if cur_exception not in existing_exceptions:
                 logger.debug(u'Adding name %s: %s' % (cur_tvdb_id,
                                                       cur_exception))
-                myDB.action('''INSERT INTO scene_names (
-                            tvdb_id,
-                            show_name,
-                            simplified_name)
-                            VALUES (?,?,?)''',
+                myDB.action('INSERT INTO scene_names ('
+                            'tvdb_id, '
+                            'show_name, '
+                            'simplified_name) '
+                            'VALUES (?,?,?)',
                             [cur_tvdb_id,
                              cur_exception,
                              simplify_show_name(cur_exception)])
@@ -373,8 +333,8 @@ def _update_scene_names():
             if cur_exception not in exception_dict[cur_tvdb_id]:
                 logger.debug(u'Removing name %s: %s' % (cur_tvdb_id,
                                                         cur_exception))
-                myDB.action('''DELETE FROM scene_names
-                            WHERE tvdb_id = ? AND show_name = ?''',
+                myDB.action('DELETE FROM scene_names '
+                            'WHERE tvdb_id = ? AND show_name = ?',
                             [cur_tvdb_id, cur_exception])
                 changed_exceptions = True
 

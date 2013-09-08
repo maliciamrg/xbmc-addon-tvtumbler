@@ -16,8 +16,11 @@ from .tv import TvShow
 
 def run():
     logger.debug('feeder - run')
-    latest_downloadables = feeders.get_latest()
+    latest_downloadables = feeders.get_updates()
     logger.debug('latest_downloadables: ' + repr(latest_downloadables))
+
+    if not latest_downloadables:
+        return
 
     wanted = [s for s in latest_downloadables if s.is_wanted]
 

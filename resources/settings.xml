@@ -4,19 +4,25 @@
         <setting id="new_show_path" label="Directory for New TV Shows" type="folder" subsetting="true" value="" />
     </category>
     <category label="Feeders">
-        <setting id="ezrss_enable" label="EZRSS (eztv)" type="bool" default="true" />
-        <setting id="showrss_enable" label="ShowRSS" type="bool" default="false" />
-        <setting id="publichd_enable" label="PublicHD" type="bool" default="false" />
+    	<setting type="lsep" label="EZRSS (eztv.it)" />
+        <setting id="ezrss_enable" label="Enable" type="bool" default="true" />
+        <setting id="ezrss_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="60" />
+        <setting type="lsep" label="ShowRSS (showrss.karmorra.info)" />
+        <setting id="showrss_enable" label="Enable" type="bool" default="false" />
+        <setting id="showrss_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="60" />
+        <setting type="lsep" label="PublicHD (publichd.se)" />
+        <setting id="publichd_enable" label="Enable" type="bool" default="false" />
+        <setting id="publichd_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="60" />
     </category>
     <category label="Libtorrent">
         <setting id="libtorrent_enable" label="Use Libtorrent for downloads" type="bool" default="false"/>
     </category>
     <category label="Transmission">
     	<setting id="trpc_enable" label="Use Transmission for downloads" type="bool" default="true"/>
-        <setting id="trpc_host" label="Host" type="ipaddress" subsetting="true" enable="eq(-1,true)" value="192.168.5.29" default="192.168.5.29" />
+        <setting id="trpc_host" label="Host" type="ipaddress" subsetting="true" enable="eq(-1,true)" value="127.0.0.1" default="127.0.0.1" />
         <setting id="trpc_port" label="Port" type="number" subsetting="true" enable="eq(-2,true)" value="9091" default="9091" />
-        <setting id="trpc_user" label="Username" type="text" subsetting="true" enable="eq(-3,true)" value="" />
-        <setting id="trpc_pass" label="Password" type="text" option="hidden" subsetting="true" enable="eq(-4,true)" value="" />
-        <setting id="trpc_ddir" label="Download Dir" type="folder" subsetting="true" enable="eq(-5,true)" value="" />
+        <setting id="trpc_user" label="Username" type="text" subsetting="true" enable="eq(-3,true)" value="" default="" />
+        <setting id="trpc_pass" label="Password" type="text" option="hidden" subsetting="true" enable="eq(-4,true)" value="" default="" />
+        <setting id="trpc_ddir" label="Download Dir" type="folder" subsetting="true" enable="eq(-5,true)" value="" default="" />
     </category>
 </settings>

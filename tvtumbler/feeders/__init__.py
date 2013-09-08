@@ -46,3 +46,16 @@ def get_latest():
     for f in get_enabled_feeders():
         latest.extend(f.get_latest())
     return latest
+
+
+def get_updates():
+    '''
+    Calls get_latest() on all active feeders *that are due an update* and concatenates the result
+
+    @return: ([Downloadable]) Returns a list of Downloadable's
+    '''
+    latest = []
+    for f in get_enabled_feeders():
+        if f.is_update_due():
+            latest.extend(f.get_latest())
+    return latest

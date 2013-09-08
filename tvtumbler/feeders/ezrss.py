@@ -21,6 +21,10 @@ class EZRSSFeeder(TorrentFeeder):
         super(EZRSSFeeder, self).__init__()
         self.rss_url = 'http://www.ezrss.it/feed/'
 
+    @property
+    def update_freq_secs(self):
+        return 60 * int(__addon__.getSetting('ezrss_freq'))
+
     @classmethod
     def is_available(cls):
         return True

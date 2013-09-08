@@ -22,6 +22,10 @@ class ShowRSSFeeder(TorrentFeeder):
         super(ShowRSSFeeder, self).__init__()
         self.rss_url = 'http://showrss.karmorra.info/feeds/all.rss'
 
+    @property
+    def update_freq_secs(self):
+        return 60 * int(__addon__.getSetting('showrss_freq'))
+
     @classmethod
     def is_available(cls):
         return True

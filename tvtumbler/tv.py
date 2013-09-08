@@ -11,7 +11,7 @@ import sys
 
 import xbmc
 
-from . import jsonrpc, logger, quality, downloaders, thetvdb
+from . import jsonrpc, logger, quality, downloaders, api
 from .numbering import xem
 
 
@@ -75,10 +75,10 @@ class TvShow(object):
                        path=s['file'] if 'file' in s else None)
         else:
             # no match locally?  try tvdb
-            s = thetvdb.tvdb_series_lookup(tvdb_id)
+            s = api.show(tvdb_id)
             if s:
                 return cls(tvshowid=None,
-                           name=s['SeriesName'],
+                           name=s['series_name'],
                            tvdb_id=tvdb_id,
                            path=None)
             else:
@@ -438,4 +438,3 @@ class TvEpisode(object):
                 self._tvshow.get_wanted_quality() & qual and
                 not self.episodeid and
                 not downloaders.is_downloading(self))
-
