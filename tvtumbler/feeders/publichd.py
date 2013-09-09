@@ -42,6 +42,9 @@ class PublicHDFeeder(TorrentFeeder):
         @param item: (dict)
         @return: (Torrent|None) If the item does not have any known TvEpisodes, return None.
         '''
+        if not self._is_valid_category(item):
+            return None
+
         if item.title.startswith('[TORRENT] '):
             item.title = item.title[10:]
 
@@ -53,7 +56,8 @@ class PublicHDFeeder(TorrentFeeder):
 
         return torrent
 
-    def _is_valid_category(self, item):
+    @classmethod
+    def _is_valid_category(cls, item):
         """
         Decides if the category of an item (from the rss feed) could be a valid
         tv show.
