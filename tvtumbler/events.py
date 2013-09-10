@@ -8,14 +8,18 @@ Created on Sep 6, 2013
 @license: GPL
 @contact: info@tvtumbler.com
 '''
+import traceback
 import xbmc
+
 from . import logger
+
 
 ABORT_REQUESTED = 'abortRequested'
 VIDEO_LIBRARY_UPDATED = 'videoLibraryUpdated'
 SCREENSAVED_ACTIVATED = 'screensaverActivated'
 SCREENSAVER_DEACTIVATED = 'screensaverDeactivated'
 SETTINGS_CHANGED = 'settingsChanged'
+EXCEPTIONS_CHANGED = 'exceptionsChanged'
 
 _listeners = {
     ABORT_REQUESTED: set(),
@@ -23,6 +27,7 @@ _listeners = {
     SCREENSAVED_ACTIVATED: set(),
     SCREENSAVER_DEACTIVATED: set(),
     SETTINGS_CHANGED: set(),
+    EXCEPTIONS_CHANGED: set(),
 }
 
 
@@ -34,7 +39,11 @@ def add_event_listener(eventName, listener):
 def _call_listeners(eventName):
     global _listeners
     for fn in _listeners[eventName]:
-        fn()
+        try:
+            fn()
+        except Exception, e:
+            logger.error('Exception when calling listener' + str(e))
+            logger.debug(traceback.format_exc())
 
 
 class ParentMonitor(xbmc.Monitor):
@@ -58,5 +67,10 @@ class ParentMonitor(xbmc.Monitor):
     def onSettingsChanged(self):
         logger.debug("ParentMonitor: onSettingsChanged()")
         _call_listeners(SETTINGS_CHANGED)
+
+    @staticmethod
+    def onExceptionsChanged():
+        logger.debug("ParentMonitor: onExceptionsChanged()")
+        _call_listeners(EXCEPTIONS_CHANGED)
 
 m = ParentMonitor()
