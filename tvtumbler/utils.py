@@ -29,11 +29,10 @@ def is_video_file(filename):
     @rtype: bool
     '''
     filename = filename.lower()
-    # ignore samples
     if (re.search('(^|[\W_])sample\d*[\W_]', filename) or  # ignore samples
         filename.startswith('._') or  # ignore max osx special files
         '.partial.' in filename or  # ignore iplayer partials
-        filename.endswith('.rar')):  # and for now we explicity ignore rars
+        filename.endswith('.rar') or filename.endswith('.001')):  # and for now we explicity ignore rars
         return False
 
     return filename.rpartition(".")[2] in get_video_extensions()
