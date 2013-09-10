@@ -8,13 +8,14 @@ This file is part of TvTumbler.
 '''
 
 import re
+from threading import Lock
 import time
 
 from unidecode import unidecode
 import xbmc
 
 from . import NameParser
-from .. import db, jsonrpc, logger, quality, utils, api
+from .. import db, jsonrpc, logger, quality, utils, api, events
 from ..numbering import SCENE_NUMBERING
 from ..tv import TvShow, TvEpisode
 from .scene_regexes import get_regexes, get_bad_regexes
@@ -178,14 +179,19 @@ class SceneNameParser(NameParser):
 
             if 'extra_info' in named_groups:
                 self._extra_info = match.group('extra_info')
-                bad_check_pieces.append(self._extra_info)
+                if self._extra_info:
+                    bad_check_pieces.append(self._extra_info)
 
             if 'release_group' in named_groups:
                 self._release_group = match.group('release_group')
-                bad_check_pieces.append(self._release_group)
+                if self._release_group:
+                    bad_check_pieces.append(self._release_group)
 
             self._bad = False
             if bad_check_pieces:
+                # logger.debug(cur_regex_name)
+                # logger.debug(self._filename)
+                # logger.debug(repr(bad_check_pieces))
                 check_string = '-'.join(bad_check_pieces)
                 for rx in get_bad_regexes():
                     if rx.match(check_string):
@@ -228,6 +234,19 @@ def get_scene_names(tvdb_id):
                                                      'WHERE tvdb_id = ?',
                                                      [tvdb_id])]
 
+_scene_name_lookup_cache = {}
+_scene_name_lookup_cache_lock = Lock()
+
+
+def flush_scene_name_lookup_cache():
+    global _scene_name_lookup_cache, _scene_name_lookup_cache_lock
+    with _scene_name_lookup_cache_lock:
+        logger.debug('flushing _scene_name_lookup_cache')
+        _scene_name_lookup_cache = {}
+
+events.add_event_listener(events.VIDEO_LIBRARY_UPDATED, flush_scene_name_lookup_cache)
+events.add_event_listener(events.EXCEPTIONS_CHANGED, flush_scene_name_lookup_cache)
+
 
 def get_tvdb_id(scene_name):
     """
@@ -240,6 +259,13 @@ def get_tvdb_id(scene_name):
     @param scene_name: (str|unicode) show name to match
     @return: (int|None) returns an int on success, None on failure.
     """
+    global _scene_name_lookup_cache, _scene_name_lookup_cache_lock
+    if scene_name is None:
+        return None
+
+    if scene_name in _scene_name_lookup_cache:
+        return _scene_name_lookup_cache[scene_name]
+
     # Simplify the name first
     if not isinstance(scene_name, unicode):
         # We assume utf-8
@@ -252,9 +278,10 @@ def get_tvdb_id(scene_name):
     show_matches = [s for s in known_shows if
                     simplify_show_name(s['title']) == simplified]
     if show_matches:
-        # logger.debug(repr(show_matches))
-        # logger.debug(repr(show_matches[0]))
-        return int(show_matches[0]['imdbnumber'])
+        result = int(show_matches[0]['imdbnumber'])
+        with _scene_name_lookup_cache_lock:
+            _scene_name_lookup_cache[scene_name] = result
+        return result
 
     _update_if_needed()
 
@@ -266,9 +293,14 @@ def get_tvdb_id(scene_name):
                          u'WHERE simplified_name = ?',
                          [simplified])
     if result:
-        return int(result[0]["tvdb_id"])
+        result = int(result[0]["tvdb_id"])
+        with _scene_name_lookup_cache_lock:
+            _scene_name_lookup_cache[scene_name] = result
+        return result
 
     # No match?  We fail
+    with _scene_name_lookup_cache_lock:
+        _scene_name_lookup_cache[scene_name] = None
     return None
 
 
@@ -342,6 +374,7 @@ def _update_scene_names():
     # after updating
     if changed_exceptions:
         logger.info(u"Updated scene exceptions")
+        events.ParentMonitor.onExceptionsChanged()
         # name_cache.clearCache() @todo
     else:
         logger.debug(u"No scene exceptions update needed")
