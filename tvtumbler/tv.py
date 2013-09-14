@@ -9,9 +9,10 @@ This file is part of TvTumbler.
 import os
 import sys
 
+
 import xbmc
-from tvdb_api import tvdb_api
-from . import jsonrpc, logger, downloaders, api, showsettings
+
+from . import jsonrpc, logger, downloaders, api, showsettings, thetvdb
 from .numbering import xem
 
 
@@ -255,21 +256,12 @@ class TvShow(object):
         '''
         return self._get_tvdb_field('status')
 
-    def _get_tvdb_info(self):
-        t = tvdb_api.Tvdb(apikey='FCC2D40061D489B4')
-                          # cache=xbmc.translatePath('special://temp/').decode('utf-8'))
-        self._tvdb_info = t[int(self.tvdb_id)]
-
     def _get_tvdb_field(self, key_name):
         '''
         Get a field from the tvdb_api by name.
         Note that this can be very slow, use with care.
         '''
-        if self._tvdb_info is None:
-            self._get_tvdb_info()
-        if key_name in self._tvdb_info.data:
-            return self._tvdb_info[key_name]
-        return None
+        return thetvdb.get_tvdb_field(self.tvdb_id, key_name)
 
     @classmethod
     def get_followed_shows(cls):

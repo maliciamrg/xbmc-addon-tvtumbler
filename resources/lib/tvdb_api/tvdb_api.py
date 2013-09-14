@@ -68,7 +68,8 @@ class ShowContainer(dict):
             tbd = self._stack[:-100]
             i = 0
             for o in tbd:
-                del self[o]
+                if o in self:
+                    del self[o]
                 del self._stack[i]
                 i += 1
 
