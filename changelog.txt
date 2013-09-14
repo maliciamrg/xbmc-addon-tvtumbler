@@ -1,0 +1,5 @@
+0.0.2 (2013-09-13)
+	- Very simple (yet mostly functional) gui
+	
+0.0.1
+	- Initial, pre-alpha.
