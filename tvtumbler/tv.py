@@ -10,12 +10,13 @@ import os
 import sys
 
 import xbmc
-
-from . import jsonrpc, logger, quality, downloaders, api
+from tvdb_api import tvdb_api
+from . import jsonrpc, logger, downloaders, api, showsettings
 from .numbering import xem
 
 
 __addon__ = sys.modules["__main__"].__addon__
+
 
 class TvShow(object):
 
@@ -37,6 +38,10 @@ class TvShow(object):
         self._name = name
         self._imdbnumber = tvdb_id  # actually, this seems to be the tvdb_id
         self._path = path
+        self._fanart = None
+        self._thumbnail = None
+        self._art = None
+        self._tvdb_info = None
 
     def __repr__(self):
         return self.__class__.__name__ + '(tvshowid=%s, name=%s, tvdb_id=%s, path=%s)' % (
@@ -113,7 +118,12 @@ class TvShow(object):
         Read-only property: name
         """
         if self._name is None:
-            self._get_xbmc_details()
+            if self._tvshowid:
+                self._get_xbmc_details()
+            elif self._imdbnumber:
+                show_data = api.show(self._imdbnumber)
+                if show_data:
+                    self._name = show_data['series_name']
         return self._name
 
     @property
@@ -161,46 +171,148 @@ class TvShow(object):
         else:
             return False
 
-    def get_wanted_quality(self):
+    def _get_wanted_quality(self):
         '''
-        For now, anything that's one of the HD or SD values is good.
+        Return the quality we want the episodes in (actually a quality mask).
+        Note that this doesn't necessarily mean that we want the episodes, you
+        also need to check the `wanted` property.
 
         @return: The wanted quality for this show.  Returns zero if not wanted.
         @rtype: int
         '''
-        return quality.HD_COMP | quality.SD_COMP
+        row = showsettings.get_show_settings_row(self.tvdb_id)
+        if row:
+            return int(row['wanted_quality'])
+        else:
+            return 0  # Not wanted
+        # return quality.HD_COMP | quality.SD_COMP
 
-    @property
-    def is_wanted(self):
+    def _set_wanted_quality(self, wanted_quality):
+        showsettings.set_show_settings_row(self.tvdb_id,
+                                           follow=None,  # ie. no change to follow flag
+                                           wanted_quality=int(wanted_quality))
+
+    wanted_quality = property(fget=_get_wanted_quality, fset=_set_wanted_quality)
+
+    def _get_followed(self):
         '''
         Do we want to download new episodes of the show as they become available?
-        For now: we just say yes if the show is in our library.
 
         @rtype: bool
         '''
-        return bool(self._tvshowid)
+        row = showsettings.get_show_settings_row(self.tvdb_id)
+        if row:
+            return row['follow'] in [1, '1']
+        else:
+            return False  # Not wanted
+
+    def _set_followed(self, follow):
+        showsettings.set_show_settings_row(self.tvdb_id,
+                                   follow=1 if follow else 0,
+                                   wanted_quality=None)  # None here means no change
+
+    followed = property(fget=_get_followed, fset=_set_followed)
+
+    @property
+    def fanart(self):
+        if self._fanart is None and self.tvshowid:
+            s = jsonrpc.get_tv_show_details(self.tvshowid, properties=['fanart'])
+            self._fanart = s['fanart']
+        return self._fanart
+
+    @property
+    def thumbnail(self):
+        if self._thumbnail is None and self.tvshowid:
+            s = jsonrpc.get_tv_show_details(self.tvshowid, properties=['thumbnail'])
+            self._fanart = s['thumbnail']
+        return self._thumbnail
+
+    def _load_art(self):
+        if self.tvshowid:
+            s = jsonrpc.get_tv_show_details(self.tvshowid, properties=['art'])
+            self._art = s['art']
+            return True
+        return False
+
+    @property
+    def poster(self):
+        if self._art is None:
+            if not self._load_art():
+                return None
+        return self._art.get('poster', None)
+
+    @property
+    def banner(self):
+        if self._art is None:
+            if not self._load_art():
+                return None
+        return self._art.get('banner', None)
+
+    @property
+    def status(self):
+        '''The status of the show as reported by thetvdb
+        @rtype: str
+        '''
+        return self._get_tvdb_field('status')
+
+    def _get_tvdb_info(self):
+        t = tvdb_api.Tvdb(apikey='FCC2D40061D489B4')
+                          # cache=xbmc.translatePath('special://temp/').decode('utf-8'))
+        self._tvdb_info = t[int(self.tvdb_id)]
+
+    def _get_tvdb_field(self, key_name):
+        '''
+        Get a field from the tvdb_api by name.
+        Note that this can be very slow, use with care.
+        '''
+        if self._tvdb_info is None:
+            self._get_tvdb_info()
+        if key_name in self._tvdb_info.data:
+            return self._tvdb_info[key_name]
+        return None
 
     @classmethod
-    def get_wanted_shows(cls):
+    def get_followed_shows(cls):
         '''
         Return a list of all wanted TvShows.
-        @todo: For now this just returns everything in the library and checks
-            the is_wanted property.
 
         @return: A list of TvShow objects, one for each wanted show.
         @rtype: [TvShow]
         '''
         shows = []
-        library_shows = jsonrpc.get_tv_shows()
-        for s in library_shows:
-            show = TvShow.from_xbmc(s['tvshowid'])
-            if show.is_wanted:
-                shows.append(show)
+        for tid in showsettings.get_all_tvdb_ids(followed_only=True):
+            shows.append(TvShow.from_tvdbd_id(tid))
         return shows
+
+    @classmethod
+    def get_xbmc_shows(cls):
+        '''
+        Return a list of all shows that are in the library (i.e. have at least one episode).
+
+        @return: A list of TvShow object, one for each show in the library.
+        @rtype: [TvShow]
+        '''
+        return [TvShow.from_xbmc(s['tvshowid']) for s in jsonrpc.get_tv_shows(properties=[])]
+
+    @classmethod
+    def get_all_shows(cls):
+        '''
+        Return a list of all shows we deal with, including:
+            all shows that are somehow referenced in the database (even if not followed)
+            all shows in the xbmc library
+
+        @return: A list of TvShow objects.  The list will not have duplicates, but will be in random order.
+        @rtype: [TvShow]
+        '''
+        tvdb_ids = set()
+        for tid in showsettings.get_all_tvdb_ids(followed_only=False):
+            tvdb_ids.add(int(tid))
+        for s in jsonrpc.get_tv_shows(properties=['imdbnumber']):
+            tvdb_ids.add(int(s['imdbnumber']))
+        return [TvShow.from_tvdbd_id(t) for t in tvdb_ids]
 
 
 class TvEpisode(object):
-
     """
     An episode of a TvShow
     """
@@ -427,14 +539,16 @@ class TvEpisode(object):
 
     def is_wanted_in_quality(self, qual):
         '''
-        @todo: FIXME!
+        @todo: FIXME!  This doesn't take into account yet if we have it in one quality, but want it
+            in a higher one.
 
         @param qual: Quality to check against.  One of the constants in quality.py
         @type qual: int
         @return: True if this is an episode we want in a quality we want.  False otherwise.
         @rtype: bool
         '''
-        return (self._tvshow.is_wanted and
-                self._tvshow.get_wanted_quality() & qual and
+        logger.debug('is_wanted_in_quality')
+        return (self._tvshow.followed and
+                self._tvshow.wanted_quality & qual and
                 not self.episodeid and
                 not downloaders.is_downloading(self))

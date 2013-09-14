@@ -129,7 +129,7 @@ class Downloadable(object):
             return None
 
     @property
-    def is_wanted(self):
+    def wanted(self):
         for ep in self._episodes:
             if ep.is_wanted_in_quality(self.quality):
                 return True

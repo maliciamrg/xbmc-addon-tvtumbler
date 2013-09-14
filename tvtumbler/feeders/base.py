@@ -8,7 +8,7 @@ This file is part of TvTumbler.
 '''
 
 import time, datetime
-import feedparser
+import feedparser  # @UnresolvedImport
 
 from .. import logger
 from ..names import SceneNameParser

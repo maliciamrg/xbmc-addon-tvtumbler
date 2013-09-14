@@ -12,15 +12,12 @@ http://pythonhosted.org/transmissionrpc/
 '''
 from .. import logger, utils
 from .torrent import TorrentDownloader, TorrentDownload
-from ..schedule import SchedulerThread
 import os
-import shutil
 import sys
 import time
 import traceback
 import xbmc
 import xbmcvfs
-import xbmcaddon
 import transmissionrpc
 import base64
 
@@ -90,7 +87,7 @@ class TRPCDownloader(TorrentDownloader):
                                                   user=trpc_user,
                                                   password=trpc_pass)
 
-            session = _trcp_client.get_session()
+            session = _trcp_client.get_session()  # @UnusedVariable
             # @todo: settings for the client/session should go here
 
         return _trcp_client

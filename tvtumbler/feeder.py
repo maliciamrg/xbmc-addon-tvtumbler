@@ -7,11 +7,7 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-from . import logger
-from . import feeders
-from . import quality
-from . import downloaders
-from .tv import TvShow
+from . import downloaders, feeders, logger, quality
 
 
 def run():
@@ -22,9 +18,9 @@ def run():
     if not latest_downloadables:
         return
 
-    wanted = [s for s in latest_downloadables if s.is_wanted]
+    wanted = [s for s in latest_downloadables if s.wanted]
 
-    # Organise these by (tvdb_id, season, episode) so that we can eliminate duplicates.
+    # Organize these by (tvdb_id, season, episode) so that we can eliminate duplicates.
     # Our list is already sorted by preferred provider, so we'll get the better provider
     # here for free.
     wanted_dict = {}

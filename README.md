@@ -3,7 +3,7 @@ xbmc-addon-tvtumbler
 
 This is a TV show downloader for XMBC.
 It watches torrent RSS feeds for new episodes in all TV shows in your library, and downloads any that you don't have
-to you video library automatically.
+to your video library automatically.
 
 WARNING: This is **pre-alpha** code, use at your own risk, and do not expect it to work completely yet!
 

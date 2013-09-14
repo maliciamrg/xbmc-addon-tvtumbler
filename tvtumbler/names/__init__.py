@@ -56,7 +56,8 @@ class NameParser(object):
 
         @return: (bool)
         '''
-        if not self._parsed: self._parse()
+        if not self._parsed:
+            self._parse()
         return self._known
 
     @property
@@ -67,7 +68,8 @@ class NameParser(object):
 
         @rtype: bool
         '''
-        if not self._parsed: self._parse()
+        if not self._parsed:
+            self._parse()
         return self._bad
 
     @property
@@ -82,7 +84,8 @@ class NameParser(object):
         '''
         @return: (TvShow|None)
         '''
-        if not self._parsed: self._parse()
+        if not self._parsed:
+            self._parse()
         if len(self._episodes):
             # if we have any episodes, use the TvShow from the first entry
             return self._episodes[0].tvshow
@@ -96,7 +99,8 @@ class NameParser(object):
 
         @return: ([TvEpisode])
         '''
-        if not self._parsed: self._parse()
+        if not self._parsed:
+            self._parse()
         return self._episodes
 
     @property
@@ -104,7 +108,8 @@ class NameParser(object):
         '''
         @return: (str|None)
         '''
-        if not self._parsed: self._parse()
+        if not self._parsed:
+            self._parse()
         return self._extra_info
 
     @property
@@ -112,7 +117,8 @@ class NameParser(object):
         '''
         @return: (str|None)
         '''
-        if not self._parsed: self._parse()
+        if not self._parsed:
+            self._parse()
         return self._release_group
 
     @property
@@ -120,7 +126,8 @@ class NameParser(object):
         '''
         @return: (int)
         '''
-        if not self._parsed: self._parse()
+        if not self._parsed:
+            self._parse()
         return self._quality
 
 #     @property

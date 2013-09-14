@@ -1,0 +1,419 @@
+<window>
+  <defaultcontrol>120</defaultcontrol>
+  <coordinates>
+    <system>1</system>
+    <posx>0</posx>
+    <posy>0</posy>
+  </coordinates>
+  <animation effect="fade" time="250">WindowOpen</animation>
+  <animation effect="fade" time="250">WindowClose</animation>
+  <controls>
+    <control type="group">
+      <posx>100</posx>
+      <posy>10</posy>
+      <control type="image">
+        <posx>0</posx>
+        <posy>0</posy>
+        <width>1090</width>
+        <height>700</height>
+        <texture border="40">default-panel.png</texture>
+      </control>
+      
+      <!-- <control type="label">
+        <description>textarea - top right</description>
+        <posx>580</posx>
+        <posy>30</posy>
+        <width>230</width>
+        <height>80</height>
+        <font>font18</font>
+        <textcolor>white</textcolor>
+        <aligny>center</aligny>
+        <align>center</align>
+        <label></label>
+        <wrapmultiline>true</wrapmultiline>
+      </control> -->
+      
+      <control type="button" id="200">
+       <description>Button 1 (add show)</description>
+       <onleft>205</onleft>
+       <onright>201</onright>
+       <onup>120</onup>
+       <ondown>120</ondown>
+       <posx>30</posx>
+       <posy>620</posy>
+       <width>330</width>
+       <height>40</height>
+       <visible>true</visible>
+       <colordiffuse>FFFFFFFF</colordiffuse>
+       <font>font13</font>
+       <align>center</align>
+       <!-- <label>$LOCALIZE[SCRIPT3018]</label> -->
+       <label>Add Show</label>
+       <textcolor>FFFFFFFF</textcolor>
+       <disabledcolor>80FFFFFF</disabledcolor>
+      </control>
+      
+      <control type="button" id="201">
+       <description>Button 2 (middle)</description>
+       <onleft>200</onleft>
+       <onright>202</onright>
+       <onup>120</onup>
+       <ondown>120</ondown>
+       <posx>384</posx>
+       <posy>620</posy>
+       <width>330</width>
+       <height>40</height>
+       <visible>false</visible>
+       <colordiffuse>FFFFFFFF</colordiffuse>
+       <font>font13</font>
+       <align>center</align>
+       <label>$LOCALIZE[SCRIPT3016]</label>
+       <textcolor>FFFFFFFF</textcolor>
+       <disabledcolor>80FFFFFF</disabledcolor>
+       <enable>false</enable>
+      </control>
+      
+      <control type="button" id="202">
+       <description>Button 3 (right)</description>
+       <onleft>201</onleft>
+       <onright>120</onright>
+       <onup>120</onup>
+       <ondown>120</ondown>
+       <posx>738</posx>
+       <posy>620</posy>
+       <width>330</width>
+       <height>40</height>
+       <visible>true</visible>
+       <colordiffuse>FFFFFFFF</colordiffuse>
+       <font>font13</font>
+       <align>center</align>
+       <!-- <label>$LOCALIZE[SCRIPT3017]</label> -->
+       <label>Settings</label>
+       <textcolor>FFFFFFFF</textcolor>
+       <disabledcolor>80FFFFFF</disabledcolor>
+      </control>
+      
+      <control type="image" >
+        <description>Banner or Poster or Fanart</description>
+        <posx>844</posx>
+        <posy>450</posy>
+        <width>213</width>
+        <height>120</height>
+        <aspectratio align="right">keep</aspectratio>
+        <texture>$INFO[Container(120).ListItem.Property(image)]</texture>
+      </control>
+      
+      <control type="label">
+        <description>show title label</description>
+        <posx>30</posx>
+        <posy>450</posy>
+        <width>800</width>
+        <height>30</height>
+        <font>font24_title</font>
+        <textcolor>white</textcolor>
+        <aligny>center</aligny>
+        <align>left</align>
+        <label>$INFO[Container(120).ListItem.Label]</label>
+      </control>
+      
+      <control type="label">
+        <description>show status label</description>
+        <posx>30</posx>
+        <posy>478</posy>
+        <width>400</width>
+        <height>30</height>
+        <font>font13</font>
+        <textcolor>blue</textcolor>
+        <aligny>center</aligny>
+        <align>left</align>
+        <label>$INFO[Container(120).ListItem.Property(status),[COLOR=white]Current Status: [/COLOR]]</label>
+      </control>
+      
+      <control type="label">
+        <description>show follow label</description>
+        <posx>30</posx>
+        <posy>500</posy>
+        <width>800</width>
+        <height>30</height>
+        <font>font10</font>
+        <textcolor>white</textcolor>
+        <aligny>center</aligny>
+        <align>left</align>
+        <label>[COLOR=green][B]Following[/B][/COLOR]: New episodes of this show will be downloaded when they become available.</label>
+        <visible>StringCompare(Container(120).ListItem.Label2,Follow)</visible>
+      </control>
+      
+      <control type="label">
+        <description>show ignore label</description>
+        <posx>30</posx>
+        <posy>500</posy>
+        <width>800</width>
+        <height>30</height>
+        <font>font10</font>
+        <textcolor>white</textcolor>
+        <aligny>center</aligny>
+        <align>left</align>
+        <label>[COLOR=red][B]Ignoring[/B][/COLOR]: New episodes of this show will NOT be downloaded.</label>
+        <visible>!StringCompare(Container(120).ListItem.Label2,Follow)</visible>
+      </control>
+      
+      <!-- <control type="radiobutton" id="205">
+	      <description>Toggle follow/ignore</description>
+	      <type>radiobutton</type>
+	      <posx>30</posx>
+	      <posy>490</posy>
+	      <width>250</width>
+	      <height>40</height>
+	      <visible>true</visible>
+	      <selected>StringCompare($INFO[Container(120).ListItem.Property(follow)],true)</selected>
+	      <label>Follow Show:</label>
+	      <font>font18</font>
+	      <textcolor>white</textcolor>
+	      <disabledcolor>80FFFFFF</disabledcolor>
+	      <align>left</align>
+	      <aligny>center</aligny>
+	      <onup>120</onup>
+	      <ondown>200</ondown>
+	      <onleft>120</onleft>
+	      <onright>200</onright>
+		</control> -->
+		
+	 <control type="button" id="205">
+       <description>Toggle Follow button</description>
+       <onleft>120</onleft>
+       <onright>200</onright>
+       <onup>120</onup>
+       <ondown>200</ondown>
+       <posx>30</posx>
+       <posy>490</posy>
+       <width>250</width>
+       <height>40</height>
+       <visible>false</visible>
+       <colordiffuse>FFFFFFFF</colordiffuse>
+       <font>font13</font>
+       <align>center</align>
+       <label>Follow/Ignore</label>
+       <textcolor>FFFFFFFF</textcolor>
+       <disabledcolor>80FFFFFF</disabledcolor>
+       <enable>true</enable>
+      </control>
+      
+      <!-- <control type="image">
+        <posx>20</posx>
+        <posy>140</posy>
+        <width>1060</width>
+        <height>2</height>
+        <texture>TRseparator.png</texture>
+      </control>
+      <control type="image">
+        <posx>20</posx>
+        <posy>540</posy>
+        <width>1060</width>
+        <height>2</height>
+        <texture>TRseparator.png</texture>
+      </control> -->
+      <control type="image">
+        <posx>20</posx>
+        <posy>420</posy>
+        <width>1060</width>
+        <height>2</height>
+        <texture>TRseparator.png</texture>
+      </control>      
+      <!-- <control type="image">
+        <posx>20</posx>
+        <posy>596</posy>
+        <width>1060</width>
+        <height>2</height>
+        <texture>TRseparator2.png</texture>
+      </control> --> 
+      <control type="image">
+        <posx>20</posx>
+        <posy>600</posy>
+        <width>1060</width>
+        <height>2</height>
+        <texture>TRseparator.png</texture>
+      </control>      
+
+      <!-- ** Required ** Do not change <id> or <type> -->
+      <control type="list" id="120">
+        <posx>20</posx>
+        <posy>20</posy>
+        <width>1040</width>
+        <height>390</height>
+        <onleft>202</onleft>
+        <onright>205</onright>
+        <onup>120</onup>
+        <ondown>120</ondown>
+        <viewtype label="535">list</viewtype>
+        <pagecontrol>121</pagecontrol>
+        <scrolltime>200</scrolltime>
+        <itemlayout height="38">
+          <control type="label">
+          	<!-- show name -->
+            <posx>10</posx>
+            <posy>0</posy>
+            <width>690</width>
+            <height>38</height>
+            <font>font13</font>
+            <aligny>center</aligny>
+            <textcolor>white</textcolor>
+            <selectedcolor>green</selectedcolor>
+            <align>left</align>
+            <info>ListItem.Label</info>
+          </control>
+          <control type="label">
+          	<!-- ignore/follow (green) -->
+            <posx>710</posx>
+            <posy>0</posy>
+            <width>150</width>
+            <height>38</height>
+            <font>font13</font>
+            <aligny>center</aligny>
+            <textcolor>green</textcolor>
+            <align>left</align>
+            <info>ListItem.Label2</info>
+            <visible>StringCompare(ListItem.Label2,Follow)</visible>
+          </control>
+          <control type="label">
+          	<!-- ignore/follow (red) -->
+            <posx>710</posx>
+            <posy>0</posy>
+            <width>150</width>
+            <height>38</height>
+            <font>font13</font>
+            <aligny>center</aligny>
+            <textcolor>red</textcolor>
+            <align>left</align>
+            <info>ListItem.Label2</info>
+            <visible>!StringCompare(ListItem.Label2,Follow)</visible>
+          </control>
+          <control type="label">
+          	<!-- status -->
+            <posx>870</posx>
+            <posy>0</posy>
+            <width>100</width>
+            <height>38</height>
+            <font>font13</font>
+            <aligny>center</aligny>
+            <textcolor>white</textcolor>
+            <selectedcolor>green</selectedcolor>
+            <align>center</align>
+            <info>ListItem.Property(status)</info>
+          </control>
+          <control type="image">
+            <posx>970</posx>
+            <posy>0</posy>
+            <width>50</width>
+            <height>38</height>
+            <texture border="0">50px-480.png</texture>
+            <visible>[StringCompare(ListItem.Label2,Follow) + StringCompare(ListItem.Property(wanted_quality_str),SD)]</visible>
+          </control>
+          <control type="image">
+            <posx>970</posx>
+            <posy>0</posy>
+            <width>50</width>
+            <height>38</height>
+            <texture border="0">50px-1080.png</texture>
+            <visible>[StringCompare(ListItem.Label2,Follow) + StringCompare(ListItem.Property(wanted_quality_str),HD)]</visible>
+          </control>
+        </itemlayout>
+        <focusedlayout height="38">
+          <control type="image">
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>1040</width>
+            <height>38</height>
+            <texture border="10">default-list-focus.png</texture>
+            <!-- <visible>Control.HasFocus(120)</visible> -->
+          </control>
+          <control type="label">
+            <posx>10</posx>
+            <posy>0</posy>
+            <width>690</width>
+            <height>38</height>
+            <font>font13</font>
+            <aligny>center</aligny>
+            <textcolor>white</textcolor>
+            <selectedcolor>green</selectedcolor>
+            <align>left</align>
+            <info>ListItem.Label</info>
+          </control>
+          <control type="label">
+          	<!-- ignore/follow (green) -->
+            <posx>710</posx>
+            <posy>0</posy>
+            <width>150</width>
+            <height>38</height>
+            <font>font13</font>
+            <aligny>center</aligny>
+            <textcolor>green</textcolor>
+            <align>left</align>
+            <info>ListItem.Label2</info>
+            <visible>StringCompare(ListItem.Label2,Follow)</visible>
+          </control>
+          <control type="label">
+            <!-- ignore/follow (red) -->
+            <posx>710</posx>
+            <posy>0</posy>
+            <width>150</width>
+            <height>38</height>
+            <font>font13</font>
+            <aligny>center</aligny>
+            <textcolor>red</textcolor>
+            <align>left</align>
+            <info>ListItem.Label2</info>
+            <visible>!StringCompare(ListItem.Label2,Follow)</visible>
+          </control>
+          <control type="label">
+            <posx>870</posx>
+            <posy>0</posy>
+            <width>100</width>
+            <height>38</height>
+            <font>font13</font>
+            <aligny>center</aligny>
+            <textcolor>white</textcolor>
+            <selectedcolor>green</selectedcolor>
+            <align>center</align>
+            <info>ListItem.Property(status)</info>
+          </control>
+          <control type="image">
+            <posx>970</posx>
+            <posy>0</posy>
+            <width>50</width>
+            <height>38</height>
+            <texture border="0">50px-480.png</texture>
+            <visible>[StringCompare(ListItem.Label2,Follow) + StringCompare(ListItem.Property(wanted_quality_str),SD)]</visible>
+          </control>
+          <control type="image">
+            <posx>970</posx>
+            <posy>0</posy>
+            <width>50</width>
+            <height>38</height>
+            <texture border="0">50px-1080.png</texture>
+            <visible>[StringCompare(ListItem.Label2,Follow) + StringCompare(ListItem.Property(wanted_quality_str),HD)]</visible>
+          </control>
+        </focusedlayout>
+      </control>
+      <control type="group">
+        <posx>1060</posx>
+        <posy>20</posy>
+        <control type="scrollbar" id="121">
+          <description>scroll bar indicator for lists</description>
+          <posx>0</posx>
+          <posy>0</posy>
+          <width>12</width>
+          <height>390</height>
+          <texturesliderbackground border="6">default-scroll_back.png</texturesliderbackground>
+          <texturesliderbar border="6">default-scroll_mid.png</texturesliderbar>
+          <texturesliderbarfocus border="6">default-scroll_mid.png</texturesliderbarfocus>
+          <textureslidernib>-</textureslidernib>
+          <textureslidernibfocus>-</textureslidernibfocus>
+          <orientation>vertical</orientation>
+          <showonepage>false</showonepage>
+          <visible>Control.IsVisible(120)</visible>
+        </control>
+      </control>
+
+    </control>
+  </controls>
+</window>

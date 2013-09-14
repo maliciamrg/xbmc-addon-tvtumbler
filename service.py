@@ -10,18 +10,17 @@ This file is part of TvTumbler.
 
 import sys
 import os
-import time
 import xbmc
 import xbmcaddon
 
-__addon__           = xbmcaddon.Addon()
-__addonversion__    = __addon__.getAddonInfo('version')
-__addonname__       = __addon__.getAddonInfo('name')
-__addonpath__       = __addon__.getAddonInfo('path').decode('utf-8')
-# __icon__         = __addon__.getAddonInfo('icon')
-# __localize__    = __addon__.getLocalizedString
+__addon__ = xbmcaddon.Addon()
+__addonversion__ = __addon__.getAddonInfo('version')
+__addonname__ = __addon__.getAddonInfo('name')
+__addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
+# __icon__ = __addon__.getAddonInfo('icon')
+# __localize__ = __addon__.getLocalizedString
 
-libs = os.path.join(__addonpath__, 'resources/lib')
+libs = os.path.join(__addonpath__, 'resources', 'lib')
 sys.path.append(libs)
 
 import tvtumbler

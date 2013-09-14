@@ -23,7 +23,7 @@ try:
     from sqlite3 import dbapi2 as sqlite
     logger.info("Loading sqlite3 as DB engine")
 except:
-    from pysqlite2 import dbapi2 as sqlite
+    from pysqlite2 import dbapi2 as sqlite  # @UnresolvedImport
     logger.info("Loading pysqlite2 as DB engine")
 
 

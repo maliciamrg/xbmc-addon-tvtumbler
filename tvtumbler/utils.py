@@ -8,7 +8,7 @@ This file is part of TvTumbler.
 '''
 
 import sys
-import requests
+import requests  # @UnresolvedImport
 import platform
 import uuid
 import re

@@ -140,7 +140,10 @@ class BaseDownloader(object):
 
     def on_download_finished(self, download):
         '''Download is completely complete.'''
-        download.remove_files()
+        if download.copied_to_library:
+            download.remove_files()
+        else:
+            download.stop(deleteFilesToo=False)
         del self._running_downloads[download.key]
 
 
@@ -186,6 +189,8 @@ class Download(object):
         self._poller = SchedulerThread(action=self._poll,
                                        threadName=self.__class__.__name__,
                                        runIntervalSecs=3)
+        self.copied_to_library = False
+
 
     @property
     def key(self):

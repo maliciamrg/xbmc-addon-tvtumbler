@@ -13,7 +13,7 @@ from . import logger, events
 import time
 
 if sys.version_info < (2, 7):
-    import simplejson as json
+    import simplejson as json  # @UnresolvedImport
 else:
     import json
 

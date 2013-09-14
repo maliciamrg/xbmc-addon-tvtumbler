@@ -10,7 +10,6 @@ This file is part of TvTumbler.
 import re
 import sys
 
-from .. import quality
 from .base import TorrentFeeder
 
 

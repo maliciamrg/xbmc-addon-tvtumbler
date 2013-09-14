@@ -10,7 +10,6 @@ This file is part of TvTumbler.
 import time
 from .. import db, logger, utils
 import xbmc
-import sys
 
 MAX_XEM_AGE_SECS = 86400  # 1 day
 
@@ -20,17 +19,17 @@ def _get_db():
     try:
         dummy = _get_db._init_done
     except:
-        _db.action('''CREATE TABLE if not exists xem_num (
-                              tvdb_id INTEGER,
-                              tvdb_season INTEGER,
-                              tvdb_episode INTEGER,
-                              scene_season INTEGER,
-                              scene_episode INTEGER,
-                      PRIMARY KEY (tvdb_id, tvdb_season, tvdb_episode,
-                                   scene_season, scene_episode))''')
-        _db.action('''CREATE TABLE if not exists xem_refresh (
-                              tvdb_id INTEGER PRIMARY KEY,
-                              last_refreshed INTEGER)''')
+        _db.action('CREATE TABLE if not exists xem_num ('
+                              'tvdb_id INTEGER, '
+                              'tvdb_season INTEGER, '
+                              'tvdb_episode INTEGER, '
+                              'scene_season INTEGER, '
+                              'scene_episode INTEGER, '
+                      'PRIMARY KEY (tvdb_id, tvdb_season, tvdb_episode, '
+                                   'scene_season, scene_episode))')
+        _db.action('CREATE TABLE if not exists xem_refresh ('
+                              'tvdb_id INTEGER PRIMARY KEY, '
+                              'last_refreshed INTEGER)')
         _get_db._init_done = True
     return _db
 
@@ -53,12 +52,11 @@ def get_scene_numbering_from_xem(tvdb_id, tvdbSeason, tvdbEpisode):
         _xem_refresh(tvdb_id)
 
     db = _get_db()
-    rows = db.select('''SELECT scene_season, scene_episode
-                        FROM xem_num
-                        WHERE tvdb_id = ?
-                        AND tvdb_season = ? AND tvdb_episode = ?
-                        ORDER BY scene_season ASC, scene_episode ASC
-                        ''',
+    rows = db.select('SELECT scene_season, scene_episode '
+                        'FROM xem_num '
+                        'WHERE tvdb_id = ? '
+                        'AND tvdb_season = ? AND tvdb_episode = ? '
+                        'ORDER BY scene_season ASC, scene_episode ASC',
                         [tvdb_id, tvdbSeason, tvdbEpisode])
     if rows:
         return [(int(r["scene_season"]), int(r["scene_episode"]))
@@ -85,12 +83,12 @@ def get_tvdb_numbering_from_xem(tvdb_id, sceneSeason, sceneEpisode):
         _xem_refresh(tvdb_id)
 
     db = _get_db()
-    rows = db.select('''SELECT tvdb_season, tvdb_episode
-                     FROM xem_num
-                     WHERE tvdb_id = ?
-                     AND scene_season = ?
-                     AND scene_episode = ?
-                     ORDER BY tvdb_season ASC, tvdb_episode ASC''',
+    rows = db.select('SELECT tvdb_season, tvdb_episode '
+                     'FROM xem_num '
+                     'WHERE tvdb_id = ? '
+                     'AND scene_season = ? '
+                     'AND scene_episode = ? '
+                     'ORDER BY tvdb_season ASC, tvdb_episode ASC',
                      [tvdb_id, sceneSeason, sceneEpisode])
     if rows:
         return [(int(r["tvdb_season"]), int(r["tvdb_season"]))
@@ -110,9 +108,9 @@ def _xem_refresh_needed(tvdb_id):
         return False
 
     db = _get_db()
-    rows = db.select('''SELECT last_refreshed
-                     FROM xem_refresh
-                     WHERE tvdb_id = ?''', [tvdb_id])
+    rows = db.select('SELECT last_refreshed '
+                     'FROM xem_refresh '
+                     'WHERE tvdb_id = ?', [tvdb_id])
     if rows:
         return time.time() > (int(rows[0]['last_refreshed']) +
                               MAX_XEM_AGE_SECS)
@@ -144,9 +142,9 @@ def _xem_refresh(tvdb_id):
 
         if result:
             db = _get_db()
-            db.action('''INSERT OR REPLACE INTO xem_refresh
-                      (tvdb_id, last_refreshed)
-                      VALUES (?,?)''',
+            db.action('INSERT OR REPLACE INTO xem_refresh '
+                      '(tvdb_id, last_refreshed) '
+                      'VALUES (?,?)',
                       [tvdb_id, time.time()])
             if result['result'] == 'success':
                 db.action("DELETE FROM xem_num where tvdb_id = ?", [tvdb_id])
@@ -154,13 +152,13 @@ def _xem_refresh(tvdb_id):
                     # 'scene' is always present, scene_2 is for doubles, etc.
                     for keyname in ('scene', 'scene_2', 'scene_3', 'scene_4'):
                         if keyname in entry:
-                            db.action('''INSERT OR REPLACE INTO xem_num (
-                                  tvdb_id,
-                                  tvdb_season,
-                                  tvdb_episode,
-                                  scene_season,
-                                  scene_episode)
-                                  VALUES (?,?,?,?,?)''',
+                            db.action('INSERT OR REPLACE INTO xem_num ('
+                                  'tvdb_id, '
+                                  'tvdb_season, '
+                                  'tvdb_episode, '
+                                  'scene_season, '
+                                  'scene_episode) '
+                                  'VALUES (?,?,?,?,?)',
                                   [tvdb_id,
                                    entry['tvdb']['season'],
                                    entry['tvdb']['episode'],

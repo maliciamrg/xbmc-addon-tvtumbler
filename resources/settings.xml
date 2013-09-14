@@ -2,6 +2,8 @@
 <settings>
 	<category label="General">
         <setting id="new_show_path" label="Directory for New TV Shows" type="folder" subsetting="true" value="" />
+        <setting id="notify_snatch" label="Notify on Download Begin" type="bool" default="true" />
+        <setting id="notify_download" label="Notify on Download End" type="bool" default="true" />
     </category>
     <category label="Feeders">
     	<setting type="lsep" label="EZRSS (eztv.it)" />

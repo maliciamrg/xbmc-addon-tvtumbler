@@ -2,7 +2,7 @@
 <addon
     id="service.tvtumbler"
     name="TvTumbler"
-    version="0.0.1"
+    version="0.0.2"
     provider-name="Bricky">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
@@ -14,17 +14,18 @@
     -->
     <import addon="script.common.plugin.cache" version="2.5.1" />
     <import addon="script.module.requests" version="1.1.0" />
-    <import addon="script.module.xmltodict" version="0.2.0" />
     <import addon="script.module.elementtree" version="1.2.7" />
     <import addon="script.module.feedparser" version="5.1.2" />
   </requires>
-  <extension point="xbmc.service" library="service.py" start="login"/>
-  <!-- <extension point="xbmc.python.script" library="script.py"/>  -->
+   <extension point="xbmc.python.script" library="script.py">
+    <provides>video executable</provides>
+  </extension>
+  <extension point="xbmc.service" library="service.py" start="login" />
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <language></language>
     <summary lang="en">PVR For Torrents</summary>
-    <description lang="en">PVR For Torrents</description>
+    <description lang="en">Automatically download new episodes of followed TV shows as they air.</description>
     <disclaimer lang="en">It is your responsibility to comply with all legal and copyright requirements.</disclaimer>
     <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
     <source>http://tvtumbler.com</source>

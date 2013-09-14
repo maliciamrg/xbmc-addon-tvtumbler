@@ -13,6 +13,7 @@ from threading import Lock
 
 from . import events, feeder, logger
 from .schedule import SchedulerThread
+from .comms import server
 
 
 feederThread = None
@@ -38,6 +39,8 @@ def start():
         if started:
             logger.warning('Attempt to start when already started.')
             return
+
+        server.run_server()
 
         feederThread = SchedulerThread(action=feeder.run,
                                     threadName="FEEDER",
