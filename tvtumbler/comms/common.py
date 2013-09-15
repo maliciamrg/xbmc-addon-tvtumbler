@@ -25,7 +25,7 @@ COMMS_PORT = 28574
 def get_socket_details():
     if sys.platform == 'win32':
         logger.debug('Running under windows, using tcp sockets')
-        socket_details = ('', COMMS_PORT)  # '' => localhost
+        socket_details = ('127.0.0.1', COMMS_PORT)  # '' => localhost
     else:
         logger.debug('Running under posix')
         socket_details = os.path.join(xbmc.translatePath('special://temp/').decode('utf-8'), 'tvtumbler.sock')
