@@ -10,7 +10,7 @@ This is a simple caching wrapper around tvdb_api.
 @contact: info@tvtumbler.com
 '''
 import time
-import tvdb_api
+from tvdb_api import tvdb_api
 
 _Tvdb = None  # This is a shared instance of tvdb_api.Tvdb.  Created when first needed
 _tvdb_infos = {}
@@ -22,7 +22,7 @@ def get_tvdb_info(tvdb_id, maxage=60 * 60 * 24):
         if time.time() - _tvdb_infos[tvdb_id][0] < maxage:
             return _tvdb_infos[tvdb_id][1]
     if _Tvdb is None:
-        _Tvdb = tvdb_api.Tvdb(apikey='FCC2D40061D489B4', debug=True)
+        _Tvdb = tvdb_api.Tvdb(apikey='FCC2D40061D489B4', debug=False)
     t = _Tvdb[int(tvdb_id)]
     _tvdb_infos[tvdb_id] = (time.time(), t)
     return t
