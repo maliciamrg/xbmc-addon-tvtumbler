@@ -31,9 +31,13 @@ def is_video_file(filename):
     filename = filename.lower()
     if (re.search('(^|[\W_])sample\d*[\W_]', filename) or  # ignore samples
         filename.startswith('._') or  # ignore max osx special files
-        '.partial.' in filename or  # ignore iplayer partials
-        filename.endswith('.rar') or filename.endswith('.001')):  # and for now we explicity ignore rars
+        '.partial.' in filename):  # ignore iplayer partials
         return False
+
+    # xbmc can also play a bunch of stuff that we don't necessarily want here.
+    for bad_ext in ['strm', 'pls', 'm3u', 'm3u8', 'rar', '001', 'zip', 'sdp', 'url', 'rss', 'html']:
+        if filename.endswith('.' + bad_ext):
+            return False
 
     return filename.rpartition(".")[2] in get_video_extensions()
 

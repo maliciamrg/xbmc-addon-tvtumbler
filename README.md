@@ -10,7 +10,7 @@ WARNING: This is **pre-alpha** code, use at your own risk, and do not expect it 
 Requirements:
 -------------
 
-- [XBMC 13.0 (Gotham)](http://mirrors.xbmc.org/snapshots/) Possibly working on Frodo also, but not tested yet.
+- [XBMC 13.0 (Gotham)](http://mirrors.xbmc.org/snapshots/) or [XBMC 12.2 (Frodo)](http://xbmc.org/download/).
 - A working XBMC TV library (i.e. in Video -> Library -> TV Shows you have some entries listed) which uses thetvdb.com
 numbering system (most will by default).
 - [Transmission Bittorrent Client](http://www.transmissionbt.com/) Running somewhere on the network.  The default
@@ -19,12 +19,28 @@ download dir must be accessible to XBMC.
 (Other bittorrent clients are in the pipeline, but Transmission is the easiest to get started with)
 
 Setup:
--------------
+------
 
-- Install this addon to your XBMC.
+- Install this addon to your XBMC (get the [latest zip from here](http://repo.tvtumbler.com/service.tvtumbler/)).
 - Open the addon settings (System -> Settings -> Addons -> Enabled Addons -> Services -> TvTumbler -> Configure)
 - In **Feeders**: enable at least one (or several if you prefer)
 - In **Libtorrent**: leave this disabled, it doesn't work for now.
-- In **Transmission**: enable it, and set all required settings.  The `Download Dir` is where XMBC will look for completed downloads.
+- In **Transmission**: enable it, and set all required settings.  The `Download Dir` is where XMBC will look for 
+completed downloads. (Preferably this should be a public share with password-less write access, or a directory on the
+xbmc machine itself)
 
-That's it.  The rest is completely automatic.
+When first run, none of the shows in your library will be 'followed'.  You'll need to follow at least a few:
+
+- Open the addon through 'Programs' or 'Video Addons'.  After a few seconds you should get a list of shows in your 
+library.
+- Select a show to toggle the 'follow' status.  Right click (context menu) will allow you to change the desired quality.
+
+Notes:
+------
+
+- This is pre-alpha code.  Don't expect it to work without problems.
+- Doesn't work correctly (yet) on a raspberry Pi (at least not on raspbmc).  This is due to an issue with Python and
+the handling of subprocesses.
+- Air-by-date shows are currently skipped.
+
+
