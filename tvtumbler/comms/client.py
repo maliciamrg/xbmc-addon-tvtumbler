@@ -10,8 +10,10 @@ Created on Sep 10, 2013
 '''
 import socket
 import sys
+import traceback
 
 from . import common
+from .. import logger
 
 
 class Client(object):
@@ -73,6 +75,8 @@ def _send_raw(raw_data):
             result['errorMessage'] = 'Failed to connect, server not running?'
         else:
             result['errorMessage'] = repr(e)
+        logger.error('socket.error: ' + str(e))
+        logger.error(traceback.format_exc())
         return result
 
 

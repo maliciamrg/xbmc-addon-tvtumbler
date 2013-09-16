@@ -93,7 +93,7 @@ def _handle_message(msg):
         result['result'] = fn(**args)
     except Exception, e:
         logger.error('Error calling Service: ' + str(e))
-        logger.debug(traceback.format_exc())
+        logger.error(traceback.format_exc())
         result['error'] = True
         result['errorMessage'] = str(e)
     return result
@@ -176,10 +176,23 @@ def _socket_server():
         # any longer since we use non-blocking io, but no reason to remove it yet.
         if msg == 'SHUTDOWN':
             shutdown_sock = True
-            common.send(conn, 'OK')
+            try:
+                common.send(conn, 'OK')
+            except:
+                # just ignore an error here, we're shutting down, so it doesn't matter
+                pass
         else:
+            # This is the 'normal' message handling.
             response = _handle_message(msg)
-            common.send(conn, response)
+            try:
+                common.send(conn, response)
+            except socket.error, e:
+                if e.errno == 32:  # broken pipe
+                    logger.notice('Error %s when sending response, assuming client timeout' % (repr(e)))
+                else:
+                    logger.error('Error sending response: ' + repr(e))
+                    logger.error(traceback.format_exc())
+                    # just fall through and list for new, there's nothing else we can do anyway.
 
         idle_since = time.time()
         logger.debug('done')
