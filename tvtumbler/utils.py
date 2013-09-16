@@ -97,9 +97,16 @@ def get_user_agent():
     global _user_agent
     if not _user_agent:
         xv = jsonrpc.application_get_properties()
+        try:
+            pl_sys = platform.system()
+            pl_rel = platform.release()
+        except Exception, e:
+            logger.error('Failure getting system or release: ' + str(e))
+            pl_sys = 'Unknown'
+            pl_rel = 'Unknown'
         # logger.debug(repr(xv))
         _user_agent = ('%s/%s (%s; %s; %s) %s/%d.%dr%s-%s' % (__addonname__, __addonversion__,
-                                                              platform.system(), platform.release(), INSTANCE_ID,
+                                                              pl_sys, pl_rel, INSTANCE_ID,
                                                               xv['name'],
                                                               xv['version']['major'], xv['version']['minor'],
                                                               xv['version']['revision'], xv['version']['tag']
