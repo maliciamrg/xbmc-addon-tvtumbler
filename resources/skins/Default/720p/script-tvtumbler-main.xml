@@ -104,10 +104,10 @@
       
       <control type="image" >
         <description>Banner or Poster or Fanart</description>
-        <posx>844</posx>
-        <posy>450</posy>
-        <width>213</width>
-        <height>120</height>
+        <posx>723</posx>
+        <posy>430</posy>
+        <width>350</width>
+        <height>160</height>
         <aspectratio align="right">keep</aspectratio>
         <texture>$INFO[Container(120).ListItem.Property(image)]</texture>
       </control>
@@ -163,7 +163,7 @@
         <aligny>center</aligny>
         <align>left</align>
         <label>[COLOR=red][B]Ignoring[/B][/COLOR]: New episodes of this show will NOT be downloaded.</label>
-        <visible>!StringCompare(Container(120).ListItem.Label2,Follow)</visible>
+        <visible>StringCompare(Container(120).ListItem.Label2,Ignore)</visible>
       </control>
       
       <!-- <control type="radiobutton" id="205">
