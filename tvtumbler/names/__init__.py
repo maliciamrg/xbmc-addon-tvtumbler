@@ -6,12 +6,15 @@ This file is part of TvTumbler.
 @license: GPL
 @contact: info@tvtumbler.com
 '''
+import os
+
+from .. import quality
+from ..numbering import SCENE_NUMBERING, TVDB_NUMBERING
+
 
 __all__ = ['NameParser',
            'SceneNameParser']
 
-from ..numbering import SCENE_NUMBERING
-from .. import quality
 
 
 class NameParser(object):
@@ -41,8 +44,9 @@ class NameParser(object):
     def _parse(self):
         '''
         Override this in derived classes.
-        Set _parsed to True (to indicate that parse has been attempted)
-        and _known to True if the parse was successful.
+        Set _parsed to True (to indicate that parse has been attempted).
+        Set _known to True if the parse was successful.
+        Set _bad to True if the name is on a blacklist of some sort.
         '''
         self._parsed = True
         self._known = False
@@ -138,7 +142,74 @@ class NameParser(object):
 #         if not self._parsed: self._parse()
 #         return self._air_date
 
-from scene import SceneNameParser
+    def make_local_filename(self, numbering=TVDB_NUMBERING):
+        '''
+        Returns a string like: Show Name - SXXEXX - Episode Name
+        **INCLUDES AN EXTENSION if the original filename had one**
+
+        See here for some formats: http://scenenotice.org/details.php?id=2081
+        '''
+        if not self._parsed:
+            self._parse()
+        if not self._known:
+            # not parseable?  No option but to use the original filename
+            return self.filename
+
+        if self._has_ext:
+            extension = os.path.splitext(self.filename)[1]
+        else:
+            extension = ''
+
+        epis = []
+        for e in self.episodes:
+            if numbering == TVDB_NUMBERING:
+                epis.extend(e.tvdb_episodes)
+            elif numbering == SCENE_NUMBERING:
+                epis.extend(e.scene_episodes)
+            else:
+                raise Exception('Unknown numbering system: ' + str(numbering))
+
+        epis = list(set(epis))  # remove dups
+        epis.sort()  # and sort them
+
+        seasons = set()
+        for s, e in epis:
+            seasons.add(s)
+
+        # does is span seasons?
+        is_multi_season = len(seasons)
+
+        # does it have more than one episode?
+        is_multi_episode = len(epis)
+
+        if is_multi_season:
+            # Multi season - we have no option here but to list season and episode
+            # for each epi.
+            # S01E02 - S01E03 - S01E04
+            episode_part = ' - '.join(['S%02dE%02d' % e for e in epis])
+        else:
+            if is_multi_episode:
+                # single season, multi episode
+                season = epis[0][0]
+                epnums = set([e[1] for e in epis])
+                is_sequential = (max(epnums) - min(epnums) == len(epnums) - 1)
+
+                if is_sequential:
+                    episode_part = 'S%02dE%02d-%02d' % (season, min(epnums), max(epnums))
+                else:
+                    # not sequential, we need to list them individually
+                    # S01E02E03
+                    episode_part = 'S%02d' % (season,) + ''.join(['E%02d' % (epi[1],) for epi in epis])
+            else:
+                # single episode - simplest case
+                episode_part = 'S%02dE%02d' % epis[0]
+
+        episode_names = ' & '.join([e.title for e in self.episodes])
+        return self.tvshow.name + ' - ' + episode_part + ' - ' + episode_names + extension
+
+
 
 # class BBCNameParser(NameParser):
 #    pass
+
+from scene import SceneNameParser

@@ -7,8 +7,6 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-from .showrss import ShowRSSFeeder
-from .ezrss import EZRSSFeeder
 from .. import events, logger
 
 _enabled_feeders = None

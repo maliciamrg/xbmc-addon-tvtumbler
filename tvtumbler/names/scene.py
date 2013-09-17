@@ -14,7 +14,7 @@ import time
 from unidecode import unidecode
 import xbmc
 
-from . import NameParser
+from ..names import NameParser
 from .. import db, jsonrpc, logger, quality, utils, api, events
 from ..numbering import SCENE_NUMBERING
 from ..tv import TvShow, TvEpisode

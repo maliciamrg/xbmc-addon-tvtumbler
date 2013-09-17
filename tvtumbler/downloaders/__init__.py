@@ -8,10 +8,11 @@ This file is part of TvTumbler.
 '''
 import os
 import sys
+
 import xbmc
 import xbmcvfs
 
-from .. import logger, utils, jsonrpc, events
+from .. import logger, utils, jsonrpc, events, numbering
 
 
 __addon__ = sys.modules["__main__"].__addon__
@@ -59,7 +60,7 @@ def download(downloadable):
         if d.can_download(downloadable):
             if d.download(downloadable):
                 if (__addon__.getSetting('notify_snatch') == 'true'):
-                    xbmc.executebuiltin('Notification(%s,%s: "%s",15000,%s)' % (__addonname__,
+                    xbmc.executebuiltin('Notification(%s,%s: %s,15000,%s)' % (__addonname__,
                                                                                 'Download Started',
                                                                                 downloadable.name,
                                                                                 __addon__.getAddonInfo('icon')))
@@ -111,6 +112,7 @@ def on_download_downloaded(download):
 
             np = name_parser(os.path.basename(f), has_ext=True,
                              numbering_system=feeder.get_numbering())
+            target_filename = np.make_local_filename(numbering=numbering.TVDB_NUMBERING)
             if np.is_known:
                 # if the filename is parsable, then we use the season for the first
                 # episode in the filename (using tvdb numbering)
@@ -134,7 +136,7 @@ def on_download_downloaded(download):
 
             dest_dir = os.path.join(tv_show_dir, 'Season %d' % (season,))
             xbmcvfs.mkdirs(dest_dir)
-            dest_file = os.path.join(dest_dir, os.path.basename(f))
+            dest_file = os.path.join(dest_dir, target_filename)
             logger.info(u'Copying file from "%s" to "%s".' % (f, dest_file))
             if xbmcvfs.copy(f, dest_file):
                 logger.info('Success!')
@@ -144,13 +146,13 @@ def on_download_downloaded(download):
     if any_files_copied:
         download.copied_to_library = True
         if (__addon__.getSetting('notify_download') == 'true'):
-            xbmc.executebuiltin('Notification(%s,%s: "%s",15000,%s)' % (__addonname__,
+            xbmc.executebuiltin('Notification(%s,%s: %s,15000,%s)' % (__addonname__,
                                                                         'Download Finished',
                                                                         download.name,
                                                                         __addon__.getAddonInfo('icon')))
         jsonrpc.videolibrary_scan(tv_show_dir)
     else:
-        xbmc.executebuiltin('Notification(%s,%s: "%s",60000,%s)' % (__addonname__,
+        xbmc.executebuiltin('Notification(%s,%s: %s,60000,%s)' % (__addonname__,
                                                                     'Download FAILED',
                                                                     download.name,
                                                                     __addon__.getAddonInfo('icon')))

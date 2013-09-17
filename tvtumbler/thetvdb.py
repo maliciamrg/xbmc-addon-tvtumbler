@@ -30,13 +30,19 @@ def get_tvdb_info(tvdb_id, maxage=60 * 60 * 24):
 
 def get_tvdb_field(tvdb_id, key_name):
     '''
-    Get a field from the tvdb_api by name.
+    Get a (show-)field from the tvdb_api by name.
     Note that this can be very slow, use with care.
     '''
     _tvdb_info = get_tvdb_info(tvdb_id)
     if key_name in _tvdb_info.data:
         return _tvdb_info[key_name]
     return None
+
+
+def get_episode_name(tvdb_id, season, episode):
+    t = get_tvdb_info(tvdb_id)
+    return t[season][episode]['episodename']
+
 
 # import requests
 # from . import logger

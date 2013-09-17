@@ -340,6 +340,7 @@ class TvEpisode(object):
 
         self._tvdb_episodes = tvdb_episodes
         self._sc_episodes = scene_episodes
+        self._title = None
 
     def __repr__(self):
         return self.__class__.__name__ + '(episodeid=%s, tvshow=%s, tvdb_episodes=%s, scene_episodes=%s)' % (
@@ -481,6 +482,9 @@ class TvEpisode(object):
         if self._sc_episodes is None or overwrite:
             self._populate_scene_numbering()
 
+        if self._title is None or overwrite:
+            self._title = xbmc_data['title']
+
     def _populate_scene_numbering(self):
         if (self._tvshow is None or
             not self._tvdb_episodes):
@@ -514,6 +518,16 @@ class TvEpisode(object):
         @return: (TvShow)
         '''
         return self._tvshow
+
+    @property
+    def title(self):
+        '''
+        @rtype: str
+        '''
+        if self._title is not None:
+            return self._title
+        self._title = ' & '.join([thetvdb.get_episode_name(self.tvshow.tvdb_id, s, e) for s, e in self.tvdb_episodes])
+        return self._title
 
     @property
     def tvdb_episodes(self):
