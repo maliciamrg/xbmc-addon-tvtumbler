@@ -25,6 +25,7 @@
 	<info compressed="false">http://repo.tvtumbler.com/addons.xml</info>
 	<checksum>http://repo.tvtumbler.com/addons.xml.md5</checksum>
 	<datadir zip="true">http://repo.tvtumbler.com</datadir>
+  </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <language></language>
