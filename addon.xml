@@ -20,7 +20,7 @@
    <extension point="xbmc.python.script" library="script.py">
     <provides>video executable</provides>
   </extension>
-  <extension point="xbmc.service" library="service.py" start="login" />
+  <extension point="xbmc.service" library="service.py" start="startup" />
   <extension point="xbmc.addon.repository" name="TvTumbler addon repository">
 	<info compressed="false">http://repo.tvtumbler.com/addons.xml</info>
 	<checksum>http://repo.tvtumbler.com/addons.xml.md5</checksum>
@@ -31,7 +31,7 @@
     <language></language>
     <summary lang="en">PVR For Torrents</summary>
     <description lang="en">Automatically download new episodes of followed TV shows as they air.</description>
-    <disclaimer lang="en">It is your responsibility to comply with all legal and copyright requirements.</disclaimer>
+    <disclaimer lang="en">It is your responsibility to comply with all legal and copyright requirements in your country.</disclaimer>
     <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
     <source>http://tvtumbler.com</source>
     <email>xbmc-addon@tvtumbler.com</email>
