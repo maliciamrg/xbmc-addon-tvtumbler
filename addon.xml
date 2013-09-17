@@ -2,7 +2,7 @@
 <addon
     id="service.tvtumbler"
     name="TvTumbler"
-    version="0.0.3"
+    version="0.0.4"
     provider-name="Bricky">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
@@ -25,7 +25,6 @@
 	<info compressed="false">http://repo.tvtumbler.com/addons.xml</info>
 	<checksum>http://repo.tvtumbler.com/addons.xml.md5</checksum>
 	<datadir zip="true">http://repo.tvtumbler.com</datadir>
-  </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <language></language>
