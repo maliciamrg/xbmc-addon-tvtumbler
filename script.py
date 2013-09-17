@@ -104,7 +104,7 @@ class TvTumblerShows(xbmcgui.WindowXML):
                 logger.notice('timeout in _load_slow_show_data waiting for fast data.  giving up')
                 return
         with self._shows_lock:
-            remaining_tvdb_ids = [s['tvdb_id'] for s in self.shows]
+            remaining_tvdb_ids = [str(s['tvdb_id']) for s in self.shows]
         num_at_a_time = 2
         while remaining_tvdb_ids:
             lookup_this_time = remaining_tvdb_ids[:num_at_a_time]
@@ -325,7 +325,7 @@ class TvTumblerShows(xbmcgui.WindowXML):
                 if img_pref in show and show[img_pref]:
                     item.setProperty('image', show[img_pref])
                     break
-            item.setProperty('tvdb_id', show['tvdb_id'])
+            item.setProperty('tvdb_id', str(show['tvdb_id']))
 
             self.getControl(120).addItem(item)
 #         if self.jump_to_bottom: self.getControl(120).selectItem(self.getControl(120).size() - 1)
