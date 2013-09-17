@@ -2,8 +2,8 @@ xbmc-addon-tvtumbler
 ====================
 
 This is a TV show downloader for XMBC.
-It watches torrent RSS feeds for new episodes in all TV shows in your library, and downloads any that you don't have
-to your video library automatically.
+It watches torrent RSS feeds for new episodes in 'followed' TV shows in your library, and downloads any that you don't
+have.
 
 WARNING: This is **pre-alpha** code, use at your own risk, and do not expect it to work completely yet!
 
@@ -22,6 +22,7 @@ Setup:
 ------
 
 - Install this addon to your XBMC (get the [latest zip from here](http://repo.tvtumbler.com/service.tvtumbler/)).
+- Restart XMBC.  (this is a bug - will be fixed in time)
 - Open the addon settings (System -> Settings -> Addons -> Enabled Addons -> Services -> TvTumbler -> Configure)
 - In **Feeders**: enable at least one (or several if you prefer)
 - In **Libtorrent**: leave this disabled, it doesn't work for now.
@@ -39,8 +40,9 @@ Notes:
 ------
 
 - This is pre-alpha code.  Don't expect it to work without problems.
-- Doesn't work correctly (yet) on a raspberry Pi (at least not on raspbmc).  This is due to an issue with Python and
-the handling of subprocesses.
+- Libtorrent is broken for now, don't enable it (unless you're a dev and want to fix it).
 - Air-by-date shows are currently skipped.
+- State of currently running downloads is lost if xbmc is restarted (or the addon is upgraded).
+- After the addon is initially installed, you may need to restart xbmc before it will operate.
 
 
