@@ -81,10 +81,12 @@ class TvShow(object):
                        path=s['file'] if 'file' in s else None)
         else:
             # no match locally?  try tvdb
-            s = api.show(tvdb_id)
-            if s:
+            # s = api.show(tvdb_id)
+            seriesname = thetvdb.get_tvdb_field(tvdb_id=tvdb_id, key_name='seriesname',
+                                       allow_remote_fetch=True)
+            if seriesname:
                 return cls(tvshowid=None,
-                           name=s['series_name'],
+                           name=seriesname,
                            tvdb_id=tvdb_id,
                            path=None)
             else:
@@ -256,12 +258,20 @@ class TvShow(object):
         '''
         return self._get_tvdb_field('status')
 
-    def _get_tvdb_field(self, key_name):
+    @property
+    def fast_status(self):
+        '''Same as status, but will only used cached values.
+        Returns None if there is no cached value.
+        @rtype: str
+        '''
+        return self._get_tvdb_field('status', allow_remote_fetch=False)
+
+    def _get_tvdb_field(self, key_name, allow_remote_fetch=True):
         '''
         Get a field from the tvdb_api by name.
         Note that this can be very slow, use with care.
         '''
-        return thetvdb.get_tvdb_field(self.tvdb_id, key_name)
+        return thetvdb.get_tvdb_field(self.tvdb_id, key_name, allow_remote_fetch)
 
     @classmethod
     def get_followed_shows(cls):

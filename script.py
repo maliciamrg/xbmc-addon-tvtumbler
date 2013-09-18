@@ -85,7 +85,7 @@ class TvTumblerShows(xbmcgui.WindowXML):
         self._slow_show_data_loader.start()
         with self._shows_lock:
             self.shows = service_api.get_all_shows(properties=['tvshowid', 'name', 'tvdb_id',
-                                                               'followed', 'wanted_quality'])
+                                                               'followed', 'wanted_quality', 'fast_status'])
             logger.debug(repr(self.shows))
             self.updateDisplay()
 
@@ -94,12 +94,12 @@ class TvTumblerShows(xbmcgui.WindowXML):
 
     def _load_slow_show_data(self):
         start_time = time.time()
-        xbmc.sleep(100)  # give the gui a chance to draw
+        xbmc.sleep(1000)  # give the gui a chance to draw
         count = 0
         while not self.shows:
             logger.debug('Waiting for fast data to finish, this should not usually happen')
             count = count + 1
-            xbmc.sleep(100)
+            xbmc.sleep(300)
             if count > 100:
                 logger.notice('timeout in _load_slow_show_data waiting for fast data.  giving up')
                 return
@@ -325,6 +325,8 @@ class TvTumblerShows(xbmcgui.WindowXML):
                 if img_pref in show and show[img_pref]:
                     item.setProperty('image', show[img_pref])
                     break
+            if 'fast_status' in show and show['fast_status']:
+                item.setProperty('status', str(show['fast_status']))
             item.setProperty('tvdb_id', str(show['tvdb_id']))
 
             self.getControl(120).addItem(item)
