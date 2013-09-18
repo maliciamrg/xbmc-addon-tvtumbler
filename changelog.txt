@@ -1,14 +1,14 @@
-0.0.4 (2013-09-17)
+[B]0.0.4[/B] (2013-09-17)
   - Better handling of ipc timeouts in comms (again, the Pi is the issue here)
   - Rearrange the gui a bit to show more fanart
   - Handle the case where empty tv shows have integer tvdb_id's
   - Rename downloaded file (fixed names for now, this will be a config setting in the future)
 
-0.0.3 (2013-09-16)
+[B]0.0.3[/B] (2013-09-16)
   - Workaround for the odd exception on the Pi when getting platform info
 
-0.0.2 (2013-09-13)
+[B]0.0.2[/B] (2013-09-13)
   - Very simple (yet mostly functional) gui
-	
-0.0.1
+
+[B]0.0.1[/B]
   - Initial, pre-alpha.
