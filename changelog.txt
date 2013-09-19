@@ -1,3 +1,10 @@
+[B]0.0.5[/B]
+  - Refactor things around a little so that the gui won't load sqlite.
+  - Much much faster response for tvdb data, tvdb_api was much too slow (it appears that it doesn't cache correctly?).  
+    We now only use it for getting the episode name on a new download.
+  - Pickle our fast_cache data on shutdown, and load it again on startup.
+  - Create a general module for caching (looks like we're going to be doing a lot of this!)
+
 [B]0.0.4[/B] (2013-09-17)
   - Better handling of ipc timeouts in comms (again, the Pi is the issue here)
   - Rearrange the gui a bit to show more fanart

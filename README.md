@@ -43,6 +43,9 @@ Notes:
 - Libtorrent is broken for now, don't enable it (unless you're a dev and want to fix it).
 - Air-by-date shows are currently skipped.
 - State of currently running downloads is lost if xbmc is restarted (or the addon is upgraded).
-- After the addon is initially installed, you may need to restart xbmc before it will operate.
+- After the addon is initially installed, you may need to restart xbmc before it will operate. (fixed now?)
+- The latest Gotham nightlies (since, I think, [this change](https://github.com/xbmc/xbmc/commit/19212e78eda0716bae7d47ab3223fda3bd84451f#diff-d150a7803ef164a51aa46dcacca5af81))
+won't upgrade the addon automatically when new changes occur.  You'll need to upgrade manually (the addon will show in
+your available updates, you'll just need to download it and install from zip). 
 
 
