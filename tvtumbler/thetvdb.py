@@ -20,60 +20,20 @@ import requests
 from tvdb_api import tvdb_api
 import xbmc
 
-from . import logger, events
+from . import logger, events, fastcache
 
 
 TVDB_API_KEY = 'FCC2D40061D489B4'
 _Tvdb = None  # This is a shared instance of tvdb_api.Tvdb.  Created when first needed
 _tvdb_infos = {}
-_series_fastcache = None  # this is a memory cache of /api/%s/series/%s/en.xml
-SERIES_FASTCACHE_MAXAGE = 60 * 60 * 24
 
 
-def _onAbortRequested():
-    global _series_fastcache
-    if _series_fastcache:
-        pickle_file_path = _get_series_fastcache_pickle_path()
-        logger.debug('Saving _series_fastcache to "%s"' % str(pickle_file_path))
-        pickle_file = open(pickle_file_path, 'wb')
-        cPickle.dump(_series_fastcache, pickle_file)
-        pickle_file.close()
-
-events.add_event_listener(events.ABORT_REQUESTED, _onAbortRequested)
-
-
-def _get_series_fastcache_pickle_path():
-    return os.path.join(xbmc.translatePath('special://temp').decode('utf-8'),
-                                        'srsfc.pkl')
-
-
-def _load_series_fastcache():
-    global _series_fastcache
-    if _series_fastcache is None:
-        try:
-            pickle_file_path = _get_series_fastcache_pickle_path()
-            if os.path.exists(pickle_file_path):
-                logger.debug('Loading _series_fastcache from "%s"' % str(pickle_file_path))
-                pickle_file = open(pickle_file_path, 'rb')
-                _series_fastcache = cPickle.load(pickle_file)
-                pickle_file.close()
-                return
-        except Exception, e:
-            logger.error('Error loading _series_fastcache from pickle: ' + str(e))
-            logger.error(traceback.format_exc())
-    _series_fastcache = {}
-
-
-def get_tvdb_api_info(tvdb_id, maxage=60 * 60 * 24):
-    global _Tvdb, _tvdb_infos
-    if tvdb_id in _tvdb_infos:
-        if time.time() - _tvdb_infos[tvdb_id][0] < maxage:
-            return _tvdb_infos[tvdb_id][1]
+@fastcache.func_cache(max_age_secs=60 * 60 * 24)
+def get_tvdb_api_info(tvdb_id):
+    global _Tvdb
     if _Tvdb is None:
         _Tvdb = tvdb_api.Tvdb(apikey=TVDB_API_KEY, debug=False)
-    t = _Tvdb[int(tvdb_id)]
-    _tvdb_infos[tvdb_id] = (time.time(), t)
-    return t
+    return _Tvdb[int(tvdb_id)]
 
 
 def get_tvdb_field(tvdb_id, key_name, allow_remote_fetch=True):
@@ -86,7 +46,7 @@ def get_tvdb_field(tvdb_id, key_name, allow_remote_fetch=True):
 
     @return: the value in a top-level tags under 'Series' from thetvdb.  If the tag is a list (e.g. actors, genre),
         returns it as a list of strings.
-        If there's no matching show, lookup fails, or the tag doesn't exists - returns None.
+        If there's no matching show, lookup fails, or the tag doesn't exist - returns None.
     @rtype: str|list|None
     '''
     result = tvdb_series_lookup(tvdb_id, allow_remote_fetch)
@@ -114,19 +74,12 @@ def tvdb_series_lookup(tvdb_id, allow_remote_fetch=True):
     '''
     Look up a series from thetvdb.
     '''
-    global _series_fastcache
-    if _series_fastcache is None:
-        _load_series_fastcache()
-    if tvdb_id in _series_fastcache:
-        if time.time() - _series_fastcache[tvdb_id][0] < SERIES_FASTCACHE_MAXAGE:
-            return _series_fastcache[tvdb_id][1]
-    if not allow_remote_fetch:
-        return None
-    l = _real_tvdb_series_lookup(tvdb_id)
-    _series_fastcache[tvdb_id] = (time.time(), l)
-    return l
+    if _real_tvdb_series_lookup.is_cached(tvdb_id) or allow_remote_fetch:
+        return _real_tvdb_series_lookup(tvdb_id)
+    return None
 
 
+@fastcache.func_cache(max_age_secs=60 * 60 * 24)
 def _real_tvdb_series_lookup(tvdb_id):
     url = 'http://thetvdb.com/api/%s/series/%s/en.xml' % (TVDB_API_KEY,
                                                           str(tvdb_id))
