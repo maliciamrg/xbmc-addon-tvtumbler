@@ -54,7 +54,7 @@ def exec_rpc(method, params=None):
     logger.debug('JSONRPC >> %s' % result_json)
     result = json.loads(result_json)
     if 'error' in result:
-        raise JsonRPCException(result['message'], result['code'])
+        raise JsonRPCException(result['error']['message'], result['error']['code'])
 
     return result['result']
 

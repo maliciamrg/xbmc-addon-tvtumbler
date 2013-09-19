@@ -377,8 +377,15 @@ class TvEpisode(object):
         @param episodeid: (int)
         @return: (TvEpisode)
         '''
-        ep = cls(episodeid=episodeid, tvshow=None, tvdb_episodes=None, scene_episodes=None)
-        ep._populate_from_xbmc()
+        try:
+            ep = cls(episodeid=episodeid, tvshow=None, tvdb_episodes=None, scene_episodes=None)
+            ep._populate_from_xbmc()
+            return ep
+        except jsonrpc.JsonRPCException, e:
+            if e.code == -32602:
+                raise EpisodeNotFoundException('Failure loading episode :"' + str(episodeid) + '"')
+            logger.warning('Got an exception while loading an episode by id.  Re-raising')
+            raise
         return ep
 
     @classmethod
@@ -568,3 +575,7 @@ class TvEpisode(object):
                 self._tvshow.wanted_quality & qual and
                 not self.episodeid and
                 not downloaders.is_downloading(self))
+
+
+class EpisodeNotFoundException(Exception):
+    pass
