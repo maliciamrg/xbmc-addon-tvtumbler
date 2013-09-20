@@ -20,6 +20,7 @@ feederThread = None
 # downloaderThread = None
 started = False
 start_stop_lock = Lock()
+shutdownRequested = False
 
 FEEDER_RUN_INTERVAL_SECS = 3 * 60
 # DOWNLOADER_RUN_INTERVAL_SECS = 5

@@ -7,6 +7,7 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 import os
+import xbmc
 
 from .. import quality
 from ..numbering import SCENE_NUMBERING, TVDB_NUMBERING
@@ -67,7 +68,7 @@ class NameParser(object):
     @property
     def is_bad(self):
         '''
-        Return True if the filename matches scene_regexes.get_bad_regexes.
+        Return True if the filename is blacklisted for some reason.
         (and hence shouldn't be downloaded)
 
         @rtype: bool
@@ -176,7 +177,7 @@ class NameParser(object):
         for s, e in epis:
             seasons.add(s)
 
-        # does is span seasons?
+        # does it span seasons?
         is_multi_season = len(seasons)
 
         # does it have more than one episode?
@@ -205,7 +206,7 @@ class NameParser(object):
                 episode_part = 'S%02dE%02d' % epis[0]
 
         episode_names = ' & '.join([e.title for e in self.episodes])
-        return self.tvshow.name + ' - ' + episode_part + ' - ' + episode_names + extension
+        return xbmc.makeLegalFilename(self.tvshow.name + ' - ' + episode_part + ' - ' + episode_names + extension)
 
 
 

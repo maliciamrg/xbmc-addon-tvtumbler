@@ -28,6 +28,8 @@ sys.path.append(libs)
 from tvtumbler import quality, logger
 from tvtumbler.comms.client import service_api
 
+threading.current_thread().name = 'gui'
+
 
 # __icon__         = __addon__.getAddonInfo('icon')
 # __localize__    = __addon__.getLocalizedString
@@ -39,7 +41,7 @@ from tvtumbler.comms.client import service_api
 
 # import tvtumbler
 
-IMAGE_PATH = xbmc.translatePath(os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'images'))
+# IMAGE_PATH = xbmc.translatePath(os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'images'))
 
 ACTION_MOVE_LEFT = 1
 ACTION_MOVE_RIGHT = 2
@@ -80,6 +82,12 @@ class TvTumblerShows(xbmcgui.WindowXML):
         self._slow_show_data_loader = None
 
     def onInit(self):
+        if not service_api.check_available(start_if_needed=False):
+            dlg = xbmcgui.Dialog()
+            dlg.ok('TvTumbler', 'Addon is either not running, or out of date.',
+                   'Please restart XMBC.')
+            return self.close()
+
         self._slow_show_data_loader = threading.Thread(target=self._load_slow_show_data, name='slow_show_data_loader')
         self._slow_show_data_loader._abort = False
         self._slow_show_data_loader.start()
@@ -307,7 +315,7 @@ class TvTumblerShows(xbmcgui.WindowXML):
         pass
         disp = {}
         for show in self.shows:
-            # trim off a leading 'the' if their is one
+            # trim off a leading 'the' if there is one
             if show['name'].lower().startswith('the '):
                 disp[show['name'][4:]] = show
             else:

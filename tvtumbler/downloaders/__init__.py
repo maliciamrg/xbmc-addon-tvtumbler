@@ -147,15 +147,15 @@ def on_download_downloaded(download):
         download.copied_to_library = True
         if (__addon__.getSetting('notify_download') == 'true'):
             xbmc.executebuiltin('Notification(%s,%s: %s,15000,%s)' % (__addonname__,
-                                                                        'Download Finished',
-                                                                        download.name,
-                                                                        __addon__.getAddonInfo('icon')))
+                                                                      'Download Finished',
+                                                                      download.name,
+                                                                      __addon__.getAddonInfo('icon')))
         jsonrpc.videolibrary_scan(tv_show_dir)
     else:
         xbmc.executebuiltin('Notification(%s,%s: %s,60000,%s)' % (__addonname__,
-                                                                    'Download FAILED',
-                                                                    download.name,
-                                                                    __addon__.getAddonInfo('icon')))
+                                                                  'Download FAILED',
+                                                                  download.name,
+                                                                  __addon__.getAddonInfo('icon')))
 
 
 def on_download_failed(download):

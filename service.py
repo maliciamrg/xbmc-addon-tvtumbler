@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     main.start()
 
-    while (not xbmc.abortRequested):
+    while (not xbmc.abortRequested and not main.shutdownRequested):
         xbmc.sleep(1000)
 
     main.halt()

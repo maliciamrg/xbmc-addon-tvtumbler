@@ -22,6 +22,8 @@ import xbmcvfs
 from . import common
 from .. import logger, tv, quality
 
+__addon__ = sys.modules["__main__"].__addon__
+
 
 # from .. import events
 class Service(object):
@@ -30,8 +32,12 @@ class Service(object):
     See the comments in tvtumbler.comms.client.Client for details.
     '''
     def echo(self, text):
-        '''Simple test method which just echos the first parameter'''
+        '''Simple test method which just echoes the first parameter'''
         return text
+
+    def get_version(self):
+        '''Get __addonversion__'''
+        return __addon__.getAddonInfo('version')
 
     def get_all_shows(self, properties=['tvshowid', 'name', 'tvdb_id', 'followed', 'wanted_quality', 'fanart',
                                         'thumbnail', 'poster', 'banner']):
@@ -90,7 +96,7 @@ def _handle_message(msg):
         if not fn:
             raise Exception('Method %s not implemented' % (method,))
         logger.debug('args are ' + repr(args))
-        result['result'] = fn(**args)
+        result['result'] = fn(**args) if args is not None else fn()
     except Exception, e:
         logger.error('Error calling Service: ' + str(e))
         logger.error(traceback.format_exc())
@@ -172,9 +178,11 @@ def _socket_server():
 
         msg = common.recv(conn)
 
-        # Special handling for the 'SHUTDOWN' message.  Actually, not required
-        # any longer since we use non-blocking io, but no reason to remove it yet.
+        # Special handling for the 'SHUTDOWN' message.
         if msg == 'SHUTDOWN':
+            logger.debug('Received SHUTDOWN message, setting main.shutdownRequested')
+            from .. import main
+            main.shutdownRequested = True
             shutdown_sock = True
             try:
                 common.send(conn, 'OK')
