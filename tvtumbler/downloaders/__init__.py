@@ -60,10 +60,9 @@ def download(downloadable):
         if d.can_download(downloadable):
             if d.download(downloadable):
                 if (__addon__.getSetting('notify_snatch') == 'true'):
-                    xbmc.executebuiltin('Notification(%s,%s: %s,15000,%s)' % (__addonname__,
-                                                                                'Download Started',
-                                                                                downloadable.name,
-                                                                                __addon__.getAddonInfo('icon')))
+                    xbmc.executebuiltin('Notification(%s,%s,15000,%s)' % (downloadable.name,
+                                                                          'Download Started',
+                                                                          __addon__.getAddonInfo('icon')))
                 return True
 
     logger.notice('No downloader accepted the download.  Sorry.')
@@ -138,24 +137,29 @@ def on_download_downloaded(download):
             xbmcvfs.mkdirs(dest_dir)
             dest_file = os.path.join(dest_dir, target_filename)
             logger.info(u'Copying file from "%s" to "%s".' % (f, dest_file))
-            if xbmcvfs.copy(f, dest_file):
-                logger.info('Success!')
-                any_files_copied = True
-            else:
-                logger.info('Failed!')
+            attempt = 1
+            copied = False
+            while attempt <= 5 and not copied:
+                if xbmcvfs.copy(f, dest_file):
+                    logger.info('Success!')
+                    copied = True
+                    any_files_copied = True
+                    break
+                else:
+                    logger.info('Failed to copy file.  Attempt %d' % (attempt))
+                    attempt = attempt + 1
+                    xbmc.sleep(5000)  # sometimes failure are temporary, give it a while and try again
     if any_files_copied:
         download.copied_to_library = True
         if (__addon__.getSetting('notify_download') == 'true'):
-            xbmc.executebuiltin('Notification(%s,%s: %s,15000,%s)' % (__addonname__,
-                                                                      'Download Finished',
-                                                                      download.name,
-                                                                      __addon__.getAddonInfo('icon')))
+            xbmc.executebuiltin('Notification(%s,%s,15000,%s)' % (download.name,
+                                                                  'Download Finished',
+                                                                  __addon__.getAddonInfo('icon')))
         jsonrpc.videolibrary_scan(tv_show_dir)
     else:
-        xbmc.executebuiltin('Notification(%s,%s: %s,60000,%s)' % (__addonname__,
-                                                                  'Download FAILED',
-                                                                  download.name,
-                                                                  __addon__.getAddonInfo('icon')))
+        xbmc.executebuiltin('Notification(%s,%s,60000,%s)' % (download.name,
+                                                              'Download FAILED',
+                                                              __addon__.getAddonInfo('icon')))
 
 
 def on_download_failed(download):

@@ -26,25 +26,9 @@ class TorrentDownloader(base.BaseDownloader):
         '''
         return isinstance(downloadable, links.Torrent)
 
-    def download(self, downloadable):
-        '''
-        Override in your derived class.
-        Be sure to add the 'Download' to _running_downloads.
-
-        @param downloadable: What we want to download.
-        @type downloadable: Downloadable
-        @return: Boolean value indicating success.
-        @rtype: bool
-        '''
-        rd = TorrentDownload(downloadable, self)
-        key = rd.key
-        if key in self._running_downloads:
-            logger.notice('%s is already downloading!' % (key,))
-            return False
-        if rd.start():
-            self._running_downloads[key] = rd
-            return True
-        return False
+    @classmethod
+    def get_download_class(cls):
+        return TorrentDownload
 
 
 class TorrentDownload(base.Download):

@@ -206,7 +206,8 @@ class NameParser(object):
                 episode_part = 'S%02dE%02d' % epis[0]
 
         episode_names = ' & '.join([e.title for e in self.episodes])
-        return xbmc.makeLegalFilename(self.tvshow.name + ' - ' + episode_part + ' - ' + episode_names + extension)
+        filename = self.tvshow.name + ' - ' + episode_part + ' - ' + episode_names + extension
+        return "".join(i for i in filename if i not in r'\/:*?"<>|')
 
 
 

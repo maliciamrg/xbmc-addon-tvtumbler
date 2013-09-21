@@ -9,7 +9,7 @@ Created on Aug 30, 2013
 @contact: info@tvtumbler.com
 '''
 from ..schedule import SchedulerThread
-from .. import logger
+from .. import logger, log
 from . import on_download_failed, on_download_downloaded
 
 
@@ -103,32 +103,35 @@ class BaseDownloader(object):
         '''
         return self._running_downloads[key]
 
+    @classmethod
+    def get_download_class(cls):
+        return Download
+
     def download(self, downloadable):
         '''
-        Override in your derived class.
-        Be sure to add the 'Download' to _running_downloads.
+        If you override this in your derived class, be sure to add the download
+        to _running_downloads, and call log.log_download_start().
 
         @param downloadable: What we want to download.
         @type downloadable: Downloadable
         @return: Boolean value indicating success.
         @rtype: bool
         '''
-        # Sample Implementation:
-        #
-        # rd = Download(downloadable, self)
-        # key = rd.key
-        # if key in self._running_downloads:
-        #     logger.notice('%s is already downloading!' % (key,))
-        #     return False
-        # if rd.start():
-        #     self._running_downloads[key] = rd
-        #     return True
-        return False
+        rd = self.get_download_class()(downloadable, self)
+        key = rd.key
+        if key in self._running_downloads:
+            logger.notice('%s is already downloading!' % (key,))
+            return False
+        if rd.start():
+            self._running_downloads[key] = rd
+            log.log_download_start(rd)
+            return True
 
     def on_download_failed(self, download):
         '''Called (by the download), when it fails.'''
         del self._running_downloads[download.key]
         on_download_failed(download)  # call the module implementation
+        log.log_download_fail(download)
 
     def on_download_downloaded(self, download):
         '''Called when the download has completed (i.e. no more data).
@@ -137,6 +140,10 @@ class BaseDownloader(object):
         may have future work (e.g. seeding).
         '''
         on_download_downloaded(download)  # call the module implementation
+        if download.copied_to_library:
+            log.log_download_finish(download)
+        else:
+            log.log_download_fail(download)
 
     def on_download_finished(self, download):
         '''Download is completely complete.'''
@@ -145,6 +152,7 @@ class BaseDownloader(object):
         else:
             download.stop(deleteFilesToo=False)
         del self._running_downloads[download.key]
+        # No need to log here, we already did when the download downloaded
 
 
 class Download(object):
@@ -179,7 +187,7 @@ class Download(object):
         XTor.
 
         @param downloadable: the Downloadable we're downloading.
-        @type downloadable: Downloadable
+        @type downloadable: tvtumbler.links.Downloadable
         @param downloader: the Downloader to which this download belongs.
         @type downloader: BaseDownloader
         '''
@@ -190,22 +198,35 @@ class Download(object):
                                        threadName=self.__class__.__name__,
                                        runIntervalSecs=3)
         self.copied_to_library = False
-
+        self._start_acked = False
+        self._end_acked = False
 
     @property
     def key(self):
+        '''
+        @rtype: str
+        '''
         return self._downloadable.unique_key
 
     @property
     def name(self):
+        '''
+        @rtype: str
+        '''
         return self._downloadable.name
 
     @property
     def downloader(self):
+        '''
+        @rtype: tvtumbler.downloaders.base.BaseDownloader
+        '''
         return self._downloader
 
     @property
     def downloadable(self):
+        '''
+        @rtype: tvtumbler.links.Downloadable
+        '''
         return self._downloadable
 
     def get_status_text(self):
@@ -332,10 +353,12 @@ class Download(object):
         implementation and handle all significant changes in the _on_* methods
         that this implementation calls.
         '''
-        if old_status == self.NOT_STARTED and new_status != self.NOT_STARTED:
+        if new_status != self.NOT_STARTED and not self._start_acked:
+            self._start_acked = True
             self._on_started()
 
-        if new_status == self.FAILED and old_status != self.FAILED:
+        if new_status == self.FAILED and not self._end_acked:
+            self._end_acked = True
             self._on_failed()
             self._downloader.on_download_failed(self)
 
@@ -356,7 +379,8 @@ class Download(object):
             self._on_downloaded()
             self._downloader.on_download_downloaded(self)
 
-        if new_status == self.FINISHED and old_status != self.FINISHED:
+        if new_status == self.FINISHED and not self._end_acked:
+            self._end_acked = True
             self._on_finished()
             self._downloader.on_download_finished(self)
 

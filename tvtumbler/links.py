@@ -77,7 +77,7 @@ class Downloadable(object):
     @property
     def feeder(self):
         '''
-        @return: (tvtumbler.feeders.base.BaseFeeder)
+        @rtype: tvtumbler.feeders.base.BaseFeeder
         '''
         return self._feeder
 
@@ -121,7 +121,7 @@ class Downloadable(object):
     @property
     def tvshow(self):
         '''
-        @rtype: TvEpisode
+        @rtype: tvtumbler.tv.TvShow
         '''
         if len(self._episodes):
             return self._episodes[0].tvshow

@@ -63,7 +63,7 @@
       </control>
       
       <control type="button" id="201">
-       <description>Button 2 (middle)</description>
+       <description>Button 2 (downloads)</description>
        <onleft>200</onleft>
        <onright>202</onright>
        <onup>120</onup>
@@ -72,14 +72,13 @@
        <posy>620</posy>
        <width>330</width>
        <height>40</height>
-       <visible>false</visible>
+       <visible>true</visible>
        <colordiffuse>FFFFFFFF</colordiffuse>
        <font>font13</font>
        <align>center</align>
-       <label>$LOCALIZE[SCRIPT3016]</label>
+       <label>Downloads</label>
        <textcolor>FFFFFFFF</textcolor>
        <disabledcolor>80FFFFFF</disabledcolor>
-       <enable>false</enable>
       </control>
       
       <control type="button" id="202">

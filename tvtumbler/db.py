@@ -133,14 +133,14 @@ class Connection(object):
                 except sqlite.OperationalError, e:
                     if ("unable to open database file" in str(e) or
                         "database is locked" in str(e)):
-                        logger.warning(u"DB error: %s" % e)
+                        logger.warning(u"DB error: %s" % str(e))
                         attempt += 1
                         xbmc.sleep(1000)
                     else:
-                        logger.error(u"DB error: %s" % e)
+                        logger.error(u"DB error: %s" % str(e))
                         raise
                 except sqlite.DatabaseError, e:
-                    logger.error(u"Fatal error executing query: %s" % e)
+                    logger.error(u"Fatal error executing query: %s" % str(e))
                     raise
 
             return sqlResult

@@ -34,6 +34,14 @@ class ShowRSSFeeder(TorrentFeeder):
     def is_enabled(cls):
         return (__addon__.getSetting('showrss_enable') == 'true')
 
+    @classmethod
+    def get_name(cls):
+        '''
+        @retur: Human-readable name.
+        @rtype: str
+        '''
+        return 'ShowRSS'
+
     def _parse_rss_item(self, item):
         '''
         RSS item (from _parse_rss_feed) to Torrent.

@@ -45,27 +45,9 @@ class TRPCDownloader(TorrentDownloader):
     def is_enabled(cls):
         return (__addon__.getSetting('trpc_enable') == 'true')
 
-    def download(self, downloadable):
-        '''
-        Override in your derived class.
-        Be sure to add the 'Download' to _running_downloads.
-
-        @param downloadable: What we want to download.
-        @type downloadable: Downloadable
-        @return: Boolean value indicating success.
-        @rtype: bool
-        '''
-        rd = TRPCDownload(downloadable, self)
-        key = rd.key
-        if key in self._running_downloads:
-            logger.notice('%s is already downloading!' % (key,))
-            return False
-        if rd.start():
-            self._running_downloads[key] = rd
-#             if not self._poller.is_alive():
-#                 self._poller.start(delayBeforeFirstRunSecs=2)
-            return True
-        return False
+    @classmethod
+    def get_download_class(cls):
+        return TRPCDownload
 
     @classmethod
     def _get_client(cls, createIfNeeded=True):
