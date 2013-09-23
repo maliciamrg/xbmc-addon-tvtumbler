@@ -1,3 +1,6 @@
+[B]0.0.7[/B]
+  - Much better layout/ordering behaviour on downloads screen.
+
 [B]0.0.6[/B] (2013-09-23)
   - Small bug in jsonrpc when creating exceptions.
   - New exception 'EpisodeNotFoundException' when querying for a tv episode that is no longer present.

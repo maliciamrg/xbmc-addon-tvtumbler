@@ -316,6 +316,6 @@ class TvTumblerShows(xbmcgui.WindowXML):
             if 'fast_status' in show and show['fast_status']:
                 item.setProperty('status', str(show['fast_status']))
             item.setProperty('tvdb_id', str(show['tvdb_id']))
-
+            item.setInfo('video', {'sorttitle': k})  # we set this so that we can use numpad letters to navigate
             self.getControl(120).addItem(item)
 #         if self.jump_to_bottom: self.getControl(120).selectItem(self.getControl(120).size() - 1)

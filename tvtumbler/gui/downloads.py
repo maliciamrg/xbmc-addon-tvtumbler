@@ -54,7 +54,7 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
             # copy from temp_running into _running_downloads and then ...
             t_dict = {}
             for r in temp_running:
-                t_dict[str(r['rowid'])] = r
+                t_dict[r['rowid']] = r
             with self._running_lock:
                 self._running_downloads = t_dict
 
@@ -63,7 +63,7 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
                 logger.debug('got non_running: ' + repr(non_running))
                 t_dict = {}
                 for r in non_running:
-                    t_dict[str(r['rowid'])] = r
+                    t_dict[r['rowid']] = r
                 with self._non_running_lock:
                     self._non_running_downloads = t_dict
                 num_previous_running = len(self._running_downloads)
@@ -153,9 +153,9 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
 #                 options[selected][1]()
 
     def updateDisplay(self, full=False):
-        def sizeof_fmt(num):
+        def sizeof_fmt(num, zero_as='0'):
             if num is None or num == 0:
-                return '0'
+                return zero_as
             for x in ['bytes', 'KB', 'MB', 'GB']:
                 if num < 1024.0 and num > -1024.0:
                     return "%3.1f%s" % (num, x)
@@ -174,10 +174,20 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
             return dt.strftime(_fmt)
 
         def timedelta_fmt(start_ts, end_ts):
-            start_dt = datetime.fromtimestamp(start_ts)
-            end_dt = datetime.fromtimestamp(end_ts)
-            delta = end_dt - start_dt
-            return str(delta)
+            secs = int(end_ts - start_ts)
+            if secs < 90:
+                return '%d secs' % (secs,)
+            elif secs < 5400:  # 1.5 hrs
+                return '%d mins' % (secs // 60,)
+            elif secs < 86400:  # 24 hours
+                h, s = divmod(secs, 3600)
+                return '%d h %d m' % (h, s // 60)
+            else:
+                return '%d hours' % (secs // 3600,)
+            # start_dt = datetime.fromtimestamp(start_ts)
+            # end_dt = datetime.fromtimestamp(end_ts)
+            # delta = end_dt - start_dt
+            # return str(delta)
 
         def _update_listitem(i, d, running):
             if running:
@@ -193,7 +203,8 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
                 start_time = startdate_fmt(int(d['start_time']))
                 i.setProperty('start_time', start_time)
                 # i.setProperty('total_size', str(sizeof_fmt(d['total_size'])))
-                i.setProperty('progress', '%s/%s' % (sizeof_fmt(d['downloaded_size']), sizeof_fmt(d['total_size'])))
+                i.setProperty('progress', '%s/%s' % (sizeof_fmt(d['downloaded_size']),
+                                                     sizeof_fmt(d['total_size'], '?')))
                 if float(d['total_size']) < 0.0001:
                     progress = '0.0'
                 else:
@@ -203,23 +214,25 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
                 i.setProperty('source', str(d['source']))
                 i.setProperty('rowid', str(d['rowid']))
                 i.setProperty('key', str(d['key']))
+                i.setInfo('video', {"Genre": 'Running'})  # this controls the color of the status
                 i.setInfo('data', d)
             else:
                 # --
                 # A completed/failed download
                 # --
-                i.setLabel(str(d['name']))
+                i.setLabel(d['name'])
                 status = str(d['final_status']) + ' (' + timedelta_fmt(int(d['start_time']), int(d['finish_time'])) + ')'
                 i.setLabel2(status)
                 start_time = startdate_fmt(int(d['start_time']))
                 i.setProperty('start_time', start_time)
                 # i.setProperty('total_size', str(sizeof_fmt(d['total_size'])))
-                i.setProperty('progress', sizeof_fmt(d['total_size']))
+                i.setProperty('progress', sizeof_fmt(d['total_size'], ''))
                 #progress = "%.2f" % (100.0 * float(d['downloaded_size']) / float(d['total_size']))
                 #i.setProperty('download_progress', progress)
                 i.setProperty('source', str(d['source']))
                 i.setProperty('rowid', str(d['rowid']))
                 i.setProperty('key', str(d['key']))
+                i.setInfo('video', {"Genre": d['final_status']})  # this controls the color of the status
                 i.setInfo('data', d)
 
         lctrl = self.getControl(120)
@@ -227,9 +240,12 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
             lctrl.reset()
         items_to_remove = []
         keys_to_add = self._running_downloads.keys() + self._non_running_downloads.keys()
+
+        # The first thing we do is to go through what's currently in the list, and update it.
+        # (this won't have any effect of course if the list is empty)
         for i in range(0, lctrl.size()):
             item = lctrl.getListItem(i)
-            rowid = item.getProperty('rowid')
+            rowid = int(item.getProperty('rowid'))
             in_running = rowid in self._running_downloads
             in_non_running = rowid in self._non_running_downloads
             if not in_running and not in_non_running:
@@ -240,11 +256,13 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
                                  self._running_downloads[rowid] if in_running else self._non_running_downloads[rowid],
                                  in_running)
 
+        # Then remove anything we no longer need (again, no effect if the list is empty)
         for i in items_to_remove:
             # from here: http://forum.xbmc.org/showthread.php?tid=158937
             # window_instance.removeControl(window_instance.getControl(ID))
             lctrl.removeItem(i)  # actually, this works.  at least in Gotham.
 
+        keys_to_add.sort(reverse=True)
         for k in keys_to_add:
             if k in self._running_downloads:
                 d = self._running_downloads[k]
@@ -257,6 +275,7 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
                                         label2=str(d['final_status']))
                 _update_listitem(item, d, False)
 
-            self.getControl(120).addItem(item)
+            lctrl.addItem(item)
 
         # lctrl.setEnabled(bool(self._running_downloads))
+        # lctrl.setSortMethod(1) # SORT_METHOD_LABEL

@@ -207,6 +207,9 @@ class NameParser(object):
 
         episode_names = ' & '.join([e.title for e in self.episodes])
         filename = self.tvshow.name + ' - ' + episode_part + ' - ' + episode_names + extension
+
+        # '\/:*?"<>|' is the windows invalid set.  see
+        # http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
         return "".join(i for i in filename if i not in r'\/:*?"<>|')
 
 
