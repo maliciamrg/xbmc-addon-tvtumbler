@@ -1,4 +1,13 @@
-[B]0.0.5[/B]
+[B]0.0.6[/B]
+  - Small bug in jsonrpc when creating exceptions.
+  - New exception 'EpisodeNotFoundException' when querying for a tv episode that is no longer present.
+  - Add a get_version method to the service. (returns a string like '0.0.6')
+  - Have the gui call the get_version when it starts.  It no match, fail to start gui (with warning about restart needed)
+  - Service can now be stopped by sending it a 'SHUTDOWN' message (just that text, nothing more). 
+  - Log start/finish/failure of downloads
+  - Very simple (and hackish) gui for downloads
+
+[B]0.0.5[/B] (2013-09-19)
   - Refactor things around a little so that the gui won't load sqlite.
   - Much much faster response for tvdb data, tvdb_api was much too slow (it appears that it doesn't cache correctly?).  
     We now only use it for getting the episode name on a new download.

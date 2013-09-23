@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<addon id="service.tvtumbler" name="TvTumbler" version="0.0.5"
+<addon id="service.tvtumbler" name="TvTumbler" version="0.0.6"
 	provider-name="Bricky">
 	<requires>
 		<import addon="xbmc.python" version="2.1.0" />
