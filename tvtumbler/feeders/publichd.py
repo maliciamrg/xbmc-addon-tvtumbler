@@ -66,3 +66,11 @@ class PublicHDFeeder(TorrentFeeder):
         return item.category in ('BluRay 720p', 'BluRay 1080p', 'BluRay Remux',
                             'BluRay', 'BluRay 3D', 'XviD', 'BRRip',
                             'HDTV', 'SDTV', 'TV WEB-DL', 'TV Packs')
+
+    @classmethod
+    def get_name(cls):
+        '''
+        Human-readable name.
+        @return: (str)
+        '''
+        return 'PublicHD'

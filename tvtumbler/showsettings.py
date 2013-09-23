@@ -37,7 +37,7 @@ def get_show_settings_row(tvdb_id):
     except KeyError:
         pass
     db = _get_db()
-    rows = db.select('SELECT * FROM show_settings where tvdb_id = ?', [tvdb_id])
+    rows = db.select('SELECT * FROM show_settings where tvdb_id = ?', [str(tvdb_id)])
     if rows:
         _show_settings_row_cache[tvdb_id] = rows[0]
     else:
@@ -50,7 +50,7 @@ def set_show_settings_row(tvdb_id, follow=None, wanted_quality=None):
     row = get_show_settings_row(tvdb_id)
     exists = bool(row)
     if not exists:
-        row = {'tvdb_id': tvdb_id,
+        row = {'tvdb_id': str(tvdb_id),
                'follow': 0,
                'wanted_quality': 0}
 

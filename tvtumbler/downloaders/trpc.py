@@ -38,6 +38,14 @@ class TRPCDownloader(TorrentDownloader):
         super(TorrentDownloader, self).__init__()
 
     @classmethod
+    def get_name(cls):
+        '''
+        Human-readable name.
+        @rtype: str
+        '''
+        return 'Transmission'
+
+    @classmethod
     def is_available(cls):
         return True
 

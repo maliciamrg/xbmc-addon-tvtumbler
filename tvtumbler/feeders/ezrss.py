@@ -32,3 +32,11 @@ class EZRSSFeeder(TorrentFeeder):
     @classmethod
     def is_enabled(cls):
         return (__addon__.getSetting('ezrss_enable') == 'true')
+
+    @classmethod
+    def get_name(cls):
+        '''
+        @retur: Human-readable name.
+        @rtype: str
+        '''
+        return 'EZRSS'

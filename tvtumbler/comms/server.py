@@ -20,7 +20,9 @@ import xbmc
 import xbmcvfs
 
 from . import common
-from .. import logger, tv, quality
+from .. import logger, tv, quality, log
+from ..downloaders import get_enabled_downloaders
+
 
 __addon__ = sys.modules["__main__"].__addon__
 
@@ -82,6 +84,39 @@ class Service(object):
         oldvalue = show.wanted_quality
         show.wanted_quality = wanted_quality
         return oldvalue
+
+    def get_running_downloads(self, properties=['rowid', 'key', 'name', 'status', 'status_text', 'total_size',
+                                                'downloaded_size', 'download_speed', 'start_time', 'source',
+                                                'downloader'],
+                              sort_by='start_time'):
+        result = []
+        for dler in get_enabled_downloaders():
+            for dl in dler.downloads:
+                d = dict()
+                for k in properties:
+                    # these ones are properties (we can read them straight)
+                    if k in ['rowid', 'key', 'name', 'total_size', 'start_time']:
+                        d[k] = getattr(dl, k, None)
+                    elif k == 'status':
+                        d[k] = dl.get_status()
+                    elif k == 'status_text':
+                        d[k] = dl.get_status_text()
+                    elif k == 'downloaded_size':
+                        d[k] = dl.get_downloaded_size()
+                    elif k == 'download_speed':
+                        d[k] = dl.get_download_speed()
+                    elif k == 'source':
+                        d[k] = dl.downloadable.feeder.get_name()
+                    elif k == 'downloader':
+                        d[k] = dl.downloader.get_name()
+                    else:
+                        logger.notice('Attempt to get unknown property ' + k)
+                result.append(d)
+        return result
+
+    def get_non_running_downloads(self, properties=['rowid', 'key', 'name', 'final_status', 'total_size',
+                                                 'start_time', 'finish_time', 'source', 'quality'], limit=30):
+        return log.get_non_running_downloads(properties, limit)
 
 service_api = Service()
 

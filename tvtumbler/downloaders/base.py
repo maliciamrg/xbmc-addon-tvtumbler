@@ -8,6 +8,7 @@ Created on Aug 30, 2013
 @license: GPL
 @contact: info@tvtumbler.com
 '''
+import time
 from ..schedule import SchedulerThread
 from .. import logger, log
 from . import on_download_failed, on_download_downloaded
@@ -43,6 +44,14 @@ class BaseDownloader(object):
         except AttributeError:
             cls._instance = cls()
             return cls._instance
+
+    @classmethod
+    def get_name(cls):
+        '''
+        Human-readable name.
+        @rtype: str
+        '''
+        return cls.__name__
 
     @classmethod
     def is_available(cls):
@@ -197,6 +206,7 @@ class Download(object):
         self._poller = SchedulerThread(action=self._poll,
                                        threadName=self.__class__.__name__,
                                        runIntervalSecs=3)
+        self._start_time = None
         self.copied_to_library = False
         self._start_acked = False
         self._end_acked = False
@@ -259,6 +269,15 @@ class Download(object):
         '''
         return 0
 
+    @property
+    def start_time(self):
+        '''
+        A unix timestamp.  None if not started.
+
+        @rtype: float
+        '''
+        return self._start_time
+
     def get_downloaded_size(self):
         '''
         In bytes
@@ -289,6 +308,7 @@ class Download(object):
             logger.notice('Attempt to start Download, but the status is %s.  Not starting' %
                           (self._status_names[self._status]))
             return False
+        self._start_time = time.time()
         self._poller.start(2)
         return True
 
