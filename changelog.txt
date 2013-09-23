@@ -1,4 +1,4 @@
-[B]0.0.6[/B]
+[B]0.0.6[/B] (2013-09-23)
   - Small bug in jsonrpc when creating exceptions.
   - New exception 'EpisodeNotFoundException' when querying for a tv episode that is no longer present.
   - Add a get_version method to the service. (returns a string like '0.0.6')
