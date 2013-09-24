@@ -101,7 +101,8 @@ def get_user_agent():
             pl_sys = platform.system()
             pl_rel = platform.release()
         except Exception, e:
-            logger.error('Failure getting system or release: ' + str(e))
+            logger.error('Failure getting system or release (no need to post bugs about this, '
+                         'it can be safely ignored): ' + str(e))
             pl_sys = 'Unknown'
             pl_rel = 'Unknown'
         # logger.debug(repr(xv))
