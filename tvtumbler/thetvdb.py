@@ -15,7 +15,7 @@ import sys
 import time
 import traceback
 
-import elementtree.ElementTree as etree
+import xml.etree.ElementTree as etree
 import requests
 from tvdb_api import tvdb_api
 import xbmc
