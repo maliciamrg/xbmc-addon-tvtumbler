@@ -8,19 +8,21 @@ Created on Sep 21, 2013
 @license: GPL
 @contact: info@tvtumbler.com
 '''
+from datetime import datetime, date
 import os
 import sys
 import threading
 import time
-from datetime import datetime
 
 import xbmc
 import xbmcaddon
 import xbmcgui
 
-from .actions import *
 from .. import quality, logger
 from ..comms.client import service_api
+from .actions import *
+
+
 __addon__ = xbmcaddon.Addon()
 __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
 
@@ -164,10 +166,11 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
 
         def startdate_fmt(ts):
             dt = datetime.fromtimestamp(int(ts))
-            age = datetime.today() - dt
-            if age.days < 1:
+            last_midnight = datetime.combine(date.today(), datetime.min.time())
+            age_since_mn = last_midnight - dt
+            if dt >= last_midnight:
                 _fmt = '%H:%M'
-            elif age.days < 7:
+            elif age_since_mn.days < 7:
                 _fmt = '%a %H:%M'
             else:
                 _fmt = '%x'  # Locale's appropriate date representation.
