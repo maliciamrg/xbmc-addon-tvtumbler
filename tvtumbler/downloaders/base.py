@@ -11,7 +11,6 @@ Created on Aug 30, 2013
 import time
 from ..schedule import SchedulerThread
 from .. import logger, log
-from . import on_download_failed, on_download_downloaded
 
 
 class BaseDownloader(object):
@@ -138,6 +137,7 @@ class BaseDownloader(object):
 
     def on_download_failed(self, download):
         '''Called (by the download), when it fails.'''
+        from . import on_download_failed
         del self._running_downloads[download.key]
         on_download_failed(download)  # call the module implementation
         log.log_download_fail(download)
@@ -150,6 +150,7 @@ class BaseDownloader(object):
         Care here: we can't just delete at this point because the download
         may have future work (e.g. seeding).
         '''
+        from . import on_download_downloaded
         on_download_downloaded(download)  # call the module implementation
         if download.copied_to_library:
             log.log_download_finish(download)

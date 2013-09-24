@@ -227,7 +227,7 @@ def get_scene_names(tvdb_id):
     if not tvdb_id:
         return []
 
-    _update_if_needed()
+    update_if_needed()
 
     return [x["show_name"] for x in _get_db().select('SELECT show_name '
                                                      'FROM scene_names '
@@ -283,7 +283,7 @@ def get_tvdb_id(scene_name):
             _scene_name_lookup_cache[scene_name] = result
         return result
 
-    _update_if_needed()
+    update_if_needed()
 
     # No match in xbmc names?  Continue with the scene exceptions
     myDB = _get_db()
@@ -382,7 +382,7 @@ def _update_scene_names():
     return True
 
 
-def _update_if_needed():
+def update_if_needed():
     global _last_refresh_timestamp, SCENE_NAME_REFRESH_INTERVAL_SECS
     if (time.time() - _last_refresh_timestamp >
             SCENE_NAME_REFRESH_INTERVAL_SECS and not xbmc.abortRequested):

@@ -11,19 +11,19 @@ from __future__ import with_statement
 
 from threading import Lock
 
-from . import events, feeder, logger
+from . import events, feeder, logger, housekeeper
 from .schedule import SchedulerThread
 from .comms import server
 
 
 feederThread = None
-# downloaderThread = None
+housekeeperThread = None
 started = False
 start_stop_lock = Lock()
 shutdownRequested = False
 
 FEEDER_RUN_INTERVAL_SECS = 3 * 60
-# DOWNLOADER_RUN_INTERVAL_SECS = 5
+HOUSEKEEPER_RUN_INTERVAL_SECS = 5000
 
 
 def start():
@@ -31,7 +31,7 @@ def start():
     Startup
     '''
     global feederThread, FEEDER_RUN_INTERVAL_SECS
-    # global downloaderThread, DOWNLOADER_RUN_INTERVAL_SECS
+    global housekeeperThread, HOUSEKEEPER_RUN_INTERVAL_SECS
     global started, start_stop_lock
 
     logger.info(u'Starting')
@@ -48,10 +48,10 @@ def start():
                                     runIntervalSecs=FEEDER_RUN_INTERVAL_SECS)
         feederThread.start(20)
 
-#         downloaderThread = SchedulerThread(action=downloader.run,
-#                                 threadName='DOWNLOADER',
-#                                 runIntervalSecs=DOWNLOADER_RUN_INTERVAL_SECS)
-#         downloaderThread.start(30)
+        housekeeperThread = SchedulerThread(action=housekeeper.run,
+                                threadName='HOUSEKEEPER',
+                                runIntervalSecs=HOUSEKEEPER_RUN_INTERVAL_SECS)
+        housekeeperThread.start(1000)
 
         started = True
         logger.info(u'Started')
@@ -73,7 +73,7 @@ def halt():
 
         logger.debug(u'setting abort on threads')
         feederThread.abort = True
-#         downloaderThread.abort = True
+        housekeeperThread.abort = True
 
 #         time.sleep(4)
 #

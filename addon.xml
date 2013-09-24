@@ -22,13 +22,11 @@
 		<platform>all</platform>
 		<language />
 		<summary lang="en">PVR For Torrents</summary>
-		<description lang="en">Automatically download new episodes of
-			followed TV shows as they air.
-		</description>
-		<disclaimer lang="en">It is your responsibility to comply with
-			all legal and copyright requirements in your country.
-		</disclaimer>
+		<description lang="en">Automatically download new episodes of followed TV shows as they air. </description>
+		<disclaimer lang="en">It is your responsibility to comply with all legal and copyright requirements in your country.</disclaimer>
 		<license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+		<forum></forum>
+		<website>http://brickybox.com</website>
 		<source>https://github.com/bricky/xbmc-addon-tvtumbler</source>
 		<email>xbmc-addon@tvtumbler.com</email>
 	</extension>

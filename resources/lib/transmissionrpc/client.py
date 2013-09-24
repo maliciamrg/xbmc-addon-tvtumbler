@@ -2,9 +2,12 @@
 # Copyright (c) 2008-2013 Erik Svensson <erik.public@gmail.com>
 # Licensed under the MIT license.
 
-import re, time, operator, warnings, os
+import re, time, operator, warnings, os, sys
 import base64
-import json
+if sys.version_info >= (2, 7):
+    import json
+else:
+    import simplejson as json  # @UnresolvedImport
 
 from transmissionrpc.constants import DEFAULT_PORT, DEFAULT_TIMEOUT
 from transmissionrpc.error import TransmissionError, HTTPHandlerError

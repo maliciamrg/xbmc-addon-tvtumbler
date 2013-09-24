@@ -271,6 +271,7 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
                 d = self._running_downloads[k]
                 item = xbmcgui.ListItem(label=d['name'],
                                         label2=d['status_text'])
+                # item.addContextMenuItems([('Label', 'Action'), ('Label2', 'Action2')])
                 _update_listitem(item, d, True)
             else:
                 d = self._non_running_downloads[k]

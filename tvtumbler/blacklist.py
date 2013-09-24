@@ -43,3 +43,13 @@ def url_is_blacklisted(url, max_age_secs=60 * 60 * 24 * 7):
         age = time.time() - _blacklisted_urls[url]
         return age <= max_age_secs
     return False
+
+
+def expire_old_records(max_age_secs=60 * 60 * 24 * 28):
+    global _blacklisted_urls
+    now = time.time()
+    for url in _blacklisted_urls.keys():
+        if now - _blacklisted_urls[url] > max_age_secs:
+            del _blacklisted_urls[url]
+    return False
+    

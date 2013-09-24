@@ -95,3 +95,17 @@ def _load_fastcache():
             logger.error('Error loading _series_fastcache from pickle: ' + str(e))
             logger.error(traceback.format_exc())
     _cache = {}
+
+
+def expire_old_records(max_age_secs=60 * 60 * 48):
+    global _cache
+    logger.debug('Starting expire_old_records, with max_age_secs = ' + str(max_age_secs))
+    num_deleted = 0
+    now = time.time()
+    if _cache is not None:
+        for func_key in _cache.keys():
+            for arg_key in _cache[func_key].keys():
+                if now - _cache[func_key][arg_key][0] > max_age_secs:
+                    del _cache[func_key][arg_key]
+                    num_deleted = num_deleted + 1
+    logger.debug('Deleted %d expired entries from the cache.' % (num_deleted,))

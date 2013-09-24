@@ -13,6 +13,7 @@ import xbmc
 import xbmcvfs
 
 from .. import logger, utils, jsonrpc, events, numbering
+from . import rasterbar, trpc
 
 
 __addon__ = sys.modules["__main__"].__addon__
@@ -37,7 +38,6 @@ def get_enabled_downloaders():
     '''
     global _enabled_downloaders
     if _enabled_downloaders is None:
-        from . import rasterbar, trpc
         _all_downloaders = [rasterbar.LibtorrentDownloader, trpc.TRPCDownloader]
         _enabled_downloaders = [ad.get_instance() for ad in _all_downloaders if ad.is_available() and ad.is_enabled()]
     return _enabled_downloaders

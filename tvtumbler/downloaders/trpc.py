@@ -10,7 +10,7 @@ http://pythonhosted.org/transmissionrpc/
 @license: GPL
 @contact: info@tvtumbler.com
 '''
-from .. import logger, utils
+from .. import logger, utils, events
 from .torrent import TorrentDownloader, TorrentDownload
 import os
 import sys
@@ -29,6 +29,21 @@ TORRENT_START_WAIT_TIMEOUT_SECS = 120
 # The actual running transmission rpc client.  Obtain it by calling _get_client() - which
 # will create it if needed.
 _trcp_client = None
+
+
+def _on_settings_change():
+    if TRPCDownloader.is_enabled():
+        logger.debug('Settings have changed, checking if TRPC settings are ok')
+        isok, reason = TRPCDownloader.check_settings()
+        logger.debug('Got: ' + str(reason))
+        if not isok:
+            logger.notice('config check failed on TRPC: ' + str(reason))
+            __addon__.setSetting(id='trpc_enable', value='false')
+            xbmc.executebuiltin('Notification(%s,%s,60000,%s)' % ('TvTumbler: Transmission',
+                                                                  reason,
+                                                                  'DefaultIconError.png'))
+
+events.add_event_listener(events.SETTINGS_CHANGED, _on_settings_change)
 
 
 class TRPCDownloader(TorrentDownloader):
@@ -79,6 +94,8 @@ class TRPCDownloader(TorrentDownloader):
 
             session = _trcp_client.get_session()  # @UnusedVariable
             # @todo: settings for the client/session should go here
+            if cls.running_locally():
+                _trcp_client.set_session(download_dir=cls.get_download_dir())
 
         return _trcp_client
 
@@ -109,7 +126,82 @@ class TRPCDownloader(TorrentDownloader):
 
     @classmethod
     def get_download_dir(cls, ensure_exists=False):
+        '''
+        Get the configured Transmission download directory.
+
+        @param ensure_exists: Ignored
+        @type ensure_exists: bool
+        @return: The full path, either a remote path with a protocol (e.g. 'smb://192.168.1.1/share/') or a local
+            path without one (e.g. '/temp/downloads/')
+        @rtype: str
+        '''
         return xbmc.translatePath(__addon__.getSetting('trpc_ddir').decode('utf-8'))
+
+    @classmethod
+    def running_locally(cls):
+        '''
+        Is XBMC configured to connect to a locally running transmission? (i.e. on the same host)
+
+        @rtype: bool
+        '''
+        return __addon__.getSetting('trpc_host') == '127.0.0.1'
+
+    @classmethod
+    def check_settings(cls):
+        # host, port, and ddir absolutely must be specified.
+        _host = __addon__.getSetting('trpc_host')
+        if not _host:
+            return False, 'Host (ip address) is missing'
+
+        _port = __addon__.getSetting('trpc_port')
+        if not _port or _port == "0":
+            return False, 'Invalid Port'
+
+        _ddir = cls.get_download_dir()
+        if not _ddir:
+            return False, 'Download Dir is required.'
+
+        # the download dir must exist
+        if not xbmcvfs.exists(_ddir):
+            return False, 'Download Dir not found.'
+
+        # if transmission is running locally, the os must be able to resolve the download dir path
+        if cls.running_locally() and not os.path.exists(_ddir):
+            return False, 'Download Dir must be a local path when transmission is running locally.'
+
+        trpc_user = __addon__.getSetting('trpc_user').decode('utf-8')
+        trpc_pass = __addon__.getSetting('trpc_pass').decode('utf-8')
+
+        try:
+            transmissionrpc.Client(address=_host, port=_port,
+                                   user=trpc_user, password=trpc_pass)
+        except:
+            (e_type, e, traceback) = sys.exc_info()
+
+            reason = 'Unexpected Error: ' + str(e)
+            if e_type is transmissionrpc.TransmissionError:
+                if e.original:
+                    if e.original.code is 401:
+                        reason = 'Invalid Username or Password'
+                    else:
+                        reason = 'Unable to Connect'
+            elif type is ValueError:
+                # In python 2.4, urllib2.HTTPDigestAuthHandler will barf up a lung
+                # if auth fails and the server wants non-digest authentication
+                reason = 'Invalid Username or Password'
+
+            return False, reason
+
+        # success if we get to here
+        return True, 'Success'
+
+    def on_download_finished(self, download):
+        '''Override here so that we can catch the last download finishing and destroy the client connection'''
+        global _trcp_client
+        super(TRPCDownloader, self).on_download_finished(download)
+        if len(self._running_downloads) == 0:
+            logger.info('The last trpc download has finished.  Destroying client.')
+            _trcp_client = None
 
 
 class TRPCDownload(TorrentDownload):
@@ -229,7 +321,13 @@ class TRPCDownload(TorrentDownload):
                     logger.debug('no already running torrent with this hash')
 
             self._start_time = time.time()
-            self._torrent = client.add_torrent(torrent)
+            if self.downloader.running_locally():
+                # when we're running locally, we pass in the download dir to tranmission
+                self._torrent = client.add_torrent(torrent=torrent,
+                                                   download_dir=self.downloader.get_download_dir())
+            else:
+                # and when we're not, we can't.  We just have to trust the user to set it up right
+                self._torrent = client.add_torrent(torrent)
 
             startedDownload = False
             while not startedDownload:

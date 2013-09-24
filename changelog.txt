@@ -1,6 +1,13 @@
 [B]0.0.7[/B]
   - Much better layout/ordering behaviour on downloads screen.
-  - Blacklist downloads on failure (so they won't be tried again).  Blacklist entries expire after 1 week
+  - Blacklist downloads on failure (so they won't be tried again).  Blacklist entries expire after 1 week.
+  - Improve the time formatting on the download screen a little
+  - No longer any need for script.module.elementtree (we can now rely on having python 2.6 or 2.7)
+  - Do a rudimentary check of transmission settings when they change.  Disable Transmission if they fail.
+  - If transmission is running locally, "fix" the download location.  (this won't work for remote: Download Dir in addon
+    and transmission must agree)
+  - Hire a housekeeper: cleans up expired cache entries, and updates the scene exceptions, provided xbmc isn't playing.
+  - Use "Episode N" for episodes that have no names on tvdb.
 
 [B]0.0.6[/B] (2013-09-23)
   - Small bug in jsonrpc when creating exceptions.

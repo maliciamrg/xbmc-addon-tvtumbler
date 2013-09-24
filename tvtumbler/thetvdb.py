@@ -66,7 +66,11 @@ def get_tvdb_field(tvdb_id, key_name, allow_remote_fetch=True):
 
 def get_episode_name(tvdb_id, season, episode):
     t = get_tvdb_api_info(tvdb_id)
-    return t[season][episode]['episodename']
+    try:
+        return t[season][episode]['episodename']
+    except tvdb_api.tvdb_episodenotfound, e:
+        logger.error('tvdb_api reported: "' + str(e) + '", using Episode N as the episode name')
+        return 'Episode ' + str(episode)
 
 
 # This is used again.  tvdb_api is just too slow
