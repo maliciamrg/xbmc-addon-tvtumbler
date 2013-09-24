@@ -1,5 +1,6 @@
 [B]0.0.7[/B]
   - Much better layout/ordering behaviour on downloads screen.
+  - Blacklist downloads on failure (so they won't be tried again).  Blacklist entries expire after 1 week
 
 [B]0.0.6[/B] (2013-09-23)
   - Small bug in jsonrpc when creating exceptions.

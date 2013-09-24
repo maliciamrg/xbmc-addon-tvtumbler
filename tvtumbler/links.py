@@ -7,7 +7,7 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-from . import logger, quality, utils
+from . import logger, quality, utils, blacklist
 import base64
 import datetime
 import hashlib
@@ -147,13 +147,44 @@ class Downloadable(object):
         '''
         return hashlib.md5(self.get_preferred_url()).hexdigest()
 
+    @staticmethod
+    def blacklist_url(url):
+        '''
+        Blacklist a url.
+
+        @param url: The url to blacklist
+        @type url: str
+        '''
+        blacklist.blacklist_url(url)
+
+    def blacklist(self):
+        '''
+        Blacklist the entire download (i.e. all urls in the downloadable are blacklisted)
+        '''
+        for u in self.urls:
+            blacklist.blacklist_url(u)
+
+    def is_blacklisted(self, max_age_secs=60 * 60 * 24 * 7):
+        '''
+        Is the downloadable blacklisted?
+        Returns True if *all* urls in the downloadable are blacklisted.
+
+        @param max_age_secs: Expiry age for blacklist.  Defaults to one week.  None => no expiry
+        @type max_age_secs: int
+        '''
+        for u in self.urls:
+            if not blacklist.url_is_blacklisted(u, max_age_secs=max_age_secs):
+                return False
+        # no non-blacklisted urls?
+        return True
+
 
 class Torrent(Downloadable):
     '''A torrent link'''
 
     def _get_infohash(self):
         '''
-        Getting for infohash property
+        Getter for infohash property
         '''
         try:
             return self._infohash
@@ -309,6 +340,32 @@ class Torrent(Downloadable):
 
         # No valid torrent files found.
         return None
+
+    def blacklist(self):
+        '''
+        Blacklist the infohash (if we have one), otherwise blacklist all urls.
+        '''
+        h = self.infohash
+        if h:
+            blacklist.blacklist_url(h)
+        else:
+            # the default parent implementation is to blacklist everything - use that.
+            super(Torrent, self).blacklist()
+
+    def is_blacklisted(self, max_age_secs=60 * 60 * 24 * 7):
+        '''
+        Is the downloadable blacklisted?
+        Returns True if the infohash is blacklisted, or, if no infohash, if *all* urls are blacklisted.
+
+        @param max_age_secs: Expiry age for blacklist.  Defaults to one week.  None => no expiry
+        @type max_age_secs: int
+        '''
+        h = self.infohash
+        if h:
+            return blacklist.url_is_blacklisted(h, max_age_secs=max_age_secs)
+        else:
+            # default parent implementation is to check all urls.  If we dont' have a hash, we must use that.
+            return super(Torrent, self).is_blacklisted(max_age_secs=max_age_secs)
 
 
 class VOD(Downloadable):

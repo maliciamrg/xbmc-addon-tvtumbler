@@ -90,6 +90,9 @@ def on_download_downloaded(download):
     '''
     Called when a download downloads.
 
+    @todo: Most of this code would make much more sense in the BaseDownloader (which is the only thing that calls this
+        anyway).  Move it there.
+
     @param download: The download that has downloaded.
     @type download: base.Download
     '''
@@ -102,6 +105,7 @@ def on_download_downloaded(download):
     feeder = download.downloadable.feeder
     name_parser = feeder.get_nameparser()
     any_files_copied = False
+    has_known_video_file = False
     for f in download.get_files():
         if utils.is_video_file(f):
             if not xbmcvfs.exists(f):
@@ -122,6 +126,8 @@ def on_download_downloaded(download):
                 if np.is_bad:
                     logger.notice(u'Downloaded file "%s" triggered a bad regex, not copying.' % (f,))
                     continue
+
+                has_known_video_file = True
 
             elif len(all_tvdb_seasons) == 1:
                 # file name is not parsable, but there is only one
@@ -157,6 +163,12 @@ def on_download_downloaded(download):
                                                                   __addon__.getAddonInfo('icon')))
         jsonrpc.videolibrary_scan(tv_show_dir)
     else:
+        # No files copied.
+        # If this is because there were no known video files in the download, then it's best to blacklist
+        # the download also.
+        if not has_known_video_file:
+            logger.notice('No known video files in download.  Blacklisting: ' + repr(download.downloadable))
+            download.downloadable.blacklist()
         xbmc.executebuiltin('Notification(%s,%s,60000,%s)' % (download.name,
                                                               'Download FAILED',
                                                               __addon__.getAddonInfo('icon')))

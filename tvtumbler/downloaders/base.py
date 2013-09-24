@@ -141,6 +141,8 @@ class BaseDownloader(object):
         del self._running_downloads[download.key]
         on_download_failed(download)  # call the module implementation
         log.log_download_fail(download)
+        logger.debug('Download has failed, blacklisting: ' + repr(download.downloadable))
+        download.downloadable.blacklist()
 
     def on_download_downloaded(self, download):
         '''Called when the download has completed (i.e. no more data).

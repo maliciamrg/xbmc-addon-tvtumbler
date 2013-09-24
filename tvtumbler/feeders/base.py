@@ -101,7 +101,10 @@ class BaseFeeder(object):
             for entry in feed.entries:
                 i = self._parse_rss_item(entry)
                 if i:
-                    self._latest.append(i)
+                    if i.is_blacklisted():
+                        logger.debug('Ignoring this downloadable, it has been blacklisted: ' + repr(i))
+                    else:
+                        self._latest.append(i)
             return True
         return False
 
