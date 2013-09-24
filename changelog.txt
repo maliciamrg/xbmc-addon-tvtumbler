@@ -1,4 +1,4 @@
-[B]0.0.7[/B]
+[B]0.0.7[/B] (2013-09-24)
   - Much better layout/ordering behaviour on downloads screen.
   - Blacklist downloads on failure (so they won't be tried again).  Blacklist entries expire after 1 week.
   - Improve the time formatting on the download screen a little
