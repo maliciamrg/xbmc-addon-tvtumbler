@@ -20,7 +20,7 @@ import xbmc
 import xbmcvfs
 
 from . import common
-from .. import logger, tv, quality, log
+from .. import logger, tv, quality, log, thetvdb
 from ..downloaders import get_enabled_downloaders
 
 
@@ -117,6 +117,15 @@ class Service(object):
     def get_non_running_downloads(self, properties=['rowid', 'key', 'name', 'final_status', 'total_size',
                                                  'start_time', 'finish_time', 'source', 'quality'], limit=30):
         return log.get_non_running_downloads(properties, limit)
+
+    def search_series_by_name(self, searchstring):
+        return thetvdb.search_series_by_name(searchstring)
+
+    def add_show(self, tvdb_id, followed=True, wanted_quality=quality.SD_COMP):
+        show = tv.TvShow.from_tvdbd_id(tvdb_id)
+        show.followed = followed
+        show.wanted_quality = wanted_quality
+        return True
 
 service_api = Service()
 

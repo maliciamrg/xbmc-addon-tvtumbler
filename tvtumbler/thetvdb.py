@@ -14,11 +14,12 @@ import os
 import sys
 import time
 import traceback
+import urllib
 
-import xml.etree.ElementTree as etree
 import requests  # @UnresolvedImport
 from tvdb_api import tvdb_api
 import xbmc
+import xml.etree.ElementTree as etree
 
 from . import logger, events, fastcache, db
 
@@ -90,7 +91,7 @@ def _real_tvdb_series_lookup(tvdb_id):
     r = requests.get(url)
     if r.status_code == requests.codes.ok:
         # logger.debug('encoding is ' + r.encoding)
-        logger.debug('raw data returned is ' + repr(r.text))
+        # logger.debug('raw data returned is ' + repr(r.text))
         data = r.text.encode('ascii', 'ignore')
     else:
         logger.notice('No data returned from tvdb for %s, ' +
@@ -118,5 +119,82 @@ def _real_tvdb_series_lookup(tvdb_id):
             val = None
 
         result[c.tag.lower()] = val
+
+    return result
+
+#         series = urllib.quote(series.encode("utf-8"))
+#         log().debug("Searching for show %s" % series)
+#         seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
+#         allSeries = []
+#         for series in seriesEt:
+#             result = dict((k.tag.lower(), k.text) for k in series.getchildren())
+#             result['id'] = int(result['id'])
+#             result['lid'] = self.config['langabbv_to_id'][result['language']]
+#             if 'aliasnames' in result:
+#                 result['aliasnames'] = result['aliasnames'].split("|")
+#             log().debug('Found series %(seriesname)s' % result)
+#             allSeries.append(result)
+#
+#         return allSeries
+
+
+# @fastcache.func_cache(max_age_secs=60 * 60)
+def search_series_by_name(showname, language='en'):
+    '''
+    Does a GetSeries.php search on thetvdb.
+    Returns a list of found shows (may be empty), with the following keys:
+        'seriesid'    - the tvdb_id
+        'language'
+        'seriesname'
+        'overview'
+        'firstaired'
+        'network'
+        'imdb_id'
+        'zap2it_id'
+        'aliasnames'    - a list, if present.
+
+    @param showname:
+    @type showname:
+    @param language:
+    @type language:
+    @return: a list of dicts.  Returns None on failure.
+    @rtype: [dict]
+    '''
+    showname = urllib.quote(showname.encode("utf-8"))
+    url = 'http://thetvdb.com/api/GetSeries.php?seriesname=%s&language=%s' % (str(showname), str(language))
+    logger.debug('getting url %s' % url)
+    r = requests.get(url)
+    if r.status_code == requests.codes.ok:
+        # logger.debug('encoding is ' + r.encoding)
+        # logger.debug('raw data returned is ' + repr(r.text))
+        data = r.text.encode('ascii', 'ignore')
+    else:
+        logger.notice('No data returned from tvdb for %s, ' +
+                      'status code %d' % (showname, r.status_code))
+        return None
+
+    logger.debug(u'got data: %s' % data)
+    parsedXML = etree.fromstring(data)
+    if not parsedXML:
+        logger.debug('No results for %s' % showname)
+        return None
+
+    result = []
+
+    for b in parsedXML.findall('Series'):
+        record = {}
+        for c in b.findall('*'):
+            if c.text:
+                if c.text.startswith('|'):
+                    val = c.text.split('|')
+                elif c.tag in ['banner', 'fanart', 'poster']:
+                    val = 'http://thetvdb.com/banners/' + c.text
+                else:
+                    val = c.text
+            else:
+                val = None
+
+            record[c.tag.lower()] = val
+        result.append(record)
 
     return result

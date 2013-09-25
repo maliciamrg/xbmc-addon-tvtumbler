@@ -164,8 +164,44 @@ class TvTumblerShows(TvTumblerWindowXML):
         del w
 
     def add_show(self):
-        dlg = xbmcgui.Dialog()
-        dlg.ok('TvTumbler', 'Not Implemented Yet.', 'Sorry.')
+        keyboard = xbmc.Keyboard('', 'Search for Show', False)
+        keyboard.doModal()
+        if (keyboard.isConfirmed()):
+            searchstring = keyboard.getText()
+            if searchstring:
+                choices = service_api.search_series_by_name(searchstring=searchstring)
+                logger.debug('got choices: ' + repr(choices))
+                dlg = xbmcgui.Dialog()
+                if not choices:
+                    dlg.ok('TvTumbler', 'No matching series found')
+                    return
+                options = []
+                for c in choices:
+                    label = ''
+                    if 'seriesname' in c:
+                        label = label + c['seriesname']
+                    else:
+                        continue # just skip anythign that doesn't have a name
+                    if 'network' in c:
+                        label = label + ' [' + c['network'] + ']'
+                    if 'firstaired' in c:
+                        label = label + ' (Started: %s)' % (c['firstaired'],)
+                    if 'seriesid' not in c:
+                        continue
+
+                    options.append((label, c['seriesid']))
+                selected = dlg.select('Possible Matches', [o[0] for o in options])
+                if selected >= 0:
+                    tvdb_id = options[selected][1]
+                    logger.debug('Request to add show: ' + repr(tvdb_id))
+                    if service_api.add_show(tvdb_id=options[selected][1], followed=True):
+                        show_data = service_api.get_shows(tvdb_ids=[tvdb_id],
+                                                          properties=['tvshowid', 'name', 'tvdb_id',
+                                                                      'followed', 'wanted_quality',
+                                                                      'status', 'fanart'])
+                        self.shows.extend(show_data)
+                        self.updateDisplay()
+                        self.select_show(tvdb_id)
 
     def doMenu(self):
         item, show = self._get_selected_item_and_show()
@@ -265,6 +301,21 @@ class TvTumblerShows(TvTumblerWindowXML):
         else:
             return 'Custom'
 
+    def select_show(self, tvdb_id):
+        '''
+        Select a show from the listctrl by tvdb_id.
+        
+        @param tvdb_id:
+        @type tvdb_id:
+        '''
+        lctrl = self.getControl(120)
+        for i in range(0, lctrl.size()):
+            item = lctrl.getListItem(i)
+            if item.getProperty('tvdb_id') == str(tvdb_id):
+                lctrl.selectItem(i)
+                return True
+        return False
+
     def updateDisplay(self):
         pass
         disp = {}
@@ -287,7 +338,9 @@ class TvTumblerShows(TvTumblerWindowXML):
                 if img_pref in show and show[img_pref]:
                     item.setProperty('image', show[img_pref])
                     break
-            if 'fast_status' in show and show['fast_status']:
+            if 'status' in show and show['status']:
+                item.setProperty('status', str(show['status']))
+            elif 'fast_status' in show and show['fast_status']:
                 item.setProperty('status', str(show['fast_status']))
             item.setProperty('tvdb_id', str(show['tvdb_id']))
             item.setInfo('video', {'sorttitle': k})  # we set this so that we can use numpad letters to navigate
