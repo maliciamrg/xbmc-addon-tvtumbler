@@ -16,11 +16,11 @@ import time
 import traceback
 
 import xml.etree.ElementTree as etree
-import requests
+import requests  # @UnresolvedImport
 from tvdb_api import tvdb_api
 import xbmc
 
-from . import logger, events, fastcache
+from . import logger, events, fastcache, db
 
 
 TVDB_API_KEY = 'FCC2D40061D489B4'
@@ -65,12 +65,11 @@ def get_tvdb_field(tvdb_id, key_name, allow_remote_fetch=True):
 
 
 def get_episode_name(tvdb_id, season, episode):
-    t = get_tvdb_api_info(tvdb_id)
-    try:
-        return t[season][episode]['episodename']
-    except tvdb_api.tvdb_episodenotfound, e:
-        logger.error('tvdb_api reported: "' + str(e) + '", using Episode N as the episode name')
-        return 'Episode ' + str(episode)
+    # there's a circular reference here: get_episode_name in epdb can call
+    # get_tvdb_api_info from here, which is just silly.
+    # @todo: refactor
+    from . import epdb
+    return epdb.get_episode_name(tvdb_id, season, episode)
 
 
 # This is used again.  tvdb_api is just too slow
@@ -121,4 +120,3 @@ def _real_tvdb_series_lookup(tvdb_id):
         result[c.tag.lower()] = val
 
     return result
-
