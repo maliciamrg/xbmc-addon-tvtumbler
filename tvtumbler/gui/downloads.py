@@ -21,13 +21,14 @@ import xbmcgui
 from .. import quality, logger
 from ..comms.client import service_api
 from .actions import *
+from .common import TvTumblerWindowXML
 
 
 __addon__ = xbmcaddon.Addon()
 __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
 
 
-class TvTumblerDownloads(xbmcgui.WindowXML):
+class TvTumblerDownloads(TvTumblerWindowXML):
     def __init__(self, *args, **kwargs):
         self._running_downloads = dict()
         self._running_lock = threading.Lock()
@@ -35,11 +36,8 @@ class TvTumblerDownloads(xbmcgui.WindowXML):
         self._non_running_lock = threading.Lock()
 
     def onInit(self):
-        if not service_api.check_available(start_if_needed=False):
-            dlg = xbmcgui.Dialog()
-            dlg.ok('TvTumbler', 'Addon is either not running, or out of date.',
-                   'Please restart XMBC.')
-            return self.close()
+        if not self.check_service_ok():
+            self.close()
 
         self._running_data_loader = threading.Thread(target=self._refresh_data, name='_refresh_data')
         self._running_data_loader._abort = False

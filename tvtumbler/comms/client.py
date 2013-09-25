@@ -15,17 +15,21 @@ import os
 import xbmc
 
 from . import common
-from .. import logger
+from .. import logger, jsonrpc
 
 
 __addon__ = sys.modules["__main__"].__addon__
+
+
+class ServerNotRunningException(Exception):
+    pass
 
 
 class Client(object):
     '''
     This serves as a way of directly communicating between user-interactive code
     (i.e. the video or program script) and non-interactive code (the service), which
-    run in separate python instances and would normally have no way to calling one
+    run in separate python instances and would normally have no way of calling one
     another.
 
     To use it somewhere in your code:
@@ -51,65 +55,88 @@ class Client(object):
                 # logger.debug(repr(kwargs))
                 result = send_message(method=key, params=kwargs)
                 if result['error']:
+                    if 'serverNotRunning' in result and result['serverNotRunning']:
+                        raise ServerNotRunningException(result['errorMessage'])
                     raise Exception(result['errorMessage'])
                 else:
                     return result['result']
             return function
 
-    def check_available(self, start_if_needed=True):
-        '''Check if the service is available (i.e the server end of this code is running and has the correct
-        version).
+    def stop_service(self):
+        try:
+            logger.debug('Telling the old server (if any) to shut down (any errors can be safely ignored)')
+            _send_raw('SHUTDOWN')
+            xbmc.sleep(5000)
+        except Exception, e:
+            logger.info('Shutdown got error: ' + str(e))
 
-        This is the only 'real' method this class has.
-        (everything else is proxied off to the service)
+        logger.debug('... done')
 
-        IMPORTANT: For now, start_if_needed causes Gotham to crash (at least on OSX).  So best not to use it.
+    def start_service(self):
+        try:
+            logger.debug('Telling the server to start up')
 
-        @param start_if_needed: If set, an attempt will be made to start the service if it's not running (or restart
-            it if the version number it's giving is wrong.
-        @return: True if the service is available and has the same version as the client, False otherwise.
-        @rtype: bool
-        '''
-        server_vers_result = send_message(method='get_version')
-        server_version = server_vers_result['result'] if not server_vers_result['error'] else 'Unknown'
-        client_version = __addon__.getAddonInfo('version')
-        logger.debug('Client version: "%s", Server version: "%s"' % (client_version, server_version))
-        if client_version == server_version:
-            logger.debug('Server running, and versions match.  Available.')
-            return True  # nothing to do in this instance
-        elif start_if_needed:
-            try:
-                logger.debug('Telling the old server (if any) to shut down (any errors can be safely ignored)')
-                _send_raw('SHUTDOWN')
-                xbmc.sleep(5000)
-            except:
-                pass
+            # See this stuff??  None of it works!
+            # (they all either try to start the gui, or crash xbmc)
 
-#             # this doesn't work b/c it tries to stip *this* script, not the service
-#             try:
-#                 logger.debug('Telling the old server to stop')
-#                 xbmc.executebuiltin('XBMC.StopScript(%s)' % (__addon__.getAddonInfo('id')))
-#                 xbmc.sleep(10000)  # give it 10 seconds to stop
-#             except Exception, e:
-#                 logger.debug('Ignoring error from StopScript: ' + str(e))
+            # service_path = os.path.join(__addon__.getAddonInfo('path').decode('utf-8'), 'service.py')
+            # xbmc.executebuiltin('XBMC.AlarmClock(StartTvTumbler, XBMC.RunScript(%s), 00:00:03, true)' % (service_path,))
+            # xbmc.executebuiltin('XBMC.RunScript(%s)' % (service_path))
+            # xbmc.executebuiltin('XBMC.RunAddon(%s)' % (__addon__.getAddonInfo('id')))
+            # xbmc.executescript(service_path)
+            #jsonrpc.addons_execute_addon(__addon__.getAddonInfo('id'))
 
-            try:
-                logger.debug('Telling the server to start up')
-                service_path = os.path.join(__addon__.getAddonInfo('path').decode('utf-8'), 'service.py')
-                xbmc.executebuiltin('XBMC.RunScript(%s)' % (service_path))
-                xbmc.sleep(10000)  # give it 10 seconds to start
-            except Exception, e:
-                logger.error('Failure starting the service: ' + str(e))
-                logger.error(traceback.format_exc())
-                return False
-
-            # Try asking the server version again:
-            server_vers_result = send_message(method='get_version')
-            server_version = server_vers_result['result'] if not server_vers_result['error'] else 'Unknown'
-            logger.debug('Client version: "%s", Server version is now: "%s"' % (client_version, server_version))
-            return client_version == server_version
-        else:
+            # The only way that I can currently find to do this safely is to disable and then
+            # enable the addon:
+            logger.debug('DISABLING %s' % (__addon__.getAddonInfo('id'),))
+            jsonrpc.addons_set_addon_enabled(__addon__.getAddonInfo('id'), enabled=False)
+            xbmc.sleep(1000)
+            logger.debug('ENABLING %s' % (__addon__.getAddonInfo('id'),))
+            jsonrpc.addons_set_addon_enabled(__addon__.getAddonInfo('id'), enabled=True)
+            xbmc.sleep(5000)  # give it 5 seconds to start
+        except Exception, e:
+            logger.error('Failure starting the service: ' + str(e))
+            logger.error(traceback.format_exc())
             return False
+
+        return True
+
+    def restart_service(self):
+        # start is actually a restart, so use it instead
+        return self.start_service()
+
+    def get_client_version(self):
+        return __addon__.getAddonInfo('version')
+
+#     def check_available(self, start_if_needed=False):
+#         '''Check if the service is available (i.e the server end of this code is running and has the correct
+#         version).
+#
+#         IMPORTANT: For now, start_if_needed causes Gotham to crash (at least on OSX).  So best not to use it.
+#
+#         @param start_if_needed: If set, an attempt will be made to start the service if it's not running (or restart
+#             it if the version number it's giving is wrong.
+#         @return: True if the service is available and has the same version as the client, False otherwise.
+#         @rtype: bool
+#         '''
+#         server_vers_result = send_message(method='get_version')
+#         server_version = server_vers_result['result'] if not server_vers_result['error'] else 'Unknown'
+#         client_version = __addon__.getAddonInfo('version')
+#         logger.debug('Client version: "%s", Server version: "%s"' % (client_version, server_version))
+#         if client_version == server_version:
+#             logger.debug('Server running, and versions match.  Available.')
+#             return True  # nothing to do in this instance
+#         elif start_if_needed:
+#             if not self.restart_service():
+#                 return False
+#
+#             # Try asking the server version again:
+#             server_vers_result = send_message(method='get_version')
+#             server_version = server_vers_result['result'] if not server_vers_result['error'] else 'Unknown'
+#             logger.debug('Client version: "%s", Server version is now: "%s"' % (client_version, server_version))
+#             return client_version == server_version
+#         else:
+#             return False
 
 
 service_api = Client()
@@ -132,8 +159,9 @@ def _send_raw(raw_data):
         return msg
     except socket.error, e:
         result = {'error': True}
-        if e.errno in [111]:
+        if e.errno in [111, 2]:
             result['errorMessage'] = 'Failed to connect, server not running?'
+            result['serverNotRunning'] = True
         else:
             result['errorMessage'] = repr(e)
         logger.error('socket.error: ' + str(e))

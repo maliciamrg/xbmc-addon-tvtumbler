@@ -158,3 +158,19 @@ def application_get_properties(properties=['version', 'name']):  # also 'volume'
     return result
 
 
+def addons_execute_addon(addonid, params=[], wait=False):
+    """
+    http://wiki.xbmc.org/?title=JSON-RPC_API/v6#Addons.ExecuteAddon
+    """
+    result = exec_rpc(method="Addons.ExecuteAddon",
+                    params={'addonid': addonid, 'params': params, 'wait': wait})
+    return result
+
+
+def addons_set_addon_enabled(addonid, enabled=True):
+    """
+    http://wiki.xbmc.org/?title=JSON-RPC_API/v6#Addons.SetAddonEnabled
+    """
+    result = exec_rpc(method="Addons.SetAddonEnabled",
+                    params={'addonid': addonid, 'enabled': enabled})
+    return result

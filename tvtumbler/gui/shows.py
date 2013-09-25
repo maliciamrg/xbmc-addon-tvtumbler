@@ -18,48 +18,22 @@ import xbmcaddon
 import xbmcgui
 
 from .actions import *
+from .common import TvTumblerWindowXML
 from .. import quality, logger
 from ..comms.client import service_api
 __addon__ = xbmcaddon.Addon()
-# __addonversion__ = __addon__.getAddonInfo('version')
-# __addonname__ = __addon__.getAddonInfo('name')
 __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
-# __icon__         = __addon__.getAddonInfo('icon')
-# __localize__    = __addon__.getLocalizedString
 
 
-
-# BASE_RESOURCE_PATH = xbmc.translatePath(os.path.join(__addonpath__, 'resources'))
-# sys.path.append(BASE_RESOURCE_PATH)
-
-# import tvtumbler
-
-# IMAGE_PATH = xbmc.translatePath(os.path.join(__addonpath__, 'resources', 'skins', 'Default', 'images'))
-
-
-
-# logger.debug(repr(sys.argv))
-# logger.debug(repr(tvtumbler.feederThread))
-#
-# start_time = time.time()
-# # result = service_api.echo(text='this is a nice little test message')
-# # logger.debug('in client, the result of echo is: ' + repr(result))
-# logger.debug(repr(service_api.get_all_shows()))
-# end_time = time.time()
-# logger.debug('call took %f' % (end_time - start_time))
-
-class TvTumblerShows(xbmcgui.WindowXML):
+class TvTumblerShows(TvTumblerWindowXML):
     def __init__(self, *args, **kwargs):
         self.shows = None
         self._shows_lock = threading.Lock()
         self._slow_show_data_loader = None
 
     def onInit(self):
-        if not service_api.check_available(start_if_needed=False):
-            dlg = xbmcgui.Dialog()
-            dlg.ok('TvTumbler', 'Addon is either not running, or out of date.',
-                   'Please restart XMBC.')
-            return self.close()
+        if not self.check_service_ok():
+            self.close()
 
         self._slow_show_data_loader = threading.Thread(target=self._load_slow_show_data, name='slow_show_data_loader')
         self._slow_show_data_loader._abort = False
