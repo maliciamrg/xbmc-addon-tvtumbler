@@ -1,3 +1,14 @@
+[B]0.0.8[/B] (2013-09-26)
+  - Use the confluence scrollbars and separators.  They're much nicer.
+  - Refactor the gui windows so that they share a base class.
+  - Basic service handling from the gui: prompt for start if stopped, prompt for restart if out of date.
+  - Have the housekeeper pull down episode lists when things are quiet.
+  - Finally the facility to add new shows (albeit a bit hackish as of yet)
+  - Be a bit smarter about accepting show names with a year on the end.
+  - Ditto for shows with a country code at the end (using tvrage to check the origin_country)
+  - Prettier context menu (stolen from globalsearch addon)
+  - Put in a (somewhat ugly) icon for the 'ANY' quality
+
 [B]0.0.7[/B] (2013-09-24)
   - Much better layout/ordering behaviour on downloads screen.
   - Blacklist downloads on failure (so they won't be tried again).  Blacklist entries expire after 1 week.
