@@ -54,13 +54,16 @@ class TvTumblerWindowXML(xbmcgui.WindowXML):
                 if not service_api.restart_service():
                     dlg.ok('TvTumbler', 'Service failed to restart.', 'Please restart XMBC.')
                     return False
+            else:
+                # they said no
+                return False
 
         count = 0
         while count < 30:
             try:
                 server_version = service_api.get_version()
                 logger.debug('Got new server version: ' + str(server_version))
-                return True
+                return client_version == server_version
             except ServerNotRunningException, e:
                 xbmc.sleep(1000)
                 count = count + 1

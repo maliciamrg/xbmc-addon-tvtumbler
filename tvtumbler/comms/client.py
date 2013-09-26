@@ -102,6 +102,10 @@ class Client(object):
         return True
 
     def restart_service(self):
+        # this only actually works in 13.0 or later.
+        xv = jsonrpc.application_get_properties()
+        if xv['version']['major'] < 13:
+            return False
         # start is actually a restart, so use it instead
         return self.start_service()
 

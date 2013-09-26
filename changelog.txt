@@ -1,3 +1,7 @@
+[B]0.0.9[/B] (2013-09-26)
+  - Emergency bump to 0.0.9.  Service restart code just freezes on 12.2 (and probably earlier).  Now just prompt user
+    to restart XBMC on anything less than 13.0.
+
 [B]0.0.8[/B] (2013-09-26)
   - Use the confluence scrollbars and separators.  They're much nicer.
   - Refactor the gui windows so that they share a base class.
