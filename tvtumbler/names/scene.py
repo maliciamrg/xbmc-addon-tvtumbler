@@ -256,6 +256,10 @@ def get_tvdb_id(scene_name):
     Returns the tvdb_id if a match is found, None if no scene name
     match is present.
 
+    Note: if the show isn't in xbmc, and is not an exception, no
+    tvdb_id will be returned (so don't use this as a means for
+    searching for new shows).
+
     @param scene_name: (str|unicode) show name to match
     @return: (int|None) returns an int on success, None on failure.
     """
@@ -299,7 +303,8 @@ def get_tvdb_id(scene_name):
         return result
 
     # Does the name end in what looks like a year?
-    year_end_match = re.match('(?P<show_name>.*?)\(?(?P<year>(19|20)\d\d)\)?', scene_name)
+    # e.g. "Revolution 2012", or "Doctor Who (2005)"
+    year_end_match = re.match('(?P<show_name>.*?)\(?(?P<year>[a-zA-Z]{2}\)?', scene_name)
     if year_end_match:
         logger.debug('looks like %s has a year at the end' % (scene_name,))
         new_scene_name = year_end_match.group('show_name')
@@ -319,6 +324,29 @@ def get_tvdb_id(scene_name):
                 logger.debug('"%s" had what looks like a year on the end "%s", for which we got a match, '
                              'but the matched show had a start year of "%s", so we cannot accept this.'
                              % (scene_name, matching_year, repr(test_tv_show.year)))
+
+    # also check for a country code at the end
+    # e.g. "Wilfred (US)", or "Wilfred AU"
+    country_end_match = re.match('(?P<show_name>.*?)\W\(?(?P<cc>[a-zA-Z]{2})\)?', scene_name)
+    if country_end_match:
+        logger.debug('looks like %s has a country code at the end' % (scene_name,))
+        new_scene_name = year_end_match.group('show_name')
+        matching_cc = year_end_match.group('cc').upper()
+        test_tvdb_id = get_tvdb_id(new_scene_name)
+        if test_tvdb_id:
+            # we need to check if the country code for this show matches the one in the scene_name
+            test_tv_show = TvShow.from_tvdbd_id(test_tvdb_id)
+            if test_tv_show:
+                if test_tv_show.country_code == matching_cc:
+                    # success!! the countries match!
+                    logger.debug('Yup, matched on "%s" with country "%s"' % (new_scene_name, matching_cc))
+                    with _scene_name_lookup_cache_lock:
+                        _scene_name_lookup_cache[scene_name] = test_tvdb_id
+                    return test_tvdb_id
+
+                    logger.debug('"%s" had what looks like a country on the end "%s", for which we got a match, '
+                                 'but the matched show had a country of "%s", so we cannot accept this.'
+                                 % (scene_name, matching_cc, repr(test_tv_show.country_code)))
 
     # No match?  We fail
     with _scene_name_lookup_cache_lock:

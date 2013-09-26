@@ -122,21 +122,6 @@ def _real_tvdb_series_lookup(tvdb_id):
 
     return result
 
-#         series = urllib.quote(series.encode("utf-8"))
-#         log().debug("Searching for show %s" % series)
-#         seriesEt = self._getetsrc(self.config['url_getSeries'] % (series))
-#         allSeries = []
-#         for series in seriesEt:
-#             result = dict((k.tag.lower(), k.text) for k in series.getchildren())
-#             result['id'] = int(result['id'])
-#             result['lid'] = self.config['langabbv_to_id'][result['language']]
-#             if 'aliasnames' in result:
-#                 result['aliasnames'] = result['aliasnames'].split("|")
-#             log().debug('Found series %(seriesname)s' % result)
-#             allSeries.append(result)
-#
-#         return allSeries
-
 
 # @fastcache.func_cache(max_age_secs=60 * 60)
 def search_series_by_name(showname, language='en'):

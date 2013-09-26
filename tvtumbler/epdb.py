@@ -15,6 +15,8 @@ from threading import Lock
 
 from tvdb_api import tvdb_api
 
+import xbmc
+
 
 from . import db, thetvdb, logger
 from .tv import TvShow
@@ -85,6 +87,8 @@ def refresh_needed_shows(cutoff_for_continuing=60 * 60 * 24,
     @return: Returns the number of shows refreshed.
     @rtype: int
     '''
+    from . import main
+
     latest_continuing = time.time() - cutoff_for_continuing
     latest_ended = time.time() - cutoff_for_ended
 
@@ -107,6 +111,9 @@ def refresh_needed_shows(cutoff_for_continuing=60 * 60 * 24,
         shows_to_refresh = shows_to_refresh[:show_limit]
 
     for s in shows_to_refresh:
+        if xbmc.abortRequested or main.shutdownRequested:
+            logger.debug('Shutdown in progress, aborting refresh')
+            break
         refresh_show(s[0])
 
     return len(shows_to_refresh)
@@ -146,8 +153,8 @@ def refresh_show(tvdb_id):
             sqls.append((sql, data.values()))
 
         with _episode_lock:
-            _db.action('DELETE FROM episode WHERE tvdb_id = ?', [tvdb_id])
-            _db.mass_action(sqls, logTransaction=True)
+            _db.action('DELETE FROM episode WHERE tvdb_id = ? AND seasonnumber = ?', [tvdb_id, season_num])
+            _db.mass_action(sqls, logTransaction=False)
 
     _db.action('INSERT OR REPLACE INTO episode_refresh '
                '(tvdb_id, last_refreshed) '

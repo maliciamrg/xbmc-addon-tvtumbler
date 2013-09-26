@@ -12,7 +12,7 @@ import sys
 from dateutil import parser
 import xbmc
 
-from . import jsonrpc, logger, downloaders, api, showsettings, thetvdb
+from . import jsonrpc, logger, downloaders, api, showsettings, thetvdb, tvrage
 from .numbering import xem
 
 
@@ -43,6 +43,9 @@ class TvShow(object):
         self._thumbnail = None
         self._art = None
         self._tvdb_info = None
+        self._year = None
+        self._tvrage_id = None
+        self._country_code = None
 
     def __repr__(self):
         return self.__class__.__name__ + '(tvshowid=%s, name=%s, tvdb_id=%s, path=%s)' % (
@@ -138,6 +141,18 @@ class TvShow(object):
             self._get_xbmc_details()
 
         return self._imdbnumber
+
+    @property
+    def tvrage_id(self):
+        '''
+        @rtype: int
+        '''
+        if self._tvrage_id is None:
+            if self.tvdb_id:
+                api_info = api.show(self.tvdb_id)
+                if api_info:
+                    self._tvrage_id = api_info['tvrage_id']
+        return self._tvrage_id
 
     def get_path(self):
         '''
@@ -259,16 +274,37 @@ class TvShow(object):
 
         @rtype: int
         '''
-        first_aired = self._get_tvdb_field('firstaired', allow_remote_fetch=True)
-        if first_aired:
-            parse_result = parser.parse(first_aired)
-            if parse_result:
-                return parse_result.year
-        return None
+        if self._year is None:
+            first_aired = self._get_tvdb_field('firstaired', allow_remote_fetch=True)
+            if first_aired:
+                parse_result = parser.parse(first_aired)
+                if parse_result:
+                    self._year = parse_result.year
+        return self._year
+
+    @property
+    def country_code(self):
+        '''
+        Get the origin country (iso3166-alpha2) code.  Returns None if unknown.
+        Care here: don't use this needlessly, it can involve several http requests.
+
+        @rtype: str
+        '''
+        if self._country_code is None:
+            show_info = tvrage.tvrage_showinfo(self.tvrage_id)
+            if show_info and 'origin_country' in show_info:
+                self._country_code = show_info['origin_country']
+
+                # if it truly is a 2-char country code, make it uppercase for consistency
+                if len(self._country_code) == 2:
+                    self._country_code = self._country_code.upper()
+
+        return self._country_code
 
     @property
     def status(self):
-        '''The status of the show as reported by thetvdb
+        '''The status of the show as reported by thetvdb.
+
         @rtype: str
         '''
         return self._get_tvdb_field('status')
