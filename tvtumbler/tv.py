@@ -9,7 +9,7 @@ This file is part of TvTumbler.
 import os
 import sys
 
-
+from dateutil import parser
 import xbmc
 
 from . import jsonrpc, logger, downloaders, api, showsettings, thetvdb
@@ -152,6 +152,7 @@ class TvShow(object):
         else:
             root_dir = xbmc.translatePath(__addon__.getSetting('new_show_path').decode('utf-8'))
             show_dir = xbmc.makeLegalFilename(self.name, False).decode('utf-8')
+            logger.debug('root dir = "%s", show_dir = "%s"' % (root_dir, show_dir))
             return os.path.join(root_dir, show_dir)
 
     def _get_xbmc_details(self):
@@ -250,6 +251,20 @@ class TvShow(object):
             if not self._load_art():
                 return None
         return self._art.get('banner', None)
+
+    @property
+    def year(self):
+        '''
+        Get the first-aired year.  Returns None if unknown.
+
+        @rtype: int
+        '''
+        first_aired = self._get_tvdb_field('firstaired', allow_remote_fetch=True)
+        if first_aired:
+            parse_result = parser.parse(first_aired)
+            if parse_result:
+                return parse_result.year
+        return None
 
     @property
     def status(self):

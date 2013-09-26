@@ -298,6 +298,28 @@ def get_tvdb_id(scene_name):
             _scene_name_lookup_cache[scene_name] = result
         return result
 
+    # Does the name end in what looks like a year?
+    year_end_match = re.match('(?P<show_name>.*?)\(?(?P<year>(19|20)\d\d)\)?', scene_name)
+    if year_end_match:
+        logger.debug('looks like %s has a year at the end' % (scene_name,))
+        new_scene_name = year_end_match.group('show_name')
+        matching_year = year_end_match.group('year')
+        test_tvdb_id = get_tvdb_id(new_scene_name)
+        if test_tvdb_id:
+            # we need to check if the starting year is correct also
+            test_tv_show = TvShow.from_tvdbd_id(test_tvdb_id)
+            if test_tv_show:
+                if test_tv_show.year == int(matching_year):
+                    # success!! the years match!
+                    logger.debug('Yup, matched on "%s" with year "%s"' % (new_scene_name, matching_year))
+                    with _scene_name_lookup_cache_lock:
+                        _scene_name_lookup_cache[scene_name] = test_tvdb_id
+                    return test_tvdb_id
+
+                logger.debug('"%s" had what looks like a year on the end "%s", for which we got a match, '
+                             'but the matched show had a start year of "%s", so we cannot accept this.'
+                             % (scene_name, matching_year, repr(test_tv_show.year)))
+
     # No match?  We fail
     with _scene_name_lookup_cache_lock:
         _scene_name_lookup_cache[scene_name] = None
