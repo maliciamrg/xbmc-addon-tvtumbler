@@ -17,6 +17,7 @@ import xbmc
 import xbmcaddon
 import xbmcgui
 
+from .contextmenu import ContextMenuDialog
 from .actions import *
 from .common import TvTumblerWindowXML
 from .. import quality, logger
@@ -96,6 +97,11 @@ class TvTumblerShows(TvTumblerWindowXML):
                     if 'status' in show and show['status']:
                         logger.debug('setting status property to %s' % (repr(show['status'])))
                         item.setProperty('status', show['status'])
+
+                    # small hack here: we need to change some standard property of
+                    # the ListItem to ensure that it redraws.  The easiest way to do that
+                    # is to change label
+                    item.setLabel(item.getLabel() + ' ')
 
             if remaining_tvdb_ids:
                 xbmc.sleep(50)  # allow a screen refresh
@@ -217,23 +223,9 @@ class TvTumblerShows(TvTumblerWindowXML):
             pass
 
         if options:
-            dlg = xbmcgui.Dialog()
-            selected = dlg.select('Options', [o[0] for o in options])
-            if selected >= 0:
+            selected = ContextMenuDialog.select([o[0] for o in options])
+            if selected is not None:
                 options[selected][1]()
-
-#     def userPickShow(self, result, append=''):
-#         slist = ['< %s >' % (__language__(30040)), __language__(30048).replace('@REPLACE@', append)]
-#         sids = [None, '0']
-#         if result:
-#             for s in result.findall('show'):
-#                 slist.append(s.find('name').text)
-#                 sids.append(s.find('showid').text)
-#         dialog = xbmcgui.Dialog()
-#         if append: append = ': ' + append
-#         idx = dialog.select(__language__(30008) + append, slist)
-#         if idx < 0: return None
-#         return sids[idx]
 
     def _get_selected_item_and_show(self):
         item = self.getControl(120).getSelectedItem()
@@ -257,8 +249,8 @@ class TvTumblerShows(TvTumblerWindowXML):
             return
 
         qualities_available = ['SD', 'HD', 'Any']
-        selected_quality = xbmcgui.Dialog().select('Please select a preferred quality', qualities_available)
-        if selected_quality < 0:  # cancelled
+        selected_quality = ContextMenuDialog.select(qualities_available)
+        if selected_quality is None:
             return
 
         real_quality_values = [quality.SD_COMP, quality.HD_COMP, quality.ANY]
