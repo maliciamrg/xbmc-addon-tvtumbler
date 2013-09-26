@@ -304,7 +304,7 @@ def get_tvdb_id(scene_name):
 
     # Does the name end in what looks like a year?
     # e.g. "Revolution 2012", or "Doctor Who (2005)"
-    year_end_match = re.match('(?P<show_name>.*?)\(?(?P<year>[a-zA-Z]{2}\)?', scene_name)
+    year_end_match = re.match('^(?P<show_name>.*?)\s\(?(?P<year>(19|20)\d\d)\)?$', scene_name)
     if year_end_match:
         logger.debug('looks like %s has a year at the end' % (scene_name,))
         new_scene_name = year_end_match.group('show_name')
@@ -327,7 +327,7 @@ def get_tvdb_id(scene_name):
 
     # also check for a country code at the end
     # e.g. "Wilfred (US)", or "Wilfred AU"
-    country_end_match = re.match('(?P<show_name>.*?)\W\(?(?P<cc>[a-zA-Z]{2})\)?', scene_name)
+    country_end_match = re.match('^(?P<show_name>.*?)\s\(?(?P<cc>[a-zA-Z]{2})\)?$', scene_name)
     if country_end_match:
         logger.debug('looks like %s has a country code at the end' % (scene_name,))
         new_scene_name = year_end_match.group('show_name')
