@@ -324,6 +324,14 @@
             <texture border="0">50px-1080.png</texture>
             <visible>[StringCompare(ListItem.Label2,Follow) + StringCompare(ListItem.Property(wanted_quality_str),HD)]</visible>
           </control>
+          <control type="image">
+            <posx>970</posx>
+            <posy>0</posy>
+            <width>50</width>
+            <height>38</height>
+            <texture border="0">50px-ANY.png</texture>
+            <visible>[StringCompare(ListItem.Label2,Follow) + StringCompare(ListItem.Property(wanted_quality_str),ANY)]</visible>
+          </control>
         </itemlayout>
         <focusedlayout height="38">
           <control type="image">
@@ -399,6 +407,14 @@
             <height>38</height>
             <texture border="0">50px-1080.png</texture>
             <visible>[StringCompare(ListItem.Label2,Follow) + StringCompare(ListItem.Property(wanted_quality_str),HD)]</visible>
+          </control>
+          <control type="image">
+            <posx>970</posx>
+            <posy>0</posy>
+            <width>50</width>
+            <height>38</height>
+            <texture border="0">50px-ANY.png</texture>
+            <visible>[StringCompare(ListItem.Label2,Follow) + StringCompare(ListItem.Property(wanted_quality_str),ANY)]</visible>
           </control>
         </focusedlayout>
       </control>
