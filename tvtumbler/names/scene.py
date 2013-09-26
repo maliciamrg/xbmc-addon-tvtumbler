@@ -330,8 +330,8 @@ def get_tvdb_id(scene_name):
     country_end_match = re.match('^(?P<show_name>.*?)\s\(?(?P<cc>[a-zA-Z]{2})\)?$', scene_name)
     if country_end_match:
         logger.debug('looks like %s has a country code at the end' % (scene_name,))
-        new_scene_name = year_end_match.group('show_name')
-        matching_cc = year_end_match.group('cc').upper()
+        new_scene_name = country_end_match.group('show_name')
+        matching_cc = country_end_match.group('cc').upper()
         test_tvdb_id = get_tvdb_id(new_scene_name)
         if test_tvdb_id:
             # we need to check if the country code for this show matches the one in the scene_name
