@@ -365,7 +365,7 @@ def simplify_show_name(showName):
     # Replace any unicode chars with their nearest ascii equivalents
     showName = unidecode(showName)
     # strip chars that don't generally appear in scene naming
-    bad_chars = u",:()'!?\u2019"
+    bad_chars = u".,:()'!?\u2019"
     for x in bad_chars:
         showName = showName.replace(x, "")
     # make it lowercase
