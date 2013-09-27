@@ -177,12 +177,17 @@ class TvShow(object):
         @return: (bool) True on successful lookup, False on failure.
         '''
         tvshowdetails = jsonrpc.get_tv_show_details(self._tvshowid,
-                                        ['title', 'imdbnumber', 'file'])
+                                        ['title', 'year', 'imdbnumber', 'file'])
         if tvshowdetails:
             if 'title' in tvshowdetails:
                 self._name = tvshowdetails['title']
             if 'imdbnumber' in tvshowdetails:
                 self._imdbnumber = tvshowdetails['imdbnumber']
+            if 'year' in tvshowdetails:
+                try:
+                    self._year = int(tvshowdetails['year'])
+                except ValueError:
+                    pass
             if 'file' in tvshowdetails:
                 self._path = tvshowdetails['file']
 
