@@ -89,7 +89,10 @@ def get_tv_shows(properties=["title", "year", "imdbnumber", "file"]
     """
     result = exec_rpc_with_cache(method="VideoLibrary.GetTVShows",
                                  params={'properties': properties})
-    return result['tvshows']
+    try:
+        return result['tvshows']
+    except KeyError:
+        return []  # no tv shows!
 
 
 def get_tv_show_details(tvshowid,
@@ -100,7 +103,10 @@ def get_tv_show_details(tvshowid,
     result = exec_rpc_with_cache(method="VideoLibrary.GetTVShowDetails",
                                  params={'tvshowid': tvshowid,
                                          'properties': properties})
-    return result['tvshowdetails']
+    try:
+        return result['tvshowdetails']
+    except KeyError:
+        return None
 
 
 def get_seasons(tvshowid,
