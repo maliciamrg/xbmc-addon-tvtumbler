@@ -46,6 +46,16 @@ def _on_settings_change():
 events.add_event_listener(events.SETTINGS_CHANGED, _on_settings_change)
 
 
+class TRPCAuthError(Exception):
+    '''Authentication failure with transmission'''
+    pass
+
+
+class TRPCConnectError(Exception):
+    '''Failure to connect to transmission'''
+    pass
+
+
 class TRPCDownloader(TorrentDownloader):
 
     def __init__(self):
@@ -87,10 +97,26 @@ class TRPCDownloader(TorrentDownloader):
             if trpc_pass == '':
                 trpc_pass = None
 
-            _trcp_client = transmissionrpc.Client(address=trpc_host,
-                                                  port=trpc_port,
-                                                  user=trpc_user,
-                                                  password=trpc_pass)
+            try:
+                _trcp_client = transmissionrpc.Client(address=trpc_host,
+                                                      port=trpc_port,
+                                                      user=trpc_user,
+                                                      password=trpc_pass)
+            except (ValueError, transmissionrpc.TransmissionError):
+                (e_type, e, traceback) = sys.exc_info()
+
+                if e_type is transmissionrpc.TransmissionError:
+                    if e.original:
+                        if e.original.code is 401:
+                            raise TRPCAuthError('Invalid Username or Password')
+                        else:
+                            raise TRPCConnectError('Unable to Connect')
+                    # not one of the above?  Just re-raise it and let it bubble
+                    raise e
+                elif type is ValueError:
+                    # In python 2.4, urllib2.HTTPDigestAuthHandler will barf up a lung
+                    # if auth fails and the server wants non-digest authentication
+                    raise TRPCAuthError('Invalid Username or Password')
 
             session = _trcp_client.get_session()  # @UnusedVariable
             # @todo: settings for the client/session should go here
@@ -209,6 +235,42 @@ class TRPCDownload(TorrentDownload):
     An actual running transmission rpc download.
     '''
 
+    def __getstate__(self):
+        '''
+        Return state (for pickling).
+        '''
+        state = super(TRPCDownload, self).__getstate__()
+        try:
+            state['torrent_id'] = self._torrent.id
+        except:
+            pass
+
+        try:
+            state['have_torrentFile'] = self._have_torrentFile
+        except:
+            pass
+
+        try:
+            state['checkedForMedia'] = self._checkedForMedia
+        except:
+            pass
+        return state
+
+    def __setstate__(self, state):
+        '''
+        Restore state (from pickle).
+
+        @param state:
+        @type state:
+        '''
+        super(TRPCDownload, self).__setstate__(state)
+        if 'torrent_id' in state:
+            self._torrent = self._downloader._get_client().get_torrent(state['torrent_id'])
+        if 'have_torrentFile' in state:
+            self._have_torrentFile = state['have_torrentFile']
+        if 'checkedForMedia' in state:
+            self._checkedForMedia = state['checkedForMedia']
+
     @property
     def name(self):
         '''Override so that we can use the name from the torrent when we have it.'''
@@ -305,6 +367,8 @@ class TRPCDownload(TorrentDownload):
 
                 self._have_torrentFile = True
 
+            self._torrent = None
+
             # transmissionrpc fails rather cryptically when you try to add a torrent that it
             # is already downloading.  So the safest thing here is to check if there's already
             # a torrent with the hash we have.
@@ -313,21 +377,37 @@ class TRPCDownload(TorrentDownload):
                 try:
                     infohash = infohash.lower()  # transmission uses lowercase hashes
                     logger.debug('checking for already-running torrent with hash: ' + infohash)
-                    client.get_torrent(infohash)  # will raise a 'KeyError' on failure
-                    logger.notice('Failed to add torrent - transmission already has a torrent with this hash')
-                    self._status = self.FAILED
-                    return False
+                    self._torrent = client.get_torrent(infohash)  # will raise a 'KeyError' on failure
+                    logger.notice('Transmission already has a torrent with this hash, trying to take ownership of it')
+
+                    # if we're running locally, we need to ensure that transmission has the correct
+                    # download dir for the torrent
+                    if self.downloader.running_locally():
+                        t_dl_dir = self._torrent.downloadDir
+                        if t_dl_dir != self.downloader.get_download_dir():
+                            logger.notice('Torrent has download dir "%s", whereas we want "%s".  This is not ours.' %
+                                          (t_dl_dir, self.downloader.get_download_dir()))
+                            self._status = self.FAILED
+                            return False
+
+                    # need to work out the start time
+                    # self._start_time = self._torrent.addedDate  # It's a timestamp
+                    # Can't do the above, because we're likely to fail with timeout immediately below.
+                    # just have to do this instead
+                    self._start_time = time.time()
+
                 except KeyError:
                     logger.debug('no already running torrent with this hash')
 
-            self._start_time = time.time()
-            if self.downloader.running_locally():
-                # when we're running locally, we pass in the download dir to tranmission
-                self._torrent = client.add_torrent(torrent=torrent,
-                                                   download_dir=self.downloader.get_download_dir())
-            else:
-                # and when we're not, we can't.  We just have to trust the user to set it up right
-                self._torrent = client.add_torrent(torrent)
+            if self._torrent is None:
+                self._start_time = time.time()
+                if self.downloader.running_locally():
+                    # when we're running locally, we pass in the download dir to tranmission
+                    self._torrent = client.add_torrent(torrent=torrent,
+                                                       download_dir=self.downloader.get_download_dir())
+                else:
+                    # and when we're not, we can't.  We just have to trust the user to set it up right
+                    self._torrent = client.add_torrent(torrent)
 
             startedDownload = False
             while not startedDownload:
@@ -361,12 +441,15 @@ class TRPCDownload(TorrentDownload):
                     return False
 
         except Exception, e:
+            xbmc.executebuiltin('Notification(%s,%s,60000,%s)' % ('TvTumbler: Transmission',
+                                                                  str(e),
+                                                                  'DefaultIconError.png'))
             logger.error('Error trying to download via transmissionrpc: ' + str(e))
-            logger.debug(traceback.format_exc())
+            logger.error(traceback.format_exc())
             try:
                 client.remove_torrent([self._torrent.id], delete_data=True)
-            except AttributeError:
-                pass  # no self._torrent, error can be safely ignored
+            except (AttributeError, UnboundLocalError):
+                pass  # no self._torrent, or no client, error can be safely ignored
             self._status = self.FAILED
             return False
 
@@ -381,6 +464,8 @@ class TRPCDownload(TorrentDownload):
         '''
         try:
             torrent = self._torrent
+            if torrent is None:
+                return  # no torrent yet
         except AttributeError:
             # No _torrent yet?  We've run too early.
             # Just fail silenty.
@@ -391,8 +476,26 @@ class TRPCDownload(TorrentDownload):
         except KeyError, ke:
             # transmissionrpc currently throws a KeyError when the torrent
             # is invalid.  Treat this as a failure.
-            logger.error(u'Error from transmission, assuming torrent failed: ' + str(ke))
+            errMsg = 'Error from transmission, assuming torrent failed: ' + str(ke)
+
+            logger.error(errMsg)
             self._status = self.FAILED
+            xbmc.executebuiltin('Notification(%s,%s,60000,%s)' % ('TvTumbler: Transmission',
+                                                                  errMsg,
+                                                                  'DefaultIconError.png'))
+            return
+        except transmissionrpc.TransmissionError, te:
+            errMsg = 'Error from transmission, assuming torrent failed: ' + str(te)
+            if te.original:
+                if te.original.code is 401:
+                    errMsg = 'Torrent Failed: Invalid Username or Password'
+                else:
+                    errMsg = 'Torrent Failed: Unable to Connect'
+            logger.error(errMsg)
+            self._status = self.FAILED
+            xbmc.executebuiltin('Notification(%s,%s,60000,%s)' % ('TvTumbler: Transmission',
+                                                                  errMsg,
+                                                                  'DefaultIconError.png'))
             return
 
         s = torrent.status

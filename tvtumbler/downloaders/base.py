@@ -8,9 +8,15 @@ Created on Aug 30, 2013
 @license: GPL
 @contact: info@tvtumbler.com
 '''
+import os
 import time
-from ..schedule import SchedulerThread
+import traceback
+
+import Pickle
+import xbmc
+
 from .. import logger, log
+from ..schedule import SchedulerThread
 
 
 class BaseDownloader(object):
@@ -42,6 +48,11 @@ class BaseDownloader(object):
             return cls._instance
         except AttributeError:
             cls._instance = cls()
+            try:
+                cls._instance.load_running_state()
+            except Exception, e:
+                logger.notice('Failed to restore previous running state: ' + str(e))
+                logger.notice(traceback.format_exc())
             return cls._instance
 
     @classmethod
@@ -134,11 +145,17 @@ class BaseDownloader(object):
             self._running_downloads[key] = rd
             log.log_download_start(rd)
             return True
+        else:
+            return False
 
     def on_download_failed(self, download):
         '''Called (by the download), when it fails.'''
+        try:
+            del self._running_downloads[download.key]
+        except KeyError:
+            # safe to ignore this, it just didn't get far enough to be counted as 'running'
+            pass
         from . import on_download_failed
-        del self._running_downloads[download.key]
         on_download_failed(download)  # call the module implementation
         log.log_download_fail(download)
         logger.debug('Download has failed, blacklisting: ' + repr(download.downloadable))
@@ -165,6 +182,32 @@ class BaseDownloader(object):
             download.stop(deleteFilesToo=False)
         del self._running_downloads[download.key]
         # No need to log here, we already did when the download downloaded
+
+    def save_running_state(self):
+        if len(self._running_downloads):
+            dlpath = self._get_running_state_path()
+            logger.debug('Saving running download state to "%s"' % (dlpath,))
+            pickle_file = open(dlpath, 'wb')
+            Pickle.dump(self._running_downloads, pickle_file)
+            pickle_file.close()
+
+    def load_running_state(self):
+        dlpath = self._get_running_state_path()
+        if os.path.exists(dlpath):
+            logger.debug('Loading running download state from "%s"' % (dlpath,))
+            # we read in the entire file here and delete the original, before we attempt to unpickle.
+            # We do this because sometimes XMBC can crash here, and at least if we do it this way, it's
+            # recoverable.
+            pickle_file = open(dlpath, 'rb')
+            pickle_file_contents = pickle_file.read()
+            pickle_file.close()
+            os.remove(dlpath)
+            self._running_downloads = Pickle.loads(pickle_file_contents)
+
+
+    def _get_running_state_path(self):
+        return os.path.join(xbmc.translatePath('special://temp').decode('utf-8'),
+                                        self.get_name() + '.pkl')
 
 
 class Download(object):
@@ -213,6 +256,51 @@ class Download(object):
         self.copied_to_library = False
         self._start_acked = False
         self._end_acked = False
+
+    def __getstate__(self):
+        '''
+        Return state (for pickling).
+        '''
+        try:
+            rowid = self.rowid  # there'll only be a rowid if this has been logged
+        except AttributeError:
+            rowid = None
+        return {'downloader_class': self._downloader.__class__,
+                'downloadable': self._downloadable,
+                'status': self._status,
+                'start_time': self._start_time,
+                'copied_to_library': self.copied_to_library,
+                'start_acked': self._start_acked,
+                'end_acked': self._end_acked,
+
+                'poller_running': self._poller.is_alive(),
+                'rowid': rowid,
+                }
+
+    def __setstate__(self, state):
+        '''
+        Restore state (from pickle).
+
+        @param state:
+        @type state:
+        '''
+        logger.debug('When restoring, got state: ' + repr(state))
+        self._downloadable = state['downloadable']
+        self._status = state['status']
+        self._start_time = state['start_time']
+        self.copied_to_library = state['copied_to_library']
+        self._start_acked = state['start_acked']
+        self._end_acked = state['end_acked']
+
+        self._downloader = state['downloader_class'].get_instance()
+        self._poller = SchedulerThread(action=self._poll,
+                                       threadName=self.__class__.__name__,
+                                       runIntervalSecs=3)
+        if 'rowid' in state:  # there'll only be a rowid if this has been logged
+            self.rowid = state['rowid']
+
+        if state['poller_running']:
+            self._poller.start(2)
 
     @property
     def key(self):

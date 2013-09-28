@@ -22,12 +22,20 @@ __addonname__ = sys.modules["__main__"].__addonname__
 _enabled_downloaders = None
 
 
-def on_settings_changed():
+def _on_settings_changed():
     logger.debug('Settings changed, resetting enabled downloaders')
     global _enabled_downloaders
     _enabled_downloaders = None
 
-events.add_event_listener(events.SETTINGS_CHANGED, on_settings_changed)
+events.add_event_listener(events.SETTINGS_CHANGED, _on_settings_changed)
+
+
+def _on_abort_requested():
+    logger.debug('Abort Requested.  Saving running status of active downloads')
+    for dler in get_enabled_downloaders():
+        dler.save_running_state()
+
+events.add_event_listener(events.ABORT_REQUESTED, _on_abort_requested)
 
 
 def get_enabled_downloaders():
