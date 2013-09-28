@@ -11,10 +11,10 @@
         <setting id="ezrss_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="60" />
         <setting type="lsep" label="ShowRSS (showrss.karmorra.info)" />
         <setting id="showrss_enable" label="Enable" type="bool" default="false" />
-        <setting id="showrss_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="60" />
+        <setting id="showrss_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="65" />
         <setting type="lsep" label="PublicHD (publichd.se)" />
         <setting id="publichd_enable" label="Enable" type="bool" default="false" />
-        <setting id="publichd_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="60" />
+        <setting id="publichd_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="55" />
     </category>
     <category label="Libtorrent">
         <setting id="libtorrent_enable" label="Use Libtorrent for downloads" type="bool" default="false"/>
