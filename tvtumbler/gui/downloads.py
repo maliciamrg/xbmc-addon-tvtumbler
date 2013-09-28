@@ -21,14 +21,14 @@ import xbmcgui
 from .. import quality, logger
 from ..comms.client import service_api
 from .actions import *
-from .common import TvTumblerWindowXML
+from .common import TvTumblerWindowXMLDialog
 
 
 __addon__ = xbmcaddon.Addon()
 __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
 
 
-class TvTumblerDownloads(TvTumblerWindowXML):
+class TvTumblerDownloads(TvTumblerWindowXMLDialog):
     def __init__(self, *args, **kwargs):
         self._running_downloads = dict()
         self._running_lock = threading.Lock()
@@ -36,15 +36,21 @@ class TvTumblerDownloads(TvTumblerWindowXML):
         self._non_running_lock = threading.Lock()
 
     def onInit(self):
+        self._show_loading_dialog()
         if not self.check_service_ok():
             self.close()
+            return
 
+        self._update_loading_dialog(35, 'Creating data loader...')
         self._running_data_loader = threading.Thread(target=self._refresh_data, name='_refresh_data')
         self._running_data_loader._abort = False
+        self._update_loading_dialog(50, 'Loading data...')
         self._running_data_loader.start()
 
+        self._update_loading_dialog(95, 'Completing ...')
         self.getControl(120).selectItem(0)  # select the first row
         self.setFocus(self.getControl(120))
+        self._hide_loading_dialog()
 
     def _refresh_data(self):
         num_previous_running = -1  # we keep track of this, so that when it changes, we know to query the non-running also

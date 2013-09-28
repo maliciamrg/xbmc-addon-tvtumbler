@@ -16,37 +16,65 @@ import time
 import xbmc
 import xbmcaddon
 import xbmcgui
+import xbmcvfs
 
-from .contextmenu import ContextMenuDialog
-from .actions import *
-from .common import TvTumblerWindowXML
 from .. import quality, logger
 from ..comms.client import service_api
+from .actions import *
+from .common import TvTumblerWindowXMLDialog
+from .contextmenu import ContextMenuDialog
+
+
 __addon__ = xbmcaddon.Addon()
 __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
 
 
-class TvTumblerShows(TvTumblerWindowXML):
+class TvTumblerShows(TvTumblerWindowXMLDialog):
     def __init__(self, *args, **kwargs):
         self.shows = None
         self._shows_lock = threading.Lock()
         self._slow_show_data_loader = None
 
     def onInit(self):
+        self._show_loading_dialog()
         if not self.check_service_ok():
+            self._hide_loading_dialog()
             self.close()
+            return
 
+        self._update_loading_dialog(25, 'Creating slow data loader...')
         self._slow_show_data_loader = threading.Thread(target=self._load_slow_show_data, name='slow_show_data_loader')
         self._slow_show_data_loader._abort = False
         self._slow_show_data_loader.start()
         with self._shows_lock:
+            self._update_loading_dialog(50, 'Loading TV Shows ...')
             self.shows = service_api.get_all_shows(properties=['tvshowid', 'name', 'tvdb_id',
                                                                'followed', 'wanted_quality', 'fast_status'])
-            logger.debug(repr(self.shows))
+            # logger.debug(repr(self.shows))
+            self._update_loading_dialog(75, 'Displaying TV Shows ...')
             self.updateDisplay()
 
+        self._update_loading_dialog(85, 'Running Basic Checks ...')
+        if len(self.shows) == 0:
+            self._update_loading_dialog(0)
+            dlg = xbmcgui.Dialog()
+            dlg.ok('TvTumbler', 'No TV Shows Found!', 'Click OK to add a TV Show')
+            if not self.add_show():
+                self.close()
+                return
+
+        non_xbmc_shows = [s for s in self.shows if ('tvshowid' not in s or s['tvshowid'] is None)]
+        # if we have even one non xbmc show (i.e not in the library), then we must
+        # ensure a valid download path
+        if len(non_xbmc_shows):
+            if not self.ensure_valid_download_dir():
+                self.close()
+                return
+
+        self._update_loading_dialog(95, 'Completing ...')
         self.getControl(120).selectItem(0)  # select the first row
         self.setFocus(self.getControl(120))
+        self._hide_loading_dialog()
 
     def _load_slow_show_data(self):
         start_time = time.time()
@@ -172,7 +200,7 @@ class TvTumblerShows(TvTumblerWindowXML):
     def add_show(self):
         keyboard = xbmc.Keyboard('', 'Search for Show', False)
         keyboard.doModal()
-        if (keyboard.isConfirmed()):
+        while (keyboard.isConfirmed()):
             searchstring = keyboard.getText()
             if searchstring:
                 choices = service_api.search_series_by_name(searchstring=searchstring)
@@ -180,7 +208,8 @@ class TvTumblerShows(TvTumblerWindowXML):
                 dlg = xbmcgui.Dialog()
                 if not choices:
                     dlg.ok('TvTumbler', 'No matching series found')
-                    return
+                    keyboard.doModal()
+                    continue
                 options = []
                 for c in choices:
                     label = ''
@@ -208,6 +237,51 @@ class TvTumblerShows(TvTumblerWindowXML):
                         self.shows.extend(show_data)
                         self.updateDisplay()
                         self.select_show(tvdb_id)
+                        return True
+                    else:
+                        # show didn't add for some reason
+                        return False
+                else:
+                    # they didn't select anything
+                    keyboard.doModal()
+                    continue
+            else:
+                # no search term?
+                return False
+
+        # they cancelled input
+        return False
+
+    def ensure_valid_download_dir(self):
+        new_show_path = __addon__.getSetting('new_show_path')
+        if (new_show_path is None or
+            new_show_path == '' or
+            not xbmcvfs.exists(new_show_path)):
+
+            # we need to prompt them for a valid download path
+            dlg = xbmcgui.Dialog()
+            dlg.ok('TvTumbler', 'Directory for New TV Shows is not set', 'Click OK to set it now.')
+            try:
+                path = dlg.browse(3,  # type: ShowAndGetWriteableDirectory
+                                  'Select Directory for New Shows',  # heading:
+                                  'video'
+                                  )
+            except:
+                # the above will give a RuntimeError if there is no video library set up.  So use this instead.
+                path = dlg.browse(3,  # type: ShowAndGetWriteableDirectory
+                                  'Select Directory for New Shows',  # heading:
+                                  'files'
+                                  )
+            logger.debug('got path: "%s"' % (path,))
+            if path and xbmcvfs.exists(path):
+                __addon__.setSetting('new_show_path', path)
+                return True
+            else:
+                # they cancelled the dialog
+                return False
+        else:
+            # path is ok
+            return True
 
     def doMenu(self):
         item, show = self._get_selected_item_and_show()
