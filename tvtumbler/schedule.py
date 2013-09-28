@@ -69,6 +69,9 @@ class SchedulerThread(threading.Thread):
         '''
         logger.debug(u'Thread %s is starting' % self.threadName)
         while not self.abort:
+            if xbmc.abortRequested:
+                self.abort = True
+
             if time.time() > (self._lastRunTime + self.runIntervalSecs):
                 self._lastRunTime = time.time()
                 try:
