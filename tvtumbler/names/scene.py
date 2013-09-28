@@ -277,12 +277,12 @@ def get_tvdb_id(scene_name):
 
     simplified = simplify_show_name(scene_name)
 
-    # start by comparing it to what we have in xbmc
-    known_shows = jsonrpc.get_tv_shows(properties=["title", "imdbnumber"])
+    # better to ask TvShow, b/c it will include shows that are not necessarily in the db
+    known_shows = TvShow.get_all_shows()
     show_matches = [s for s in known_shows if
-                    simplify_show_name(s['title']) == simplified]
+                    simplify_show_name(s.name) == simplified]
     if show_matches:
-        result = int(show_matches[0]['imdbnumber'])
+        result = int(show_matches[0].tvdb_id)
         with _scene_name_lookup_cache_lock:
             _scene_name_lookup_cache[scene_name] = result
         return result
