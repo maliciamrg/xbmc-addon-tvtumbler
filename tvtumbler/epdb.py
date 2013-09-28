@@ -62,7 +62,7 @@ def get_episode_name(tvdb_id, season, episode):
                      'AND seasonnumber = ? '
                      'AND episodenumber = ?', [tvdb_id, season, episode])
     if rows:
-        return int(rows[0]['episodename'])
+        return rows[0]['episodename']
     else:
         t = thetvdb.get_tvdb_api_info(tvdb_id)
         try:
