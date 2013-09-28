@@ -17,6 +17,8 @@ def tvrage_showinfo(tvrage_id, allow_remote_fetch=True):
     '''
     Look up a series from tvrage.
     '''
+    if tvrage_id is None:
+        return None
     if _real_tvrage_showinfo.is_cached(tvrage_id) or allow_remote_fetch:
         return _real_tvrage_showinfo(tvrage_id)
     return None
@@ -24,7 +26,9 @@ def tvrage_showinfo(tvrage_id, allow_remote_fetch=True):
 
 @fastcache.func_cache(max_age_secs=60 * 60 * 24)
 def _real_tvrage_showinfo(tvrage_id):
-    url = 'http://services.tvrage.com/feeds/showinfo.php?sid=2930' + str(tvrage_id)
+    if tvrage_id is None or tvrage_id == '':
+        return None
+    url = 'http://services.tvrage.com/feeds/showinfo.php?sid=' + str(tvrage_id)
     logger.debug('getting url %s' % url)
     r = requests.get(url)
     if r.status_code == requests.codes.ok:
