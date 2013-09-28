@@ -159,7 +159,7 @@ def refresh_show(tvdb_id):
     _db.action('INSERT OR REPLACE INTO episode_refresh '
                '(tvdb_id, last_refreshed) '
                'VALUES (?,?)',
-               [tvdb_id, time.time()])
+               [str(tvdb_id), time.time()])
 
 
 def _get_show_last_refreshed(tvdb_id):
@@ -176,7 +176,7 @@ def _get_show_last_refreshed(tvdb_id):
     db = _get_db()
     rows = db.select('SELECT last_refreshed '
                      'FROM episode_refresh '
-                     'WHERE tvdb_id = ?', [tvdb_id])
+                     'WHERE tvdb_id = ?', [str(tvdb_id)])
     if rows:
         return int(rows[0]['last_refreshed'])
     else:

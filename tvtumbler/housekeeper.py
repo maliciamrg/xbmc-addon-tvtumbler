@@ -10,16 +10,17 @@ import time
 import xbmc
 
 
-from . import logger, fastcache, blacklist, epdb
+from . import logger, fastcache, blacklist, epdb, showsettings
 from .names import scene
 
 _fastcache_expire_last_run = time.time()
 _blacklist_expire_last_run = time.time()
 _epdb_last_run = time.time()
+_showsettings_purge_last_run = time.time()
 
 
 def run():
-    global _fastcache_expire_last_run, _blacklist_expire_last_run, _epdb_last_run
+    global _fastcache_expire_last_run, _blacklist_expire_last_run, _epdb_last_run, _showsettings_purge_last_run
 
     logger.debug('housekeeper - run')
     if xbmc.Player().isPlaying():
@@ -55,5 +56,12 @@ def run():
     if time.time() - _epdb_last_run > 60 * 42:
         epdb.refresh_needed_shows(show_limit=10)
         _epdb_last_run = time.time()
+
+    if xbmc.abortRequested or main.shutdownRequested:
+        return
+
+    if time.time() - _showsettings_purge_last_run > 60 * 60 * 13:  # 13 hours
+        showsettings.purge_missing_shows()
+        _showsettings_purge_last_run = time.time()
 
     logger.debug('housekeeper is finished')

@@ -42,7 +42,7 @@ def _call_listeners(eventName):
         try:
             fn()
         except Exception, e:
-            logger.error('Exception when calling listener' + str(e))
+            logger.error('Exception when calling listener: ' + str(e))
             logger.debug(traceback.format_exc())
 
 
