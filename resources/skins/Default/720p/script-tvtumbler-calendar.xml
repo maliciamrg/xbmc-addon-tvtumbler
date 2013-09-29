@@ -1,0 +1,1138 @@
+<window>
+	<defaultcontrol>120</defaultcontrol>
+	<coordinates>
+		<system>1</system>
+		<posx>0</posx>
+		<posy>0</posy>
+	</coordinates>
+	<animation effect="fade" time="250">WindowOpen</animation>
+	<animation effect="fade" time="250">WindowClose</animation>
+	<controls>
+		<control type="group">
+			<posx>100</posx>
+			<posy>10</posy>
+			<control type="image">
+				<posx>0</posx>
+				<posy>0</posy>
+				<width>1090</width>
+				<height>700</height>
+				<texture border="40">default-panel.png</texture>
+			</control>
+			
+			
+			<!-- DAY1 -->
+			<control type="group">
+				<posx>55</posx>
+				<posy>20</posy>
+				<control type="label" id="130">
+					<description>DAY1 label</description>
+					<posx>0</posx>
+					<posy>10</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font30</font>
+					<textcolor>ffffffff</textcolor>
+					<label>DAY1</label>
+				</control>
+				
+				<control type="label" id="140">
+					<description>MON1 label</description>
+					<posx>0</posx>
+					<posy>44</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font13</font>
+					<textcolor>ff555555</textcolor>
+					<label>MON1</label>
+				</control>
+				
+				<control type="label" id="150">
+					<description>DT1 label</description>
+					<posx>120</posx>
+					<posy>40</posy>
+					<width>80</width>
+					<align>right</align>
+					<aligny>top</aligny>
+					<font>font24_title</font>
+					<textcolor>ffaaaaaa</textcolor>
+					<label>DT1</label>
+				</control>
+			</control>
+
+			<control type="list" id="120">
+				<description>Day 1</description>
+				<posx>55</posx>
+				<posy>100</posy>
+				<width>140</width>
+				<height>600</height>
+				<visible>true</visible>
+				<onup>120</onup>
+				<ondown>120</ondown>
+				<onleft>126</onleft>
+				<onright>121</onright>
+				<viewtype label="list">list</viewtype>
+				<orientation>vertical</orientation>
+				<pagecontrol>190</pagecontrol>
+				<scrolltime tween="sine" easing="out">200</scrolltime>
+				<itemlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</itemlayout>
+				<focusedlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</focusedlayout>
+			</control>
+			
+			<!-- DAY2 -->
+			<control type="group">
+				<posx>195</posx>
+				<posy>20</posy>
+				<control type="label" id="131">
+					<description>DAY2 label</description>
+					<posx>0</posx>
+					<posy>10</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font30</font>
+					<textcolor>ffffffff</textcolor>
+					<label>DAY2</label>
+				</control>
+				
+				<control type="label" id="141">
+					<description>MON2 label</description>
+					<posx>0</posx>
+					<posy>44</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font13</font>
+					<textcolor>ff555555</textcolor>
+					<label>MON2</label>
+				</control>
+				
+				<control type="label" id="151">
+					<description>DT2 label</description>
+					<posx>120</posx>
+					<posy>40</posy>
+					<width>80</width>
+					<align>right</align>
+					<aligny>top</aligny>
+					<font>font24_title</font>
+					<textcolor>ffaaaaaa</textcolor>
+					<label>DT2</label>
+				</control>
+			</control>
+			
+			<control type="list" id="121">
+				<description>Day 2</description>
+				<posx>195</posx>
+				<posy>100</posy>
+				<width>140</width>
+				<height>600</height>
+				<visible>true</visible>
+				<onup>121</onup>
+				<ondown>121</ondown>
+				<onleft>120</onleft>
+				<onright>122</onright>
+				<viewtype label="list">list</viewtype>
+				<orientation>vertical</orientation>
+				<pagecontrol>190</pagecontrol>
+				<scrolltime tween="sine" easing="out">200</scrolltime>
+				<itemlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</itemlayout>
+				<focusedlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</focusedlayout>
+			</control>
+
+			<!-- DAY3 -->
+			<control type="group">
+				<posx>335</posx>
+				<posy>20</posy>
+				<control type="label" id="132">
+					<description>DAY3 label</description>
+					<posx>0</posx>
+					<posy>10</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font30</font>
+					<textcolor>ffffffff</textcolor>
+					<label>DAY3</label>
+				</control>
+				
+				<control type="label" id="142">
+					<description>MON3 label</description>
+					<posx>0</posx>
+					<posy>44</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font13</font>
+					<textcolor>ff555555</textcolor>
+					<label>MON3</label>
+				</control>
+				
+				<control type="label" id="152">
+					<description>DT3 label</description>
+					<posx>120</posx>
+					<posy>40</posy>
+					<width>80</width>
+					<align>right</align>
+					<aligny>top</aligny>
+					<font>font24_title</font>
+					<textcolor>ffaaaaaa</textcolor>
+					<label>DT3</label>
+				</control>
+			</control>
+			
+			<control type="list" id="122">
+				<description>Day 3</description>
+				<posx>335</posx>
+				<posy>100</posy>
+				<width>140</width>
+				<height>600</height>
+				<visible>true</visible>
+				<onup>122</onup>
+				<ondown>122</ondown>
+				<onleft>121</onleft>
+				<onright>123</onright>
+				<viewtype label="list">list</viewtype>
+				<orientation>vertical</orientation>
+				<pagecontrol>190</pagecontrol>
+				<scrolltime tween="sine" easing="out">200</scrolltime>
+				<itemlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</itemlayout>
+				<focusedlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</focusedlayout>
+			</control>
+
+			<!-- DAY4 -->
+			<control type="group">
+				<posx>475</posx>
+				<posy>20</posy>
+				<control type="label" id="133">
+					<description>DAY4 label</description>
+					<posx>0</posx>
+					<posy>10</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font30</font>
+					<textcolor>ffffffff</textcolor>
+					<label>DAY4</label>
+				</control>
+				
+				<control type="label" id="143">
+					<description>MON4 label</description>
+					<posx>0</posx>
+					<posy>44</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font13</font>
+					<textcolor>ff555555</textcolor>
+					<label>MON4</label>
+				</control>
+				
+				<control type="label" id="153">
+					<description>DT4 label</description>
+					<posx>120</posx>
+					<posy>40</posy>
+					<width>80</width>
+					<align>right</align>
+					<aligny>top</aligny>
+					<font>font24_title</font>
+					<textcolor>ffaaaaaa</textcolor>
+					<label>DT4</label>
+				</control>
+			</control>
+			
+			<control type="list" id="123">
+				<description>Day 4</description>
+				<posx>475</posx>
+				<posy>100</posy>
+				<width>140</width>
+				<height>600</height>
+				<visible>true</visible>
+				<onup>123</onup>
+				<ondown>123</ondown>
+				<onleft>122</onleft>
+				<onright>124</onright>
+				<viewtype label="list">list</viewtype>
+				<orientation>vertical</orientation>
+				<pagecontrol>190</pagecontrol>
+				<scrolltime tween="sine" easing="out">200</scrolltime>
+				<itemlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</itemlayout>
+				<focusedlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</focusedlayout>
+			</control>
+
+			<!-- DAY5 -->
+			<control type="group">
+				<posx>615</posx>
+				<posy>20</posy>
+				<control type="label" id="134">
+					<description>DAY5 label</description>
+					<posx>0</posx>
+					<posy>10</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font30</font>
+					<textcolor>ffffffff</textcolor>
+					<label>DAY5</label>
+				</control>
+				
+				<control type="label" id="144">
+					<description>MON5 label</description>
+					<posx>0</posx>
+					<posy>44</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font13</font>
+					<textcolor>ff555555</textcolor>
+					<label>MON5</label>
+				</control>
+				
+				<control type="label" id="154">
+					<description>DT5 label</description>
+					<posx>120</posx>
+					<posy>40</posy>
+					<width>80</width>
+					<align>right</align>
+					<aligny>top</aligny>
+					<font>font24_title</font>
+					<textcolor>ffaaaaaa</textcolor>
+					<label>DT5</label>
+				</control>
+			</control>
+			
+			<control type="list" id="124">
+				<description>Day 5</description>
+				<posx>615</posx>
+				<posy>100</posy>
+				<width>140</width>
+				<height>600</height>
+				<visible>true</visible>
+				<onup>124</onup>
+				<ondown>124</ondown>
+				<onleft>123</onleft>
+				<onright>125</onright>
+				<viewtype label="list">list</viewtype>
+				<orientation>vertical</orientation>
+				<pagecontrol>190</pagecontrol>
+				<scrolltime tween="sine" easing="out">200</scrolltime>
+				<itemlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</itemlayout>
+				<focusedlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</focusedlayout>
+			</control>
+
+			<!-- DAY6 -->
+			<control type="group">
+				<posx>755</posx>
+				<posy>20</posy>
+				<control type="label" id="135">
+					<description>DAY6 label</description>
+					<posx>0</posx>
+					<posy>10</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font30</font>
+					<textcolor>ffffffff</textcolor>
+					<label>DAY6</label>
+				</control>
+				
+				<control type="label" id="145">
+					<description>MON6 label</description>
+					<posx>0</posx>
+					<posy>44</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font13</font>
+					<textcolor>ff555555</textcolor>
+					<label>MON6</label>
+				</control>
+				
+				<control type="label" id="155">
+					<description>DT6 label</description>
+					<posx>120</posx>
+					<posy>40</posy>
+					<width>80</width>
+					<align>right</align>
+					<aligny>top</aligny>
+					<font>font24_title</font>
+					<textcolor>ffaaaaaa</textcolor>
+					<label>DT6</label>
+				</control>
+			</control>
+			
+			<control type="list" id="125">
+				<description>Day 6</description>
+				<posx>755</posx>
+				<posy>100</posy>
+				<width>140</width>
+				<height>600</height>
+				<visible>true</visible>
+				<onup>125</onup>
+				<ondown>125</ondown>
+				<onleft>124</onleft>
+				<onright>126</onright>
+				<viewtype label="list">list</viewtype>
+				<orientation>vertical</orientation>
+				<pagecontrol>190</pagecontrol>
+				<scrolltime tween="sine" easing="out">200</scrolltime>
+				<itemlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</itemlayout>
+				<focusedlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</focusedlayout>
+			</control>
+
+			<!-- DAY7 -->
+			<control type="group">
+				<posx>895</posx>
+				<posy>20</posy>
+				<control type="label" id="136">
+					<description>DAY7 label</description>
+					<posx>0</posx>
+					<posy>10</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font30</font>
+					<textcolor>ffffffff</textcolor>
+					<label>DAY7</label>
+				</control>
+				
+				<control type="label" id="146">
+					<description>MON7 label</description>
+					<posx>0</posx>
+					<posy>44</posy>
+					<align>left</align>
+					<aligny>top</aligny>
+					<font>font13</font>
+					<textcolor>ff555555</textcolor>
+					<label>MON7</label>
+				</control>
+				
+				<control type="label" id="156">
+					<description>DT7 label</description>
+					<posx>120</posx>
+					<posy>40</posy>
+					<width>80</width>
+					<align>right</align>
+					<aligny>top</aligny>
+					<font>font24_title</font>
+					<textcolor>ffaaaaaa</textcolor>
+					<label>DT7</label>
+				</control>
+			</control>
+			
+			<control type="list" id="126">
+				<description>Day 7</description>
+				<posx>895</posx>
+				<posy>100</posy>
+				<width>140</width>
+				<height>600</height>
+				<visible>true</visible>
+				<onup>126</onup>
+				<ondown>126</ondown>
+				<onleft>125</onleft>
+				<onright>120</onright>
+				<viewtype label="list">list</viewtype>
+				<orientation>vertical</orientation>
+				<pagecontrol>190</pagecontrol>
+				<scrolltime tween="sine" easing="out">200</scrolltime>
+				<itemlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</itemlayout>
+				<focusedlayout width="120" height="90">
+					<control type="image">
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>120</width>
+						<height>67</height>
+						<aspectratio>scale</aspectratio>
+						<info>ListItem.Icon</info>
+					</control>
+					<control type="label">
+						<description>episode title</description>
+						<posx>2</posx>
+						<posy>50</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>left</align>
+						<info>ListItem.Label</info>
+					</control>
+					<control type="label">
+						<description>episode number</description>
+						<posx>118</posx>
+						<posy>0</posy>
+						<width>118</width>
+						<height>22</height>
+						<font>font10_title</font>
+						<aligny>top</aligny>
+						<textcolor>ff33ff33</textcolor>
+						<selectedcolor>ff33ff33</selectedcolor>
+						<shadowcolor>ff000000</shadowcolor>
+						<align>right</align>
+						<info>ListItem.Label2</info>
+					</control>
+					<control type="label">
+						<description>show name</description>
+						<posx>0</posx>
+						<posy>68</posy>
+						<width>120</width>
+						<height>22</height>
+						<font>font10</font>
+						<aligny>top</aligny>
+						<selectedcolor>green</selectedcolor>
+						<align>left</align>
+						<info>ListItem.Property(show_name)</info>
+					</control>
+				</focusedlayout>
+			</control>
+			
+			<control type="group">
+				<posx>1060</posx>
+				<posy>100</posy>
+				<control type="scrollbar" id="190">
+					<description>scroll bar indicator for lists</description>
+					<posx>0</posx>
+					<posy>0</posy>
+					<width>25</width>
+					<height>600</height>
+					<texturesliderbackground border="0,14,0,14">ScrollBarV.png
+					</texturesliderbackground>
+					<texturesliderbar border="0,14,0,14">ScrollBarV_bar.png
+					</texturesliderbar>
+					<texturesliderbarfocus border="0,14,0,14">ScrollBarV_bar_focus.png
+					</texturesliderbarfocus>
+					<textureslidernib>ScrollBarNib.png</textureslidernib>
+					<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
+					<orientation>vertical</orientation>
+					<showonepage>false</showonepage>
+					<!-- <visible>Control.IsVisible(120)</visible> -->
+				</control>
+			</control>
+
+		</control>
+	</controls>
+</window>

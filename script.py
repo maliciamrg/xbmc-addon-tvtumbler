@@ -22,10 +22,10 @@ __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
 libs = os.path.join(__addonpath__, 'resources', 'lib')
 sys.path.append(libs)
 
-from tvtumbler.gui.shows import TvTumblerShows
+from tvtumbler.gui.main import TvTumblerMain
 
 threading.current_thread().name = 'gui'
 
-w = TvTumblerShows('script-tvtumbler-shows.xml', __addonpath__, "Default")
+w = TvTumblerMain('script-tvtumbler-main.xml', __addonpath__, "Default")
 w.doModal()
 del w

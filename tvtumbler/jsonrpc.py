@@ -137,7 +137,7 @@ def get_episodes(tvshowid, season=-1,
 
 def get_episode_details(episodeid,
                         properties=['title', 'season', 'episode', 'file',
-                                    'tvshowid']):
+                                    'tvshowid', 'fanart', 'thumbnail', 'art']):
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetEpisodeDetails
     """

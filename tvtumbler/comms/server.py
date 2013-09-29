@@ -20,7 +20,7 @@ import xbmc
 import xbmcvfs
 
 from . import common
-from .. import logger, tv, quality, log, thetvdb
+from .. import logger, tv, quality, log, thetvdb, epdb
 from ..downloaders import get_enabled_downloaders
 
 
@@ -126,6 +126,52 @@ class Service(object):
         show.followed = followed
         show.wanted_quality = wanted_quality
         return True
+
+    def get_episodes_on_date(self, firstaired, properties=['episodeid', 'tvdb_season', 'tvdb_episode', 'title',
+                                                           'art', 'show_fanart', 'show_thumbnail',
+                                                           'show_tvdb_id', 'show_name', 'show_status',
+                                                           # 'fanart', 'thumbnail',
+                                                           # 'show_banner', 'show_fanart', 'show_thumbnail', 'show_poster'
+                                                           ]):
+        '''
+
+        @param firstaired: Date to check.  Either a datetime.date, or an string in iso date format (yyyy-mm-dd)
+        @type firstaired: datetime.date|str
+        @param properties:
+        @type properties:
+        @return: a list of episodes with the required properties that first aired on that date.
+        @rtype: [TvEpisode]
+        '''
+        eps = epdb.get_episodes_on_date(firstaired)
+        result = []
+        for ep in eps:
+            for t_ep in ep.tvdb_episodes:  # this is actually a list of tuples [season, episode]
+                d = dict()
+                for k in properties:
+                    if k in ['episodeid', 'title', 'fanart', 'thumbnail', 'art']:
+                        d[k] = getattr(ep, k, None)
+                    elif k == 'tvdb_season':
+                        d[k] = t_ep[0]
+                    elif k == 'tvdb_episode':
+                        d[k] = t_ep[1]
+                    elif k == 'show_tvdb_id':
+                        d[k] = ep.tvshow.tvdb_id
+                    elif k == 'show_name':
+                        d[k] = ep.tvshow.name
+                    elif k == 'show_status':
+                        d[k] = ep.tvshow.status
+                    elif k == 'show_banner':
+                        d[k] = ep.tvshow.banner
+                    elif k == 'show_fanart':
+                        d[k] = ep.tvshow.fanart
+                    elif k == 'show_thumbnail':
+                        d[k] = ep.tvshow.thumbnail
+                    elif k == 'show_poster':
+                        d[k] = ep.tvshow.poster
+                    else:
+                        logger.notice('Attempt to get unknown property: ' + str(k))
+                result.append(d)
+        return result
 
 service_api = Service()
 

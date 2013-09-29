@@ -10,7 +10,7 @@ Created on Sep 25, 2013
 @license: GPL
 @contact: info@tvtumbler.com
 '''
-import time
+import time, datetime
 from threading import Lock
 
 from tvdb_api import tvdb_api
@@ -19,7 +19,7 @@ import xbmc
 
 
 from . import db, thetvdb, logger
-from .tv import TvShow
+from .tv import TvShow, TvEpisode
 
 _episode_lock = Lock()
 
@@ -70,6 +70,20 @@ def get_episode_name(tvdb_id, season, episode):
         except tvdb_api.tvdb_episodenotfound, e:
             logger.error('tvdb_api reported: "' + str(e) + '", using Episode N as the episode name')
             return 'Episode ' + str(episode)
+
+
+def get_episodes_on_date(firstaired):
+    if isinstance(firstaired, datetime.date):
+        firstaired = firstaired.isoformat()
+
+    _db = _get_db()
+    rows = _db.select('SELECT * FROM episode WHERE firstaired = ? '
+                      'order by tvdb_id, seasonnumber, episodenumber', [firstaired])
+
+    results = []
+    for r in rows:
+        results.extend(TvEpisode.from_tvdb(r['tvdb_id'], r['seasonnumber'], r['episodenumber']))
+    return results
 
 
 def refresh_needed_shows(cutoff_for_continuing=60 * 60 * 24,

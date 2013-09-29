@@ -204,7 +204,6 @@ class BaseDownloader(object):
             os.remove(dlpath)
             self._running_downloads = Pickle.loads(pickle_file_contents)
 
-
     def _get_running_state_path(self):
         return os.path.join(xbmc.translatePath('special://temp').decode('utf-8'),
                                         self.get_name() + '.pkl')
@@ -299,7 +298,10 @@ class Download(object):
         if 'rowid' in state:  # there'll only be a rowid if this has been logged
             self.rowid = state['rowid']
 
-        if state['poller_running']:
+        # There is a 'poller_running' flag in the state, but it's not reliable.
+        # Safer I think to always start the poller.  It will stop after the first
+        # poll if appropriate.
+        if True:
             self._poller.start(2)
 
     @property

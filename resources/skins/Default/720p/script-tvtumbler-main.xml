@@ -1,0 +1,111 @@
+<window>
+	<defaultcontrol>200</defaultcontrol>
+	<coordinates>
+		<system>1</system>
+		<posx>0</posx>
+		<posy>0</posy>
+	</coordinates>
+	<animation effect="fade" time="250">WindowOpen</animation>
+	<animation effect="fade" time="250">WindowClose</animation>
+	<controls>
+		<control type="group">
+			<posx>100</posx>
+			<posy>10</posy>
+			<control type="image">
+				<posx>0</posx>
+				<posy>0</posy>
+				<width>1090</width>
+				<height>700</height>
+				<texture border="40">default-panel.png</texture>
+			</control>
+
+			<control type="button" id="200">
+				<description>Shows</description>
+				<onleft>203</onleft>
+				<onright>201</onright>
+				<onup>202</onup>
+				<ondown>202</ondown>
+				<posx>50</posx>
+				<posy>50</posy>
+				<width>445</width>
+				<height>250</height>
+				<visible>true</visible>
+				<font>font_MainMenu</font>
+				<align>center</align>
+				<label>SHOWS</label>
+				<textcolor>FFFFFFFF</textcolor>
+				<focusedcolor>FFFFFFFF</focusedcolor>
+				<disabledcolor>80FFFFFF</disabledcolor>
+				<shadowcolor>80888888</shadowcolor>
+				<pulseonselect>true</pulseonselect>
+				<!-- <texturefocus>tvtumbler-shows-button.png</texturefocus>
+				<texturenofocus>tvtumbler-shows-button.png</texturenofocus> -->
+			</control>
+
+			<control type="button" id="201">
+				<description>Calendar</description>
+				<onleft>200</onleft>
+				<onright>202</onright>
+				<onup>203</onup>
+				<ondown>203</ondown>
+				<posx>595</posx>
+				<posy>50</posy>
+				<width>445</width>
+				<height>250</height>
+				<visible>true</visible>
+				<font>font_MainMenu</font>
+				<align>center</align>
+				<label>CALENDAR</label>
+				<textcolor>FFFFFFFF</textcolor>
+				<focusedcolor>FFFFFFFF</focusedcolor>
+				<disabledcolor>80FFFFFF</disabledcolor>
+				<shadowcolor>80888888</shadowcolor>
+				<pulseonselect>true</pulseonselect>
+			</control>
+
+			<control type="button" id="202">
+				<description>Downloads</description>
+				<onleft>201</onleft>
+				<onright>203</onright>
+				<onup>200</onup>
+				<ondown>200</ondown>
+				<posx>50</posx>
+				<posy>400</posy>
+				<width>445</width>
+				<height>250</height>
+				<visible>true</visible>
+				<font>font_MainMenu</font>
+				<align>center</align>
+				<label>DOWNLOADS</label>
+				<textcolor>FFFFFFFF</textcolor>
+				<focusedcolor>FFFFFFFF</focusedcolor>
+				<disabledcolor>80FFFFFF</disabledcolor>
+				<shadowcolor>80888888</shadowcolor>
+				<pulseonselect>true</pulseonselect>
+			</control>
+			
+			<control type="button" id="203">
+				<description>Status</description>
+				<onleft>202</onleft>
+				<onright>200</onright>
+				<onup>201</onup>
+				<ondown>201</ondown>
+				<posx>595</posx>
+				<posy>400</posy>
+				<width>445</width>
+				<height>250</height>
+				<visible>true</visible>
+				<enable>false</enable>
+				<font>font_MainMenu</font>
+				<align>center</align>
+				<!-- <label>$LOCALIZE[SCRIPT3017]</label> -->
+				<label>STATUS</label>
+				<textcolor>FFFFFFFF</textcolor>
+				<focusedcolor>FFFFFFFF</focusedcolor>
+				<disabledcolor>80FFFFFF</disabledcolor>
+				<shadowcolor>80888888</shadowcolor>
+				<pulseonselect>true</pulseonselect>
+			</control>
+		</control>
+	</controls>
+</window>

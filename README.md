@@ -41,7 +41,6 @@ Notes:
 - This is pre-alpha code.  Don't expect it to work without problems.
 - Libtorrent is broken for now, don't enable it (unless you're a dev and want to fix it).
 - Air-by-date shows are currently skipped.
-- State of currently running downloads is lost if xbmc is restarted (or the addon is upgraded).
 - Frodo users will be prompted to restart XBMC after any addon update.  This is a bug with Frodo: http://trac.xbmc.org/ticket/14609
   (it's a bug with Gotham too, but we can work around it there by restarting the service)
 
