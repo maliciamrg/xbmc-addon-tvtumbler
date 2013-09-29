@@ -72,7 +72,7 @@
        <posy>620</posy>
        <width>330</width>
        <height>40</height>
-       <visible>true</visible>
+       <visible>false</visible>
        <colordiffuse>FFFFFFFF</colordiffuse>
        <font>font13</font>
        <align>center</align>
