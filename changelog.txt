@@ -1,3 +1,15 @@
+[B]0.0.10[/B] (2013-09-28)
+  - Get year from xbmc if it's available (saves a tvdb lookup)
+  - strip dots in scene naming when simplifying (handles cases like "Michael J. Fox" a bit better)
+  - Better handling of transmission connection errors, login failures, and other nastiness that can happen.
+  - TvTumbler will now try to claim downloads from Transmission if they match something it wants.
+  - Gui will now prompt to add a tv show when run if you don't have one.
+  - Gui will now try to ensure that your tv download dir is set and reasonable (and prompt for a new one if not).
+  - Progress messages during gui load, and most of the gui is now in dialogs.
+  - Save state of running downloads when shut down, and restore it what starting up.
+  - Now *really* searches for new shows!
+  - New landing page, and simple schedule page.  (Yes, I know they're ugly)
+
 [B]0.0.9[/B] (2013-09-26)
   - Emergency bump to 0.0.9.  Service restart code just freezes on 12.2 (and probably earlier).  Now just prompt user
     to restart XBMC on anything less than 13.0.

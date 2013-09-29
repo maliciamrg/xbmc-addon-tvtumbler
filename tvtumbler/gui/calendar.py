@@ -42,7 +42,7 @@ class TvTumblerCalendar(TvTumblerWindowXMLDialog):
             yesterday = datetime.date.today() - datetime.timedelta(days=1)
 
             for i in range(7):
-                self._update_loading_dialog(25 + 10 * i, 'Leading Schedule ...')
+                self._update_loading_dialog(25 + 10 * i, 'Loading Schedule ...')
                 thedate = yesterday + datetime.timedelta(days=i)
                 self.populate_for_date(i, thedate)
 
