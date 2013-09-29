@@ -12,7 +12,7 @@ import os
 import time
 import traceback
 
-import Pickle
+import cPickle as Pickle
 import xbmc
 
 from .. import logger, log
