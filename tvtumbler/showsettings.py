@@ -11,7 +11,7 @@ Created on Sep 12, 2013
 @license: GPL
 @contact: info@tvtumbler.com
 '''
-from . import db, logger
+from . import db, logger, fastcache
 
 
 def _get_db():
@@ -47,6 +47,7 @@ def get_show_settings_row(tvdb_id):
 
 def set_show_settings_row(tvdb_id, follow=None, wanted_quality=None):
     global _show_settings_row_cache
+    get_all_tvdb_ids.cache_clear()
     row = get_show_settings_row(tvdb_id)
     exists = bool(row)
     if not exists:
@@ -71,12 +72,14 @@ def set_show_settings_row(tvdb_id, follow=None, wanted_quality=None):
     _show_settings_row_cache[tvdb_id] = row
     return exists
 
-
+@fastcache.func_cache(60 * 5)
 def get_all_tvdb_ids(followed_only=False):
+
     sql = 'SELECT tvdb_id FROM show_settings'
     if followed_only:
         sql = sql + ' WHERE follow'
-    return [r['tvdb_id'] for r in _get_db().select(sql)]
+    _all_tvdb_ids = [r['tvdb_id'] for r in _get_db().select(sql)]
+    return _all_tvdb_ids
 
 
 def purge_missing_shows():
@@ -85,6 +88,7 @@ def purge_missing_shows():
     followed (so we're not looking for new ones either)
     """
     _db = _get_db()
+    get_all_tvdb_ids.cache_clear()
 
     from .tv import TvShow
     xbmc_tvdb_ids = [str(t.tvdb_id) for t in TvShow.get_xbmc_shows()]

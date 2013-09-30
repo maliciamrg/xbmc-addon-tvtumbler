@@ -338,7 +338,7 @@ class TvShow(object):
         @rtype: [TvShow]
         '''
         shows = []
-        for tid in showsettings.get_all_tvdb_ids(followed_only=True):
+        for tid in showsettings.get_all_tvdb_ids(True):
             shows.append(TvShow.from_tvdbd_id(tid))
         return shows
 
@@ -363,7 +363,7 @@ class TvShow(object):
         @rtype: [TvShow]
         '''
         tvdb_ids = set()
-        for tid in showsettings.get_all_tvdb_ids(followed_only=False):
+        for tid in showsettings.get_all_tvdb_ids(False):
             tvdb_ids.add(int(tid))
         for s in jsonrpc.get_tv_shows(properties=['imdbnumber']):
             tvdb_ids.add(int(s['imdbnumber']))
