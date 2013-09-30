@@ -18,7 +18,7 @@ from tvdb_api import tvdb_api
 import xbmc
 
 
-from . import db, thetvdb, logger, fastcache
+from . import db, thetvdb, logger, fastcache, events
 from .tv import TvShow, TvEpisode
 
 _episode_lock = Lock()
@@ -86,6 +86,8 @@ def get_episodes_on_date(firstaired):
     for r in rows:
         results.extend(TvEpisode.from_tvdb(r['tvdb_id'], r['seasonnumber'], r['episodenumber']))
     return results
+
+events.add_event_listener(events.VIDEO_LIBRARY_UPDATED, get_episodes_on_date.cache_clear)
 
 
 def refresh_needed_shows(cutoff_for_continuing=60 * 60 * 24,
