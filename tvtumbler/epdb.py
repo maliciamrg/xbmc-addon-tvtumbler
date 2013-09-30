@@ -18,7 +18,7 @@ from tvdb_api import tvdb_api
 import xbmc
 
 
-from . import db, thetvdb, logger
+from . import db, thetvdb, logger, fastcache
 from .tv import TvShow, TvEpisode
 
 _episode_lock = Lock()
@@ -54,6 +54,7 @@ def _get_db():
     return _db
 
 
+@fastcache.func_cache(60 * 60 * 12)
 def get_episode_name(tvdb_id, season, episode):
     db = _get_db()
     rows = db.select('SELECT episodename '
@@ -72,6 +73,7 @@ def get_episode_name(tvdb_id, season, episode):
             return 'Episode ' + str(episode)
 
 
+@fastcache.func_cache(60 * 60 * 6)
 def get_episodes_on_date(firstaired):
     if isinstance(firstaired, datetime.date):
         firstaired = firstaired.isoformat()

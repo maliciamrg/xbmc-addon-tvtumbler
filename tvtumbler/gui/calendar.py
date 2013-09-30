@@ -44,6 +44,10 @@ class TvTumblerCalendar(TvTumblerWindowXMLDialog):
             for i in range(7):
                 self._update_loading_dialog(25 + 10 * i, 'Loading Schedule ...')
                 thedate = yesterday + datetime.timedelta(days=i)
+                if self._loading_dialog.iscanceled():
+                    self._hide_loading_dialog()
+                    self.close()
+                    return
                 self.populate_for_date(i, thedate)
 
 #             self.populate_for_date(0, '2013-09-28')
@@ -98,6 +102,8 @@ class TvTumblerCalendar(TvTumblerWindowXMLDialog):
                                     label2='%dx%d' % (ep['tvdb_season'], ep['tvdb_episode']),
                                     iconImage=image_path)
             item.setProperty('show_name', ep['show_name'])
+            # item.setProperty('Genre', ep['have_state'] if 'have_state' in ep and ep['have_state'] else '')
+            item.setInfo('video', {"Genre": ep['have_state'] if 'have_state' in ep and ep['have_state'] else ''})
             # item.setIconImage(ep['show_fanart'])
 
             lctrl.addItem(item)

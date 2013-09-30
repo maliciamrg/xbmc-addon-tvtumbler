@@ -21,7 +21,7 @@ import xbmcvfs
 
 from . import common
 from .. import logger, tv, quality, log, thetvdb, epdb
-from ..downloaders import get_enabled_downloaders
+from ..downloaders import get_enabled_downloaders, is_downloading
 
 
 __addon__ = sys.modules["__main__"].__addon__
@@ -129,9 +129,10 @@ class Service(object):
 
     def get_episodes_on_date(self, firstaired, properties=['episodeid', 'tvdb_season', 'tvdb_episode', 'title',
                                                            'art', 'show_fanart', 'show_thumbnail',
-                                                           'show_tvdb_id', 'show_name', 'show_status',
+                                                           'show_tvdb_id', 'show_name',  # 'show_status',
                                                            # 'fanart', 'thumbnail',
-                                                           # 'show_banner', 'show_fanart', 'show_thumbnail', 'show_poster'
+                                                           # 'show_banner', 'show_fanart', 'show_thumbnail', 'show_poster',
+                                                           'have_state',
                                                            ]):
         '''
 
@@ -168,6 +169,13 @@ class Service(object):
                         d[k] = ep.tvshow.thumbnail
                     elif k == 'show_poster':
                         d[k] = ep.tvshow.poster
+                    elif k == 'have_state':
+                        if ep.episodeid:
+                            d[k] = 'downloaded'
+                        elif is_downloading(ep):
+                            d[k] = 'downloading'
+                        else:
+                            d[k] = 'missing'
                     else:
                         logger.notice('Attempt to get unknown property: ' + str(k))
                 result.append(d)

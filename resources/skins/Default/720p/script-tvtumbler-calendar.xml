@@ -82,6 +82,24 @@
 						<height>67</height>
 						<info>ListItem.Icon</info>
 					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
+					</control>
 					<control type="label">
 						<description>episode title</description>
 						<posx>2</posx>
@@ -130,6 +148,24 @@
 						<width>120</width>
 						<height>67</height>
 						<info>ListItem.Icon</info>
+					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
 					</control>
 					<control type="label">
 						<description>episode title</description>
@@ -237,6 +273,24 @@
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
 					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
+					</control>
 					<control type="label">
 						<description>episode title</description>
 						<posx>2</posx>
@@ -286,6 +340,24 @@
 						<height>67</height>
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
+					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture border="0">downloading_overlay.png</texture>
+            			<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
 					</control>
 					<control type="label">
 						<description>episode title</description>
@@ -393,6 +465,24 @@
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
 					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
+					</control>
 					<control type="label">
 						<description>episode title</description>
 						<posx>2</posx>
@@ -442,6 +532,24 @@
 						<height>67</height>
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
+					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
 					</control>
 					<control type="label">
 						<description>episode title</description>
@@ -549,6 +657,24 @@
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
 					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
+					</control>
 					<control type="label">
 						<description>episode title</description>
 						<posx>2</posx>
@@ -598,6 +724,24 @@
 						<height>67</height>
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
+					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
 					</control>
 					<control type="label">
 						<description>episode title</description>
@@ -705,6 +849,24 @@
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
 					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
+					</control>
 					<control type="label">
 						<description>episode title</description>
 						<posx>2</posx>
@@ -754,6 +916,24 @@
 						<height>67</height>
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
+					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
 					</control>
 					<control type="label">
 						<description>episode title</description>
@@ -861,6 +1041,24 @@
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
 					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
+					</control>
 					<control type="label">
 						<description>episode title</description>
 						<posx>2</posx>
@@ -910,6 +1108,24 @@
 						<height>67</height>
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
+					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
 					</control>
 					<control type="label">
 						<description>episode title</description>
@@ -1017,6 +1233,24 @@
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
 					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
+					</control>
 					<control type="label">
 						<description>episode title</description>
 						<posx>2</posx>
@@ -1066,6 +1300,24 @@
 						<height>67</height>
 						<aspectratio>scale</aspectratio>
 						<info>ListItem.Icon</info>
+					</control>
+					<control type="image">
+						<description>downloading overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloading_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloading)</visible>
+					</control>
+					<control type="image">
+						<description>downloaded overlay</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>25</width>
+						<height>25</height>
+						<texture>downloaded_overlay.png</texture>
+						<visible>StringCompare(ListItem.Genre,downloaded)</visible>
 					</control>
 					<control type="label">
 						<description>episode title</description>

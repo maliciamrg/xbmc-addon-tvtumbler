@@ -1,3 +1,12 @@
+[B]0.0.11[B] (2013-09-29)
+  - Schedule didn't work on the pi before, lots of tweaks now to make it work.  Still terribly slow though (and often
+    times out).  Caching improves the situation very much now.
+  - Show downloading and downloaded status on the schedule.
+  - Cache some of the queries from the epdb.  (we'll need to find a way to make sql faster, it's incredibly slow 
+    at present).
+  - Don't bother querying for so many images (or show status) for the schedule.  We don't use them, and they're sloooow!
+  - This is a stop-gap release, because some people got caught with a broken version of 0.0.10 (downloaded mid-publish).
+
 [B]0.0.10[/B] (2013-09-28)
   - Get year from xbmc if it's available (saves a tvdb lookup)
   - strip dots in scene naming when simplifying (handles cases like "Michael J. Fox" a bit better)
