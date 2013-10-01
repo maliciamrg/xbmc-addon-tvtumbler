@@ -12,6 +12,7 @@ import os
 import sys
 import threading
 import time
+import traceback
 
 import xbmc
 import xbmcaddon
@@ -36,44 +37,49 @@ class TvTumblerShows(TvTumblerWindowXMLDialog):
         self._slow_show_data_loader = None
 
     def onInit(self):
-        self._show_loading_dialog()
-        if not self.check_service_ok():
-            self._hide_loading_dialog()
-            self.close()
-            return
-
-        self._update_loading_dialog(25, 'Creating slow data loader...')
-        self._slow_show_data_loader = threading.Thread(target=self._load_slow_show_data, name='slow_show_data_loader')
-        self._slow_show_data_loader._abort = False
-        self._slow_show_data_loader.start()
-        with self._shows_lock:
-            self._update_loading_dialog(50, 'Loading TV Shows ...')
-            self.shows = service_api.get_all_shows(properties=['tvshowid', 'name', 'tvdb_id',
-                                                               'followed', 'wanted_quality', 'fast_status'])
-            # logger.debug(repr(self.shows))
-            self._update_loading_dialog(75, 'Displaying TV Shows ...')
-            self.updateDisplay()
-
-        self._update_loading_dialog(85, 'Running Basic Checks ...')
-        if len(self.shows) == 0:
-            self._update_loading_dialog(0)
-            dlg = xbmcgui.Dialog()
-            dlg.ok('TvTumbler', 'No TV Shows Found!', 'Click OK to add a TV Show')
-            if not self.add_show():
+        try:
+            self._show_loading_dialog()
+            if not self.check_service_ok():
+                self._hide_loading_dialog()
                 self.close()
                 return
 
-        non_xbmc_shows = [s for s in self.shows if ('tvshowid' not in s or s['tvshowid'] is None)]
-        # if we have even one non xbmc show (i.e not in the library), then we must
-        # ensure a valid download path
-        if len(non_xbmc_shows):
-            if not self.ensure_valid_download_dir():
-                self.close()
-                return
+            self._update_loading_dialog(25, 'Creating slow data loader...')
+            self._slow_show_data_loader = threading.Thread(target=self._load_slow_show_data, name='slow_show_data_loader')
+            self._slow_show_data_loader._abort = False
+            self._slow_show_data_loader.start()
+            with self._shows_lock:
+                self._update_loading_dialog(50, 'Loading TV Shows ...')
+                self.shows = service_api.get_all_shows(properties=['tvshowid', 'name', 'tvdb_id',
+                                                                   'followed', 'wanted_quality', 'fast_status'])
+                # logger.debug(repr(self.shows))
+                self._update_loading_dialog(75, 'Displaying TV Shows ...')
+                self.updateDisplay()
 
-        self._update_loading_dialog(95, 'Completing ...')
-        self.getControl(120).selectItem(0)  # select the first row
-        self.setFocus(self.getControl(120))
+            self._update_loading_dialog(85, 'Running Basic Checks ...')
+            if len(self.shows) == 0:
+                self._update_loading_dialog(0)
+                dlg = xbmcgui.Dialog()
+                dlg.ok('TvTumbler', 'No TV Shows Found!', 'Click OK to add a TV Show')
+                if not self.add_show():
+                    self.close()
+                    return
+
+            non_xbmc_shows = [s for s in self.shows if ('tvshowid' not in s or s['tvshowid'] is None)]
+            # if we have even one non xbmc show (i.e not in the library), then we must
+            # ensure a valid download path
+            if len(non_xbmc_shows):
+                if not self.ensure_valid_download_dir():
+                    self._update_loading_dialog(0)
+                    self.close()
+                    return
+
+            self._update_loading_dialog(95, 'Completing ...')
+            self.getControl(120).selectItem(0)  # select the first row
+            self.setFocus(self.getControl(120))
+        except Exception, e:
+            logger.error(e)
+            logger.error(traceback.format_exc)
         self._hide_loading_dialog()
 
     def _load_slow_show_data(self):
