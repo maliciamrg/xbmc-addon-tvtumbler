@@ -148,7 +148,8 @@ def on_download_downloaded(download):
                 continue
 
             dest_dir = os.path.join(tv_show_dir, 'Season %d' % (season,))
-            xbmcvfs.mkdirs(dest_dir)
+            if not xbmcvfs.exists(dest_dir + os.path.sep):  # xbmc requires the slash to know it's a dir
+                xbmcvfs.mkdirs(dest_dir)
             dest_file = os.path.join(dest_dir, target_filename)
             logger.info(u'Copying file from "%s" to "%s".' % (f, dest_file))
             attempt = 1
