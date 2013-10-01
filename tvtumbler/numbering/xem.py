@@ -91,7 +91,7 @@ def get_tvdb_numbering_from_xem(tvdb_id, sceneSeason, sceneEpisode):
                      'ORDER BY tvdb_season ASC, tvdb_episode ASC',
                      [tvdb_id, sceneSeason, sceneEpisode])
     if rows:
-        return [(int(r["tvdb_season"]), int(r["tvdb_season"]))
+        return [(int(r["tvdb_season"]), int(r["tvdb_episode"]))
                 for r in rows]
     else:
         return []
