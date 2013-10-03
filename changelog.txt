@@ -1,4 +1,4 @@
-[B]0.0.12[/B]
+[B]0.0.12[/B] (2013-10-03)
   - Preliminary backlog support.  Currently runs backlog search automatically (every 16 hours) for anything missed in
     the last week. (manual backlog on older items to come soon)
   - Lots of little bugs fixed (esp for the Pi - it's almost usable there now)
