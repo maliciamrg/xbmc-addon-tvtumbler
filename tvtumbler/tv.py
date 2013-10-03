@@ -423,7 +423,7 @@ class TvEpisode(object):
         if self._episodeid is not None and other._episodeid is not None:
             return self._episodeid == other._episodeid
         else:
-            return self._tvdb_episodes == other._tvdb_episodes
+            return self.tvdb_id == other.tvdb_id and self._tvdb_episodes == other._tvdb_episodes
 
     def __ne__(self, other):
         return not self.__eq__(other)
