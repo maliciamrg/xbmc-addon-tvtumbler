@@ -74,7 +74,7 @@ def log_download_start(download):
                           show.tvdb_id,  # tvdb_id
                           show.tvshowid,  # tvshowid (xbmc id)
                           dlable.name,  # name
-                          feeder.get_name(),  # source
+                          feeder.get_name() if feeder else '',  # source
                           time.time(),  # started_at,
                           dlable.quality])  # quality
     # logger.debug('result from insert: ' + repr(result))

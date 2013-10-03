@@ -11,19 +11,21 @@ from __future__ import with_statement
 
 from threading import Lock
 
-from . import events, feeder, logger, housekeeper
+from . import events, feeder, logger, housekeeper, backlogger
 from .schedule import SchedulerThread
 from .comms import server
 
 
 feederThread = None
 housekeeperThread = None
+backloggerThread = None
 started = False
 start_stop_lock = Lock()
 shutdownRequested = False
 
 FEEDER_RUN_INTERVAL_SECS = 3 * 60
 HOUSEKEEPER_RUN_INTERVAL_SECS = 5000
+BACKLOGGER_RUN_INTERVAL_SECS = 60 * 60 * 16
 
 
 def start():
@@ -32,6 +34,7 @@ def start():
     '''
     global feederThread, FEEDER_RUN_INTERVAL_SECS
     global housekeeperThread, HOUSEKEEPER_RUN_INTERVAL_SECS
+    global backloggerThread, BACKLOGGER_RUN_INTERVAL_SECS
     global started, start_stop_lock
 
     logger.info(u'Starting')
@@ -53,6 +56,11 @@ def start():
                                 runIntervalSecs=HOUSEKEEPER_RUN_INTERVAL_SECS)
         housekeeperThread.start(1000)
 
+        backloggerThread = SchedulerThread(action=backlogger.run,
+                                threadName='BACKLOGGER',
+                                runIntervalSecs=BACKLOGGER_RUN_INTERVAL_SECS)
+        backloggerThread.start(2000)
+
         started = True
         logger.info(u'Started')
 
@@ -61,7 +69,7 @@ def halt():
     '''
     Shutdown
     '''
-    global feederThread, downloaderThread
+    global feederThread, housekeeperThread, backloggerThread
     global started, start_stop_lock
 
     logger.info(u'Stopping')
@@ -74,6 +82,7 @@ def halt():
         logger.debug(u'setting abort on threads')
         feederThread.abort = True
         housekeeperThread.abort = True
+        backloggerThread.abort = True
 
 #         time.sleep(4)
 #

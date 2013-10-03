@@ -106,7 +106,7 @@ class Service(object):
                     elif k == 'download_speed':
                         d[k] = dl.get_download_speed()
                     elif k == 'source':
-                        d[k] = dl.downloadable.feeder.get_name()
+                        d[k] = dl.downloadable.feeder.get_name() if dl.downloadable.feeder else ''
                     elif k == 'downloader':
                         d[k] = dl.downloader.get_name()
                     else:

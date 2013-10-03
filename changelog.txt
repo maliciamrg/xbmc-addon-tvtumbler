@@ -1,4 +1,9 @@
-[B]0.0.11[B] (2013-09-29)
+[B]0.0.12[/B]
+  - Preliminary backlog support.  Currently runs backlog search automatically (every 16 hours) for anything missed in
+    the last week. (manual backlog on older items to come soon)
+  - Lots of little bugs fixed (esp for the Pi - it's almost usable there now)
+  
+[B]0.0.11[/B] (2013-09-29)
   - Schedule didn't work on the pi before, lots of tweaks now to make it work.  Still terribly slow though (and often
     times out).  Caching improves the situation very much now.
   - Show downloading and downloaded status on the schedule.

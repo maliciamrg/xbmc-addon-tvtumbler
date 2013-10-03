@@ -74,13 +74,19 @@ def get_episode_name(tvdb_id, season, episode):
 
 
 @fastcache.func_cache(60 * 60 * 6)
-def get_episodes_on_date(firstaired):
+def get_episodes_on_date(firstaired, followed_only=True):
     if isinstance(firstaired, datetime.date):
         firstaired = firstaired.isoformat()
 
     _db = _get_db()
-    rows = _db.select('SELECT * FROM episode WHERE firstaired = ? '
-                      'order by tvdb_id, seasonnumber, episodenumber', [firstaired])
+    if followed_only:
+        sql = ('SELECT * FROM episode WHERE firstaired = ? '
+               'AND tvdb_id in (SELECT tvdb_id FROM show_settings WHERE follow) '
+               'ORDER BY tvdb_id, seasonnumber, episodenumber')
+    else:
+        sql = 'SELECT * FROM episode WHERE firstaired = ? order by tvdb_id, seasonnumber, episodenumber'
+
+    rows = _db.select(sql, [firstaired])
 
     results = []
     for r in rows:
