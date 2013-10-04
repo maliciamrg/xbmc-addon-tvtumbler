@@ -12,7 +12,7 @@ import sys
 from dateutil import parser
 import xbmc
 
-from . import jsonrpc, logger, downloaders, api, showsettings, thetvdb, tvrage
+from . import jsonrpc, logger, downloaders, api, showsettings, thetvdb, tvrage, numbering
 from .numbering import xem
 
 
@@ -655,6 +655,66 @@ class TvEpisode(object):
                 self._tvshow.wanted_quality & qual and
                 not self.episodeid and
                 not downloaders.is_downloading(self))
+
+    def fake_local_filename(self, use_numbering, extension=''):
+        '''
+        Create a fake filename for the episode(s).
+
+        @param use_numbering: numbering.TVDB_NUMBERING or numbering.SCENE_NUMBERING
+        @type use_numbering: int
+        @param extension: The extension to use (if any), e.g. '.avi'.  Be sure to include the leading dot.
+        @type extension: str
+        @return: Returns a string which should be a valid filename for the episode (which xbmc will recognise as such)
+        @rtype: str
+        '''
+        if use_numbering == numbering.TVDB_NUMBERING:
+            epis = self.tvdb_episodes
+        else:
+            epis = self.scene_episodes
+
+        if extension is None:
+            extension = ''
+
+        epis = list(set(epis))  # remove dups
+        epis.sort()  # and sort them
+
+        seasons = set()
+        for s, e in epis:
+            seasons.add(s)
+
+        # does it span seasons?
+        is_multi_season = len(seasons)
+
+        # does it have more than one episode?
+        is_multi_episode = len(epis)
+
+        if is_multi_season:
+            # Multi season - we have no option here but to list season and episode
+            # for each epi.
+            # S01E02 - S01E03 - S01E04
+            episode_part = ' - '.join(['S%02dE%02d' % e for e in epis])
+        else:
+            if is_multi_episode:
+                # single season, multi episode
+                season = epis[0][0]
+                epnums = set([e[1] for e in epis])
+                is_sequential = (max(epnums) - min(epnums) == len(epnums) - 1)
+
+                if is_sequential:
+                    episode_part = 'S%02dE%02d-%02d' % (season, min(epnums), max(epnums))
+                else:
+                    # not sequential, we need to list them individually
+                    # S01E02E03
+                    episode_part = 'S%02d' % (season,) + ''.join(['E%02d' % (epi[1],) for epi in epis])
+            else:
+                # single episode - simplest case
+                episode_part = 'S%02dE%02d' % epis[0]
+
+        filename = self.tvshow.name + ' - ' + episode_part + ' - ' + self.title + extension
+
+        # '\/:*?"<>|' is the windows invalid set.  see
+        # http://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx
+        return "".join(i for i in filename if i not in r'\/:*?"<>|')
 
 
 class EpisodeNotFoundException(Exception):

@@ -28,7 +28,7 @@ def run():
 
     logger.debug('backlogger - run')
 
-    from . import main
+    from . import main, numbering
 
     if xbmc.abortRequested or main.shutdownRequested:
         return
@@ -80,8 +80,7 @@ def run():
                 if infohash:
                     magnet = 'magnet:?xt=urn:btih:' + infohash
 
-                    ep_for_name = ep.tvdb_episodes[0]  # just use the first episode for the name
-                    torrent_name = '%s %sx%s' % (ep.tvshow.name, str(ep_for_name[0]), str(ep_for_name[1]))
+                    torrent_name = ep.fake_local_filename(use_numbering=numbering.TVDB_NUMBERING)
 
                     torrent = links.Torrent(urls=[magnet],
                                             episodes=[ep],

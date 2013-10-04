@@ -110,63 +110,80 @@ def on_download_downloaded(download):
     logger.notice('Download has downloaded: ' + repr(download))
     logger.debug('------------------------------------------------------------')
     tv_show_dir = download.downloadable.tvshow.get_path()
-    all_tvdb_episodes = [ep.tvdb_episodes for ep in download.episodes]  # this is a list of tuples (season, episode)
+    all_tvdb_episodes = []
+    for ep in download.episodes:
+        for te in ep.tvdb_episodes:
+            all_tvdb_episodes.append(te)  # this is a list of tuples (season, episode)
     all_tvdb_seasons = list(set([x[0] for x in all_tvdb_episodes]))
     feeder = download.downloadable.feeder  # care here: might be None
     name_parser = feeder.get_nameparser() if feeder else names.SceneNameParser
     source_numbering = feeder.get_numbering() if feeder else numbering.SCENE_NUMBERING
     any_files_copied = False
     has_known_video_file = False
+    videos_in_download = []
     for f in download.get_files():
         if utils.is_video_file(f):
             if not xbmcvfs.exists(f):
                 logger.notice(u'Downloader reported that file "%s" is downloaded, but it cannot '
                               u'be found.' % (f,))
                 continue
+            videos_in_download.append(f)
 
-            np = name_parser(os.path.basename(f), has_ext=True,
-                             numbering_system=source_numbering)
+    for f in videos_in_download:
+        np = name_parser(os.path.basename(f), has_ext=True,
+                         numbering_system=source_numbering)
+        
+        if np.is_known:
             target_filename = np.make_local_filename(numbering=numbering.TVDB_NUMBERING)
-            if np.is_known:
-                # if the filename is parsable, then we use the season for the first
-                # episode in the filename (using tvdb numbering)
-                season = np.episodes[0].tvdb_episodes[0][0]
+            
+            # if the filename is parsable, then we use the season for the first
+            # episode in the filename (using tvdb numbering)
+            season = np.episodes[0].tvdb_episodes[0][0]
 
-                # quick safety check: if the filename triggered any of our 'bad' regexes,
-                # then we had better ignore it.
-                if np.is_bad:
-                    logger.notice(u'Downloaded file "%s" triggered a bad regex, not copying.' % (f,))
-                    continue
-
-                has_known_video_file = True
-
-            elif len(all_tvdb_seasons) == 1:
-                # file name is not parsable, but there is only one
-                # season in this download, so we know where to put it.
-                season = all_tvdb_seasons[0]
-            else:
-                logger.notice(u'Problem dealing with file %s after download. '
-                              u'The download spans seasons, and we cannot work out the season '
-                              u'for this particular file, so we don\'t know where to put it.' % (f,))
+            # quick safety check: if the filename triggered any of our 'bad' regexes,
+            # then we had better ignore it.
+            if np.is_bad:
+                logger.notice(u'Downloaded file "%s" triggered a bad regex, not copying.' % (f,))
                 continue
 
-            dest_dir = os.path.join(tv_show_dir, 'Season %d' % (season,))
-            if not xbmcvfs.exists(dest_dir + os.path.sep):  # xbmc requires the slash to know it's a dir
-                xbmcvfs.mkdirs(dest_dir)
-            dest_file = os.path.join(dest_dir, target_filename)
-            logger.info(u'Copying file from "%s" to "%s".' % (f, dest_file))
-            attempt = 1
-            copied = False
-            while attempt <= 5 and not copied:
-                if xbmcvfs.copy(f, dest_file):
-                    logger.info('Success!')
-                    copied = True
-                    any_files_copied = True
-                    break
-                else:
-                    logger.info('Failed to copy file.  Attempt %d' % (attempt))
-                    attempt = attempt + 1
-                    xbmc.sleep(5000)  # sometimes failure are temporary, give it a while and try again
+            has_known_video_file = True
+
+        elif len(all_tvdb_seasons) == 1:
+            if len(videos_in_download) == 1 and len(download.episodes) == 1:
+                # this is the *only* video file in the download, and the download only has one episode.
+                # So, even though we can't parse its name, we know what it is, so we can give it a sensible one.
+                target_filename = download.episodes[0].fake_local_filename(use_numbering=numbering.TVDB_NUMBERING,
+                                                                           extension=os.path.splitext(f)[1])
+            else:
+                # no option here but to use the original name and somehow hope that xbmc will work out what it is
+                target_filename = os.path.basename(f)
+
+            # file name is not parsable, but there is only one
+            # season in this download, so we know where to put it.
+            season = all_tvdb_seasons[0]
+        else:
+            logger.notice(u'Problem dealing with file %s after download. '
+                          u'The download spans seasons, and we cannot work out the season '
+                          u'for this particular file, so we don\'t know where to put it.' % (f,))
+            continue
+
+        dest_dir = os.path.join(tv_show_dir, 'Season %d' % (season,))
+        if not xbmcvfs.exists(dest_dir + os.path.sep):  # xbmc requires the slash to know it's a dir
+            xbmcvfs.mkdirs(dest_dir)
+        dest_file = os.path.join(dest_dir, target_filename)
+        logger.info(u'Copying file from "%s" to "%s".' % (f, dest_file))
+        attempt = 1
+        copied = False
+        while attempt <= 5 and not copied:
+            if xbmcvfs.copy(f, dest_file):
+                logger.info('Success!')
+                copied = True
+                any_files_copied = True
+                break
+            else:
+                logger.info('Failed to copy file.  Attempt %d' % (attempt))
+                attempt = attempt + 1
+                xbmc.sleep(5000)  # sometimes failure are temporary, give it a while and try again
     if any_files_copied:
         download.copied_to_library = True
         if (__addon__.getSetting('notify_download') == 'true'):

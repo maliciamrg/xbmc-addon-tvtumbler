@@ -1,3 +1,24 @@
+----------------------------------------------------------------------------------------------------
+
+NOTE: Apologies for the current frequency of updates, especially to Frodo users who need to restart
+	  XMBC with each update.  
+	  As soon as we get to something we can call 'alpha' (i.e. version 0.1), we'll move dev into a
+	  separate repo, so the frequency of updates in this repo will reduce dramatically.
+	  
+	  Please be patient and continue to report any errors until then.
+	  
+	  Thanks,
+	  
+	  ~~Bricky
+	  
+----------------------------------------------------------------------------------------------------  
+	
+
+
+[B]0.0.14[/B] (2013-10-04)
+  - A fix for downloads failing with the download result isn't parsable.
+  - Small gui fix for the calendar.
+
 [B]0.0.13[/B] (2013-10-03)
   - Quick bugfix release to help those unfortunate enough to have downloaded the previous :)
 

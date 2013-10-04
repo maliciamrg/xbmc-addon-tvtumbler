@@ -77,7 +77,7 @@ class Downloadable(object):
     @property
     def feeder(self):
         '''
-        @rtype: tvtumbler.feeders.base.BaseFeeder
+        @rtype: tvtumbler.feeders.base.BaseFeeder|None
         '''
         return self._feeder
 
