@@ -101,7 +101,7 @@ def _real_tvdb_series_lookup(tvdb_id):
     logger.debug(u'got data: %s' % data)
     parsedXML = etree.fromstring(data)
     series = parsedXML.find('Series')
-    if not series:
+    if series is None:
         logger.debug('No series tag for %s' % tvdb_id)
         return None
 
