@@ -80,8 +80,12 @@ def run():
                 if infohash:
                     magnet = 'magnet:?xt=urn:btih:' + infohash
 
+                    ep_for_name = ep.tvdb_episodes[0]  # just use the first episode for the name
+                    torrent_name = '%s %sx%s' % (ep.tvshow.name, str(ep_for_name[0]), str(ep_for_name[1]))
+
                     torrent = links.Torrent(urls=[magnet],
                                             episodes=[ep],
+                                            name=torrent_name,
                                             quality=recvd_quality)
 
                     downloaders.download(torrent)

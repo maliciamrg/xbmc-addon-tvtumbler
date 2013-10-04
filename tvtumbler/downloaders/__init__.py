@@ -12,7 +12,7 @@ import sys
 import xbmc
 import xbmcvfs
 
-from .. import logger, utils, jsonrpc, events, numbering
+from .. import logger, utils, jsonrpc, events, numbering, names
 from . import rasterbar, trpc
 
 
@@ -110,8 +110,9 @@ def on_download_downloaded(download):
     tv_show_dir = download.downloadable.tvshow.get_path()
     all_tvdb_episodes = [ep.tvdb_episodes for ep in download.episodes]  # this is a list of tuples (season, episode)
     all_tvdb_seasons = list(set([x[0] for x in all_tvdb_episodes]))
-    feeder = download.downloadable.feeder
-    name_parser = feeder.get_nameparser()
+    feeder = download.downloadable.feeder  # care here: might be None
+    name_parser = feeder.get_nameparser() if feeder else names.SceneNameParser
+    source_numbering = feeder.get_numbering() if feeder else numbering.SCENE_NUMBERING
     any_files_copied = False
     has_known_video_file = False
     for f in download.get_files():
@@ -122,7 +123,7 @@ def on_download_downloaded(download):
                 continue
 
             np = name_parser(os.path.basename(f), has_ext=True,
-                             numbering_system=feeder.get_numbering())
+                             numbering_system=source_numbering)
             target_filename = np.make_local_filename(numbering=numbering.TVDB_NUMBERING)
             if np.is_known:
                 # if the filename is parsable, then we use the season for the first
