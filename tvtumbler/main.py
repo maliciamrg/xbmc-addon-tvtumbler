@@ -59,7 +59,7 @@ def start():
         backloggerThread = SchedulerThread(action=backlogger.run,
                                 threadName='BACKLOGGER',
                                 runIntervalSecs=BACKLOGGER_RUN_INTERVAL_SECS)
-        backloggerThread.start(2000)
+        backloggerThread.start(600)
 
         started = True
         logger.info(u'Started')

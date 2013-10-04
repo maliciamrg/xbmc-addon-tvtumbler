@@ -1,3 +1,6 @@
+[B]0.0.13[/B] (2013-10-03)
+  - Quick bugfix release to help those unfortunate enough to have downloaded the previous :)
+
 [B]0.0.12[/B] (2013-10-03)
   - Preliminary backlog support.  Currently runs backlog search automatically (every 16 hours) for anything missed in
     the last week. (manual backlog on older items to come soon)

@@ -12,7 +12,7 @@ import sys
 import xbmc
 import xbmcvfs
 
-from .. import logger, utils, jsonrpc, events, numbering, names
+from .. import logger, utils, jsonrpc, events, numbering
 from . import rasterbar, trpc
 
 
@@ -104,6 +104,8 @@ def on_download_downloaded(download):
     @param download: The download that has downloaded.
     @type download: base.Download
     '''
+    from .. import names
+
     logger.debug('------------------------------------------------------------')
     logger.notice('Download has downloaded: ' + repr(download))
     logger.debug('------------------------------------------------------------')
