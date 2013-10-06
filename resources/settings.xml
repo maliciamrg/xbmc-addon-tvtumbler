@@ -5,6 +5,9 @@
         <setting id="notify_snatch" label="Notify on Download Begin" type="bool" default="true" />
         <setting id="notify_download" label="Notify on Download End" type="bool" default="true" />
     </category>
+    <category label="Calendar">
+    	<setting id="cal_enable_images" label="Show Episode Thumbnails" type="bool" default="false" />
+    </category>
     <category label="Feeders">
     	<setting type="lsep" label="EZRSS (eztv.it)" />
         <setting id="ezrss_enable" label="Enable" type="bool" default="true" />

@@ -62,7 +62,7 @@
        <disabledcolor>80FFFFFF</disabledcolor>
       </control>
       
-      <control type="button" id="201">
+<!--       <control type="button" id="201">
        <description>Button 2 (downloads)</description>
        <onleft>200</onleft>
        <onright>202</onright>
@@ -95,20 +95,22 @@
        <colordiffuse>FFFFFFFF</colordiffuse>
        <font>font13</font>
        <align>center</align>
-       <!-- <label>$LOCALIZE[SCRIPT3017]</label> -->
+       <label>$LOCALIZE[SCRIPT3017]</label>
        <label>Settings</label>
        <textcolor>FFFFFFFF</textcolor>
        <disabledcolor>80FFFFFF</disabledcolor>
-      </control>
+      </control> -->
       
       <control type="image" >
         <description>Banner or Poster or Fanart</description>
-        <posx>723</posx>
+        <posx>663</posx>
         <posy>430</posy>
-        <width>350</width>
-        <height>160</height>
+        <width>410</width>
+        <height>230</height>
         <aspectratio align="right">keep</aspectratio>
         <texture>$INFO[Container(120).ListItem.Property(image)]</texture>
+        <bordertexture border="8">ThumbBorder.png</bordertexture>
+		<bordersize>5</bordersize>
       </control>
       
       <control type="label">
@@ -234,13 +236,13 @@
         <height>2</height>
         <texture>TRseparator2.png</texture>
       </control> --> 
-      <control type="image">
+      <!-- <control type="image">
         <posx>20</posx>
         <posy>600</posy>
-        <width>1060</width>
+        <width>600</width>
         <height>2</height>
         <texture>separator.png</texture>
-      </control>      
+      </control>       -->
 
       <!-- ** Required ** Do not change <id> or <type> -->
       <control type="list" id="120">

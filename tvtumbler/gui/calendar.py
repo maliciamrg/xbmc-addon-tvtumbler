@@ -66,7 +66,15 @@ class TvTumblerCalendar(TvTumblerWindowXMLDialog):
         self._hide_loading_dialog()
 
     def populate_for_date(self, day_index, airdate):
-        eps = service_api.get_episodes_on_date(firstaired=airdate)
+        if __addon__.getSetting('cal_enable_images') == 'true':
+            properties = ['episodeid', 'tvdb_season', 'tvdb_episode', 'title',
+                        'art', 'show_fanart', 'show_thumbnail', 'show_tvdb_id',
+                        'show_name', 'have_state']
+        else:
+            properties = ['episodeid', 'tvdb_season', 'tvdb_episode', 'title',
+                         'show_tvdb_id', 'show_name', 'have_state']
+
+        eps = service_api.get_episodes_on_date(firstaired=airdate, properties=properties)
         logger.debug('for ' + str(airdate) + ' got: ' + repr(eps))
 
         dayLabel = self.getControl(130 + day_index)

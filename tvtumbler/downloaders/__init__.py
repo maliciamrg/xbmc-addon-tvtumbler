@@ -175,7 +175,7 @@ def on_download_downloaded(download):
         attempt = 1
         copied = False
         while attempt <= 5 and not copied:
-            if xbmcvfs.copy(f, dest_file):
+            if utils.copy_with_timeout(f, dest_file, timeout=60 * 10):
                 logger.info('Success!')
                 copied = True
                 any_files_copied = True

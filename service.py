@@ -21,7 +21,7 @@ __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
 # __localize__ = __addon__.getLocalizedString
 
 libs = os.path.join(__addonpath__, 'resources', 'lib')
-sys.path.append(libs)
+sys.path.insert(1, libs)
 
 from tvtumbler import main, logger
 

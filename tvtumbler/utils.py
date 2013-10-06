@@ -13,6 +13,7 @@ import platform
 import uuid
 import re
 import xbmc
+import xbmcvfs
 from . import logger, jsonrpc
 
 __addon__ = sys.modules["__main__"].__addon__
@@ -113,3 +114,41 @@ def get_user_agent():
                                                               xv['version']['revision'], xv['version']['tag']
                                                               ))
     return _user_agent
+
+
+def copy_with_timeout(src, dest, timeout=60 * 15):
+    '''Performs a xbmcvfs.copy(), but with a timeout.
+
+    This spawns a whole new process, so don't use this unless you really need it.
+    @param src: Source file path
+    @type src: str
+    @param dest: Destination file path
+    @type dest: str
+    @param timeout: Timeout in seconds 
+    @type timeout: float
+    @rtype: bool
+    '''
+    try:
+        import multiprocessing
+        success = multiprocessing.Value('i', 0)
+
+        def _do_copy(_src, _dest, _success):
+            logger.debug('Starting copy "%s" -> "%s"' % (_src, _dest))
+            if xbmcvfs.copy(_src, _dest):
+                _success.value = 1
+                logger.debug('Copy succeeded.')
+            else:
+                logger.debug('Copy failed')
+
+        p = multiprocessing.Process(target=_do_copy, args=(success,))
+        p.start()
+        p.join(timeout)
+        if p.is_alive():
+            logger.info('Copy operation timed-out.  Trying to kill it')
+            p.terminate()
+
+        return success.value
+    except ImportError:
+        logger.notice('No multiprocessing is available.  File copy timeout cannot be implemented')
+        return xbmcvfs.copy(src, dest)
+
