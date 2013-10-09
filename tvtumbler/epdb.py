@@ -50,6 +50,8 @@ def _get_db():
         _db.action('CREATE TABLE if not exists episode_refresh ('
                               'tvdb_id INTEGER PRIMARY KEY, '
                               'last_refreshed INTEGER)')
+        _db.action('CREATE INDEX IF NOT EXISTS idx_ep_firstaired ON episode (firstaired)')
+        _db.action('CREATE INDEX IF NOT EXISTS idx_ep_tse ON episode (tvdb_id, seasonnumber, episodenumber)')
         _get_db._init_done = True
     return _db
 

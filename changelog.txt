@@ -1,19 +1,10 @@
-----------------------------------------------------------------------------------------------------
-
-NOTE: Apologies for the current frequency of updates, especially to Frodo users who need to restart
-	  XMBC with each update.  
-	  As soon as we get to something we can call 'alpha' (i.e. version 0.1), we'll move dev into a
-	  separate repo, so the frequency of updates in this repo will reduce dramatically.
-	  
-	  Please be patient and continue to report any errors until then.
-	  
-	  Thanks,
-	  
-	  ~~Bricky
-	  
-----------------------------------------------------------------------------------------------------  
-	
-
+[B]0.0.15[/B] (2013-10-09)
+  - tidy up the gui a bit
+  - put lib path at the start of system path (fix for this with tvdb_api installed already)
+  - file copy with timeout (disabled for now, will look into this later)
+  - new setting to show images in calendar (off by default)
+  - indices on some of the db tables
+  - main gui page now checks to see if there are any feeders/downloaders enabled, and prompts for settings if not
 
 [B]0.0.14[/B] (2013-10-04)
   - A fix for downloads failing with the download result isn't parsable.

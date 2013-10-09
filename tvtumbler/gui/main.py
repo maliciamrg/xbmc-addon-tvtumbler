@@ -35,8 +35,29 @@ class TvTumblerMain(TvTumblerWindowXMLDialog):
             self.close()
             return
 
-#         self.getControl(120).selectItem(0)  # select the first row
-#         self.setFocus(self.getControl(120))
+        self._update_loading_dialog(40, 'Checking downloaders ...')
+
+        if (__addon__.getSetting('trpc_enable') != 'true' and
+            __addon__.getSetting('libtorrent_enable') != 'true'):
+            self._hide_loading_dialog()
+            dlg = xbmcgui.Dialog()
+            if dlg.yesno(heading='TvTumbler', line1='No Downloader enabled.',
+                         line2='Would you like to view the addon settings?',
+                         nolabel='No', yeslabel='Yes'):
+                __addon__.openSettings()
+
+        self._update_loading_dialog(60, 'Checking feeders ...')
+
+        if (__addon__.getSetting('ezrss_enable') != 'true' and
+            __addon__.getSetting('showrss_enable') != 'true' and
+            __addon__.getSetting('publichd_enable') != 'true'):
+            self._hide_loading_dialog()
+            dlg = xbmcgui.Dialog()
+            if dlg.yesno(heading='TvTumbler', line1='No Feeders enabled.',
+                         line2='Would you like to view the addon settings?',
+                         nolabel='No', yeslabel='Yes'):
+                __addon__.openSettings()
+
         self._hide_loading_dialog()
 
     def onClick(self, controlId):
