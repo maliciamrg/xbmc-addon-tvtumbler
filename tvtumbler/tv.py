@@ -495,7 +495,7 @@ class TvEpisode(object):
             # No scene episodes from xem?  Use the tvdb ones.
             tvdb_episodes = [(scene_season, scene_episode)]
 
-        notinx_episodes = tvdb_episodes
+        notinx_episodes = tvdb_episodes[:]
 
         show = TvShow.from_tvdbd_id(tvdb_id)
         eps = []
@@ -520,6 +520,8 @@ class TvEpisode(object):
                  scene_episodes=[(scene_season, scene_episode)])
             eps.append(ep)
 
+        logger.debug()
+
         return eps
 
     @classmethod
@@ -534,7 +536,7 @@ class TvEpisode(object):
         @return: [TvEpisode] Returns an empty list for no matches.
         '''
         eps_in_season = jsonrpc.get_episodes(tvshowid=tvshowid, season=int(tvdb_season))
-        eps_matching = [e for e in eps_in_season if e['episode'] == int(tvdb_episode)]
+        eps_matching = [e for e in eps_in_season if e['episode'] == int(tvdb_episode) and e['season'] == int(tvdb_season)]
         if eps_matching:
             eps = []
             for ep in eps_matching:

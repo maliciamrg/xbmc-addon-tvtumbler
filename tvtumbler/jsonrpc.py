@@ -123,6 +123,8 @@ def get_episodes(tvshowid, season=-1,
                  properties=['title', 'season', 'episode', 'file', 'tvshowid']):
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetEpisodes
+    
+    Care here: this will also return special from the season (which will have a 'season' of zero)
     """
     result = exec_rpc_with_cache(method="VideoLibrary.GetEpisodes",
                                  params={'tvshowid': tvshowid,
