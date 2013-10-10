@@ -33,9 +33,10 @@ def run():
     if xbmc.abortRequested or main.shutdownRequested:
         return
 
-    today = datetime.date.today()
+    # we use utc date so that australian users won't start searching backlog before the episode airs!
+    today_utc = datetime.datetime.utcnow().date()
     for days_ago in range(BACKLOGGER_START_DAYS_AGO, BACKLOGGER_END_DAYS_AGO):
-        the_date = today - datetime.timedelta(days=days_ago)
+        the_date = today_utc - datetime.timedelta(days=days_ago)
 
         all_eps = epdb.get_episodes_on_date(the_date, True)
         for ep in all_eps:
