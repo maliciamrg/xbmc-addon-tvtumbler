@@ -175,6 +175,8 @@ def refresh_show(tvdb_id):
             for key in key_map:
                 if key in ep:
                     data[key_map[key]] = ep[key]
+            # Sometimes episodes get moved between seasons.  This is to prevent a pk error when that happens
+            sqls.append(('DELETE FROM episode WHERE tvdb_episode_id = ?', [ep['id']]))
             sql = 'INSERT INTO episode (' + ', '.join(data.keys()) + ') VALUES (' + ', '.join('?' * len(data)) + ')'
             sqls.append((sql, data.values()))
 
