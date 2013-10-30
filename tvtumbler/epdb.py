@@ -164,8 +164,10 @@ def refresh_show(tvdb_id):
 
     t = thetvdb.get_tvdb_api_info(tvdb_id)
     _db = _get_db()
+    found_seasons = []
 
     for season_num in t:
+        found_seasons.append(season_num)
         sqls = []  # we do our updates in bulk on the season level
         for episode_num in t[season_num]:
             ep = t[season_num][episode_num]
@@ -183,6 +185,14 @@ def refresh_show(tvdb_id):
         with _episode_lock:
             _db.action('DELETE FROM episode WHERE tvdb_id = ? AND seasonnumber = ?', [tvdb_id, season_num])
             _db.mass_action(sqls, logTransaction=False)
+
+    # we also need to deal with any season that we may have had previously, but no longer exists
+    if len(found_seasons):
+        _db.action('DELETE FROM episode WHERE tvdb_id = ? and seasonnumber not in (' + ','.join(found_seasons) + ')',
+                   [tvdb_id, ])
+    else:
+        # no seasons found?  Just delete everything
+        _db.action('DELETE FROM episode WHERE tvdb_id = ?', [tvdb_id, ])
 
     _db.action('INSERT OR REPLACE INTO episode_refresh '
                '(tvdb_id, last_refreshed) '
