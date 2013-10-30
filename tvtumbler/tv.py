@@ -520,8 +520,6 @@ class TvEpisode(object):
                  scene_episodes=[(scene_season, scene_episode)])
             eps.append(ep)
 
-        logger.debug()
-
         return eps
 
     @classmethod
