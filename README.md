@@ -23,7 +23,7 @@ Setup:
 
 - Install this addon to your XBMC (get the [latest zip from here](http://repo.tvtumbler.com/service.tvtumbler/)).
 - Open the addon settings (System -> Settings -> Addons -> Enabled Addons -> Services -> TvTumbler -> Configure)
-- In **Feeders**: enable at least one (or several if you prefer)
+- In **Feeders**: enable at least one (or several if you prefer).
 - In **Libtorrent**: leave this disabled, it doesn't work for now.
 - In **Transmission**: enable it, and set all required settings.  The `Download Dir` is where XMBC will look for 
 completed downloads. (Preferably this should be a public share with password-less write access, or a directory on the
@@ -40,8 +40,14 @@ Notes:
 
 - This is pre-alpha code.  Don't expect it to work without problems.
 - Libtorrent is broken for now, don't enable it (unless you're a dev and want to fix it).
-- Air-by-date shows are currently skipped.
+- Air-by-date shows are currently skipped when searching feeds.  (they are searched in backlog though)
+- Anime shows don't really work at all.  Sorry.  (if anyone who's into Anime is interested in fixing this, then please
+  contact me).
 - Frodo users will be prompted to restart XBMC after any addon update.  This is a bug with Frodo: http://trac.xbmc.org/ticket/14609
   (it's a bug with Gotham too, but we can work around it there by restarting the service)
+- The ShowRSS feeder is dead weight for now: use the other two.  (this will probably be removed in the near future, as 
+  it doesn't really add anything).
+- Users running XBMC on a Pi (raspbmc, openelec etc) - please expect some issues.  The Pi has several small quirks that
+  break XBMC in unexpected ways.
 
 

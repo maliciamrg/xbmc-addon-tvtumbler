@@ -1,10 +1,18 @@
+[B]0.0.16[/B] (2013-10-30)
+  - fix for specials with the same episode number being seen as valid season episodes
+  - change the backlogger to use utc dates
+  - delete seasons which are no longer on tvdb when refreshing
+  - Restrict tvtumbler to one copy/move file operation at a time (to alleviate issues with the Pi)
+  - Updates to the readme about the Pi and ShowRSS.
+  
 [B]0.0.15[/B] (2013-10-09)
   - tidy up the gui a bit
-  - put lib path at the start of system path (fix for this with tvdb_api installed already)
+  - put lib path at the start of system path (fix for those with tvdb_api installed already)
   - file copy with timeout (disabled for now, will look into this later)
   - new setting to show images in calendar (off by default)
   - indices on some of the db tables
-  - main gui page now checks to see if there are any feeders/downloaders enabled, and prompts for settings if not
+  - main gui page now checks to see if there are any feeders/downloaders enabled, and prompts for
+    settings if not
 
 [B]0.0.14[/B] (2013-10-04)
   - A fix for downloads failing with the download result isn't parsable.
@@ -14,39 +22,44 @@
   - Quick bugfix release to help those unfortunate enough to have downloaded the previous :)
 
 [B]0.0.12[/B] (2013-10-03)
-  - Preliminary backlog support.  Currently runs backlog search automatically (every 16 hours) for anything missed in
-    the last week. (manual backlog on older items to come soon)
+  - Preliminary backlog support.  Currently runs backlog search automatically (every 16 hours) for
+    anything missed in the last week. (manual backlog on older items to come soon)
   - Lots of little bugs fixed (esp for the Pi - it's almost usable there now)
   
 [B]0.0.11[/B] (2013-09-29)
-  - Schedule didn't work on the pi before, lots of tweaks now to make it work.  Still terribly slow though (and often
-    times out).  Caching improves the situation very much now.
+  - Schedule didn't work on the pi before, lots of tweaks now to make it work.  Still terribly slow
+    though (and often times out).  Caching improves the situation very much now.
   - Show downloading and downloaded status on the schedule.
-  - Cache some of the queries from the epdb.  (we'll need to find a way to make sql faster, it's incredibly slow 
-    at present).
-  - Don't bother querying for so many images (or show status) for the schedule.  We don't use them, and they're sloooow!
-  - This is a stop-gap release, because some people got caught with a broken version of 0.0.10 (downloaded mid-publish).
+  - Cache some of the queries from the epdb.  (we'll need to find a way to make sql faster, it's
+    incredibly slow at present).
+  - Don't bother querying for so many images (or show status) for the schedule.  We don't use them,
+    and they're sloooow!
+  - This is a stop-gap release, because some people got caught with a broken version of 0.0.10 
+    (downloaded mid-publish).
 
 [B]0.0.10[/B] (2013-09-28)
   - Get year from xbmc if it's available (saves a tvdb lookup)
   - strip dots in scene naming when simplifying (handles cases like "Michael J. Fox" a bit better)
-  - Better handling of transmission connection errors, login failures, and other nastiness that can happen.
+  - Better handling of transmission connection errors, login failures, and other nastiness that can
+    happen.
   - TvTumbler will now try to claim downloads from Transmission if they match something it wants.
   - Gui will now prompt to add a tv show when run if you don't have one.
-  - Gui will now try to ensure that your tv download dir is set and reasonable (and prompt for a new one if not).
+  - Gui will now try to ensure that your tv download dir is set and reasonable (and prompt for a
+    new one if not).
   - Progress messages during gui load, and most of the gui is now in dialogs.
   - Save state of running downloads when shut down, and restore it what starting up.
   - Now *really* searches for new shows!
   - New landing page, and simple schedule page.  (Yes, I know they're ugly)
 
 [B]0.0.9[/B] (2013-09-26)
-  - Emergency bump to 0.0.9.  Service restart code just freezes on 12.2 (and probably earlier).  Now just prompt user
-    to restart XBMC on anything less than 13.0.
+  - Emergency bump to 0.0.9.  Service restart code just freezes on 12.2 (and probably earlier).
+    Now just prompt user to restart XBMC on anything less than 13.0.
 
 [B]0.0.8[/B] (2013-09-26)
   - Use the confluence scrollbars and separators.  They're much nicer.
   - Refactor the gui windows so that they share a base class.
-  - Basic service handling from the gui: prompt for start if stopped, prompt for restart if out of date.
+  - Basic service handling from the gui: prompt for start if stopped, prompt for restart if out of
+    date.
   - Have the housekeeper pull down episode lists when things are quiet.
   - Finally the facility to add new shows (albeit a bit hackish as of yet)
   - Be a bit smarter about accepting show names with a year on the end.
@@ -56,28 +69,33 @@
 
 [B]0.0.7[/B] (2013-09-24)
   - Much better layout/ordering behaviour on downloads screen.
-  - Blacklist downloads on failure (so they won't be tried again).  Blacklist entries expire after 1 week.
+  - Blacklist downloads on failure (so they won't be tried again).  Blacklist entries expire after
+    one week.
   - Improve the time formatting on the download screen a little
   - No longer any need for script.module.elementtree (we can now rely on having python 2.6 or 2.7)
-  - Do a rudimentary check of transmission settings when they change.  Disable Transmission if they fail.
-  - If transmission is running locally, "fix" the download location.  (this won't work for remote: Download Dir in addon
-    and transmission must agree)
-  - Hire a housekeeper: cleans up expired cache entries, and updates the scene exceptions, provided xbmc isn't playing.
+  - Do a rudimentary check of transmission settings when they change.  Disable Transmission if they
+    fail.
+  - If transmission is running locally, "fix" the download location.  (this won't work for remote:
+    Download Dir in addon and transmission must agree)
+  - Hire a housekeeper: cleans up expired cache entries, and updates the scene exceptions, provided
+    xbmc isn't playing.
   - Use "Episode N" for episodes that have no names on tvdb.
 
 [B]0.0.6[/B] (2013-09-23)
   - Small bug in jsonrpc when creating exceptions.
-  - New exception 'EpisodeNotFoundException' when querying for a tv episode that is no longer present.
+  - New exception 'EpisodeNotFoundException' when querying for a tv episode that is no longer
+    present.
   - Add a get_version method to the service. (returns a string like '0.0.6')
-  - Have the gui call the get_version when it starts.  It no match, fail to start gui (with warning about restart needed)
+  - Have the gui call the get_version when it starts.  It no match, fail to start gui (with warning
+    about restart needed)
   - Service can now be stopped by sending it a 'SHUTDOWN' message (just that text, nothing more). 
   - Log start/finish/failure of downloads
   - Very simple (and hackish) gui for downloads
 
 [B]0.0.5[/B] (2013-09-19)
   - Refactor things around a little so that the gui won't load sqlite.
-  - Much much faster response for tvdb data, tvdb_api was much too slow (it appears that it doesn't cache correctly?).  
-    We now only use it for getting the episode name on a new download.
+  - Much much faster response for tvdb data, tvdb_api was much too slow (it appears that it doesn't
+    cache correctly?).  We now only use it for getting the episode name on a new download.
   - Pickle our fast_cache data on shutdown, and load it again on startup.
   - Create a general module for caching (looks like we're going to be doing a lot of this!)
 
