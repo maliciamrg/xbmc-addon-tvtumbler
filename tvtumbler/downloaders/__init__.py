@@ -8,6 +8,7 @@ This file is part of TvTumbler.
 '''
 import os
 import sys
+import threading
 
 import xbmc
 import xbmcvfs
@@ -20,6 +21,10 @@ __addon__ = sys.modules["__main__"].__addon__
 __addonname__ = sys.modules["__main__"].__addonname__
 
 _enabled_downloaders = None
+
+# we use this to ensure that only one thread is using xbmcvfs.copy at one time.
+# (it seems that multiple threads doing this can cause xbmc to crash)
+xbmcvfs_copy_lock = threading.Lock()
 
 
 def _on_settings_changed():
@@ -175,15 +180,16 @@ def on_download_downloaded(download):
         attempt = 1
         copied = False
         while attempt <= 5 and not copied:
-            if xbmcvfs.copy(f, dest_file):
-                logger.info('Success!')
-                copied = True
-                any_files_copied = True
-                break
-            else:
-                logger.info('Failed to copy file.  Attempt %d' % (attempt))
-                attempt = attempt + 1
-                xbmc.sleep(5000)  # sometimes failure are temporary, give it a while and try again
+            with xbmcvfs_copy_lock:
+                if xbmcvfs.copy(f, dest_file):
+                    logger.info('Success!')
+                    copied = True
+                    any_files_copied = True
+                    break
+                else:
+                    logger.info('Failed to copy file.  Attempt %d' % (attempt))
+                    attempt = attempt + 1
+                    xbmc.sleep(5000)  # sometimes failure are temporary, give it a while and try again
     if any_files_copied:
         download.copied_to_library = True
         if (__addon__.getSetting('notify_download') == 'true'):
