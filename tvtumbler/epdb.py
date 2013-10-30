@@ -167,7 +167,7 @@ def refresh_show(tvdb_id):
     found_seasons = []
 
     for season_num in t:
-        found_seasons.append(season_num)
+        found_seasons.append(str(season_num))
         sqls = []  # we do our updates in bulk on the season level
         for episode_num in t[season_num]:
             ep = t[season_num][episode_num]
