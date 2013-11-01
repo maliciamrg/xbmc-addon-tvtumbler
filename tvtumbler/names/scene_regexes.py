@@ -243,7 +243,7 @@ _ep_regexes = [
 _bad_filters = ["sub(pack|s|bed)", "nlsub(bed|s)?", "swesub(bed)?",
                  "(dir|sample|sub|nfo)fix", "sample", "(dvd)?extras",
                  "dub(bed)?", 'german', 'french', 'core2hd', 'dutch',
-                 'swedish']
+                 'swedish', 'subtitulado']
 
 _compiled_bad_regexes = []
 
