@@ -75,7 +75,7 @@ def quality_from_name(filename, guess_from_extension=True):
 
     check_name = lambda alist, func: func([re.search(x, filename, re.I) for x in alist])
 
-    if check_name(["(pdtv|hdtv|dsr|tvrip|webrip).(xvid|x264)"], all) and not check_name(["(720|1080)[pi]"], all):
+    if check_name(["(pdtv|hdtv|dsr|tvrip|web.dl|webrip).(xvid|x264)"], all) and not check_name(["(720|1080)[pi]"], all):
         return SDTV
     elif check_name(["(dvdrip|bdrip)(.ws)?.(xvid|divx|x264)"], any) and not check_name(["(720|1080)[pi]"], all):
         return SDDVD
