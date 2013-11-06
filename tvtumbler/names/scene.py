@@ -126,7 +126,7 @@ class SceneNameParser(NameParser):
             named_groups = match.groupdict().keys()
             tmp_tv_show = None
 
-            if 'series_name' in named_groups:
+            if 'series_name' in named_groups and match.group('series_name'):
                 tmp_series_name = self.clean_series_name(match.group('series_name'))
                 tvdb_id = get_tvdb_id(tmp_series_name)
                 if tvdb_id:
