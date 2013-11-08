@@ -29,6 +29,11 @@ def _get_db(row_type=None):
                               'final_status VARCHAR(255), '
                               'total_size INTEGER, '
                               'quality INTEGER)')
+        _db.action('CREATE TABLE if not exists dl_log_episode ('
+                              'dl_log_id INTEGER REFERENCES dl_log (id) ON DELETE CASCADE, '
+                              'tvdb_id INTEGER, '
+                              'tvdb_season INTEGER, '
+                              'tvdb_episode INTEGER)')
 #         _db.action('CREATE TABLE if not exists xem_refresh ('
 #                               'tvdb_id INTEGER PRIMARY KEY, '
 #                               'last_refreshed INTEGER)')
@@ -69,7 +74,8 @@ def log_download_start(download):
     dlable = download.downloadable
     show = dlable.tvshow
     feeder = dlable.feeder
-    result = conn.action('INSERT INTO dl_log (key, tvdb_id, tvshowid, name, source, started_at, quality) VALUES (?,?,?,?,?,?,?)',
+    result = conn.action('INSERT INTO dl_log (key, tvdb_id, tvshowid, name, source, started_at, quality) '
+                         'VALUES (?,?,?,?,?,?,?)',
                          [download.key,  # key
                           show.tvdb_id,  # tvdb_id
                           show.tvshowid,  # tvshowid (xbmc id)
@@ -81,6 +87,13 @@ def log_download_start(download):
     result = conn.select('select last_insert_rowid()')
     # logger.debug('result from last_insert_rowid: ' + repr(result))
     download.rowid = result[0][0]
+
+    for ep in download.episodes:
+        for (s, e) in ep.tvdb_episodes:
+            conn.action('INSERT OR REPLACE INTO dl_log_episode (dl_log_id, tvdb_id, tvdb_season, tvdb_episode) '
+                        'VALUES (?,?,?,?)',
+                        [download.rowid, show.tvdb_id, s, e])
+
     return result[0][0]
 
 
@@ -98,6 +111,29 @@ def log_download_fail(download):
 
     conn.action('UPDATE dl_log SET finished_at = ?, final_status = ?, total_size = ? WHERE ROWID = ?',
                 [time.time(), 'Failed', download.total_size, rowid])
+
+
+def was_downloaded(episode):
+    '''
+    Check is an episode has been successfully downloaded (or at least logged as such).
+
+    @param episode: The episode to check for
+    @type episode: tvtumbler.tv.TvEpisode
+    @return: Returns True only if all parts of the episode have been downloaded successfully.  False otherwise.
+    @rtype: bool
+    '''
+    conn = _get_db()
+    tvdb_id = episode.tvshow.tvdb_id
+    for (s, e) in episode.tvdb_episodes:
+        res = conn.select('select count(1) from dl_log_episode e join dl_log l on (e.dl_log_id = l.id) '
+                          'where l.final_status = \'Downloaded\' '
+                          'and e.tvdb_id = ? and e.tvdb_season = ? and e.tvdb_episode = ?',
+                          [tvdb_id, s, e])
+        if int(res[0][0]) == 0:
+            # this bit is missing, no need to check any further
+            return False
+    # all parts download successfully
+    return True
 
 
 

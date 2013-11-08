@@ -6,10 +6,11 @@ This file is part of TvTumbler.
 @license: GPL
 @contact: info@tvtumbler.com
 '''
+from dateutil import parser
 import os
 import sys
 
-from dateutil import parser
+from tvtumbler import log
 import xbmc
 
 from . import jsonrpc, logger, downloaders, api, showsettings, thetvdb, tvrage, numbering
@@ -650,11 +651,12 @@ class TvEpisode(object):
         @return: True if this is an episode we want in a quality we want.  False otherwise.
         @rtype: bool
         '''
-        logger.debug('is_wanted_in_quality')
+        # logger.debug('is_wanted_in_quality')
         return (self._tvshow.followed and
                 self._tvshow.wanted_quality & qual and
                 not self.episodeid and
-                not downloaders.is_downloading(self))
+                not downloaders.is_downloading(self) and
+                not log.was_downloaded(self))
 
     def fake_local_filename(self, use_numbering, extension=''):
         '''
@@ -700,7 +702,8 @@ class TvEpisode(object):
                 epnums = set([e[1] for e in epis])
                 is_sequential = (max(epnums) - min(epnums) == len(epnums) - 1)
 
-                if is_sequential:
+                if False:  # is_sequential:
+                    # fix - xbmc doesn't recognise this, don't use it
                     episode_part = 'S%02dE%02d-%02d' % (season, min(epnums), max(epnums))
                 else:
                     # not sequential, we need to list them individually

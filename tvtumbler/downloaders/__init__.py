@@ -177,11 +177,19 @@ def on_download_downloaded(download):
             xbmcvfs.mkdirs(dest_dir)
         dest_file = os.path.join(dest_dir, target_filename)
         logger.info(u'Copying file from "%s" to "%s".' % (f, dest_file))
+        use_safe_copy = __addon__.getSetting('use_safe_copy') == 'true'
         attempt = 1
         copied = False
         while attempt <= 5 and not copied:
             with xbmcvfs_copy_lock:
-                if xbmcvfs.copy(f, dest_file):
+                copy_result = False
+                if use_safe_copy:
+                    logger.debug('using safe copy')
+                    copy_result = utils.copy_with_timeout(f, dest_file)
+                else:
+                    copy_result = xbmcvfs.copy(f, dest_file)
+
+                if copy_result:
                     logger.info('Success!')
                     copied = True
                     any_files_copied = True

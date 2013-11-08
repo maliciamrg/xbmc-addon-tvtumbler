@@ -195,7 +195,8 @@ class NameParser(object):
                 epnums = set([e[1] for e in epis])
                 is_sequential = (max(epnums) - min(epnums) == len(epnums) - 1)
 
-                if is_sequential:
+                if False:  # is_sequential:
+                    # xbmc doesn't regonise this, don't use it
                     episode_part = 'S%02dE%02d-%02d' % (season, min(epnums), max(epnums))
                 else:
                     # not sequential, we need to list them individually

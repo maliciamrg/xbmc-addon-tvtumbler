@@ -7,14 +7,21 @@ This file is part of TvTumbler.
 @contact: info@tvtumbler.com
 '''
 
-import sys
-import requests  # @UnresolvedImport
+import os
 import platform
-import uuid
 import re
+import sys
+import threading
+import time
+import urllib
+import uuid
+
+import requests  # @UnresolvedImport
 import xbmc
 import xbmcvfs
+
 from . import logger, jsonrpc
+
 
 __addon__ = sys.modules["__main__"].__addon__
 __addonname__ = __addon__.getAddonInfo('name')
@@ -118,8 +125,7 @@ def get_user_agent():
 
 def copy_with_timeout(src, dest, timeout=60 * 15):
     '''Performs a xbmcvfs.copy(), but with a timeout.
-
-    This spawns a whole new process, so don't use this unless you really need it.
+ 
     @param src: Source file path
     @type src: str
     @param dest: Destination file path
@@ -128,27 +134,53 @@ def copy_with_timeout(src, dest, timeout=60 * 15):
     @type timeout: float
     @rtype: bool
     '''
-    try:
-        import multiprocessing
-        success = multiprocessing.Value('i', 0)
+    if xbmcvfs.exists(dest):
+        logger.info('destination already exists, deleting ' + str(dest))
+        xbmcvfs.delete(dest)
 
-        def _do_copy(_src, _dest, _success):
-            logger.debug('Starting copy "%s" -> "%s"' % (_src, _dest))
-            if xbmcvfs.copy(_src, _dest):
-                _success.value = 1
-                logger.debug('Copy succeeded.')
-            else:
-                logger.debug('Copy failed')
+    start_time = time.time()
+    _abort_copy_operation = False
+    _retList = [False]
 
-        p = multiprocessing.Process(target=_do_copy, args=(success,))
-        p.start()
-        p.join(timeout)
-        if p.is_alive():
-            logger.info('Copy operation timed-out.  Trying to kill it')
-            p.terminate()
+    def _copy_func(retList):
+        source_file = xbmcvfs.File(src)
+        dest_file = xbmcvfs.File(dest, 'w')
+        filesize = source_file.size()
+        copied = 0
+        last_reported = 0
 
-        return success.value
-    except ImportError:
-        logger.notice('No multiprocessing is available.  File copy timeout cannot be implemented')
-        return xbmcvfs.copy(src, dest)
+        while copied < filesize:
+            if (xbmc.abortRequested or
+                time.time() > (start_time + timeout) or
+                _abort_copy_operation):
+                logger.warning('timeout or abort.  quiting file copy at %d bytes' % (copied,))
+                source_file.close()
+                dest_file.close()
+                retList[0] = False # this is our return value
+                return
+            block = source_file.read(1024 * 1024)
+            dest_file.write(block)
+            copied += len(block)
+            if copied - last_reported >= 10 * 1024 * 1024:
+                logger.debug('copied %d bytes of %d in %s' % (copied, filesize, src))
+                last_reported = copied
+
+        source_file.close()
+        dest_file.close()
+        retList[0] = True  # this is out return value
+
+    copyThread = threading.Thread(target=_copy_func, args=(_retList,))
+    copyThread.start()
+    while copyThread.is_alive() and time.time() < (start_time + timeout):
+        xbmc.sleep(500)
+
+    if copyThread.is_alive():
+        logger.warning('copy_with_timeout has timed-out.  Going to try to kill the thread')
+        _abort_copy_operation = True
+        copyThread.join(5)  # give the script 5 secs to stop
+        if copyThread.is_alive():
+            logger.error('Failed to stop the copy thread.  Abandoning.')
+        return False
+
+    return _retList[0]  # this will be either True or False, depending on file copy success
 
