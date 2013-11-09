@@ -48,6 +48,6 @@ Notes:
 - The ShowRSS feeder is dead weight for now: use the other two.  (this will probably be removed in the near future, as 
   it doesn't really add anything).
 - Users running XBMC on a Pi (raspbmc, openelec etc) - please expect some issues.  The Pi has several small quirks that
-  break XBMC in unexpected ways.
+  break XBMC in unexpected ways. (You can alleviate some of these by enabling 'safe file copy' in advanced settings)
 
 
