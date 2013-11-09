@@ -77,6 +77,16 @@ def get_episode_name(tvdb_id, season, episode):
 
 @fastcache.func_cache(60 * 60 * 6)
 def get_episodes_on_date(firstaired, followed_only=True):
+    '''
+    Returns a list of all episodes which aired on 'firstaired'.
+
+    @param firstaired: A string of the form yyyy-mm-dd (yes, a string, that's what tvdb uses)
+    @type firstaired: str
+    @param followed_only: If true, limit the list to followed shows.  Otherwise return all known shows.
+    @type followed_only: bool
+    @return: A list of TvEpisode's which aired on the date (according the thetvdb)
+    @rtype: [tvtumbler.tv.TvEpisode]
+    '''
     if isinstance(firstaired, datetime.date):
         firstaired = firstaired.isoformat()
 
