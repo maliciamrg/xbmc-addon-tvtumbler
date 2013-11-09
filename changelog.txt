@@ -1,3 +1,15 @@
+[B]0.0.17[/B] (2013-11-09)
+  - fix for shows which match on 'no_season', but without a show name.
+  - change xbmcvfs.copy to a chunked read/write, in another attempt to workaround the pi lockup
+    issue.
+  - add web.dl to SDTV.
+  - New setting: use_safe_copy to use chunked copy (off by default).
+  - Log the episodes included in each download.
+  - Don't download an episode that has been downloaded already (even if now gone).
+  - Fix the naming system for sequential multipart (wasn't recognised by xbmc if more than 2 eps).
+  - Workaround for frodo bug where deleting episodes doesn't fire library change events.
+  - Make recent backlogger optional and enable configuration of the number of days back it goes.
+
 [B]0.0.16[/B] (2013-10-30)
   - fix for specials with the same episode number being seen as valid season episodes
   - change the backlogger to use utc dates
@@ -15,7 +27,7 @@
     settings if not
 
 [B]0.0.14[/B] (2013-10-04)
-  - A fix for downloads failing with the download result isn't parsable.
+  - A fix for downloads failing when the download result isn't parsable.
   - Small gui fix for the calendar.
 
 [B]0.0.13[/B] (2013-10-03)
