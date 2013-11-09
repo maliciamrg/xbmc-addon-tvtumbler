@@ -20,6 +20,10 @@
         <setting type="lsep" label="PublicHD (publichd.se)" />
         <setting id="publichd_enable" label="Enable" type="bool" default="false" />
         <setting id="publichd_freq" label="Refresh Frequency (mins)" type="number" subsetting="true" enable="eq(-1,true)" default="55" />
+        <setting type="lsep" label="Use backlog to search for recently missed episodes" />
+        <setting id="recent_backlogger_enable" label="Enable" type="bool" default="true" />
+        <setting id="recent_backlogger_daysback" label="Number of days back to search for" type="slider" 
+        		 subsetting="true" enable="eq(-1,true)" default="2" range="1,30" option="int" />
     </category>
     <category label="Libtorrent">
         <setting id="libtorrent_enable" label="Use Libtorrent for downloads" type="bool" default="false"/>

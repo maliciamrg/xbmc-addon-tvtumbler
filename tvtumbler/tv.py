@@ -548,7 +548,7 @@ class TvEpisode(object):
             # There's a bug in Frodo (at least, possibly later) where episodes deleted through the gui don't
             # trigger a 'VIDEO_LIBRARY_UPDATED' event.  The cache would be invalid when this happens, and would
             # trigger an error like this.  So we initially respond here by deleting the jsonrpc cache, and trying
-            # again (with exaclty the same code).
+            # again (with exactly the same code).
             logger.warning('EpisodeNotFoundException: ' + str(e) + '.  Going to invalidate the cache and try again')
             jsonrpc.on_video_library_changed()
             eps_in_season = jsonrpc.get_episodes(tvshowid=tvshowid, season=int(tvdb_season))
