@@ -135,44 +135,53 @@ def on_download_downloaded(download):
             videos_in_download.append(f)
 
     for f in videos_in_download:
-        np = name_parser(os.path.basename(f), has_ext=True,
-                         numbering_system=source_numbering)
-        
-        if np.is_known:
-            target_filename = np.make_local_filename(numbering=numbering.TVDB_NUMBERING)
-            
-            # if the filename is parsable, then we use the season for the first
-            # episode in the filename (using tvdb numbering)
-            season = np.episodes[0].tvdb_episodes[0][0]
-
-            # quick safety check: if the filename triggered any of our 'bad' regexes,
-            # then we had better ignore it.
-            if np.is_bad:
-                logger.notice(u'Downloaded file "%s" triggered a bad regex, not copying.' % (f,))
-                continue
-
-            has_known_video_file = True
-
-        elif len(all_tvdb_seasons) == 1:
-            if len(videos_in_download) == 1 and len(download.episodes) == 1:
-                # this is the *only* video file in the download, and the download only has one episode.
-                # So, even though we can't parse its name, we know what it is, so we can give it a sensible one.
-                target_filename = download.episodes[0].fake_local_filename(use_numbering=numbering.TVDB_NUMBERING,
-                                                                           extension=os.path.splitext(f)[1])
+        if len(videos_in_download) == 1 and len(download.episodes) == 1:
+            # this is the *only* video in the download, and there's only one episode here.  So we can completely
+            # ignore what the file is called, and trust what we have in download.episodes.
+            target_filename = download.episodes[0].fake_local_filename(use_numbering=numbering.TVDB_NUMBERING,
+                                                                       extension=os.path.splitext(f)[1])
+            if download.episodes[0].special:
+                logger.info('Download is a special, forcing season_folder_num = 0')
+                season_folder_num = 0
             else:
+                season_folder_num = all_tvdb_seasons[0]
+        else:
+            # We may be dealing with more than one file/episode.  So we need to be a bit smarter here
+            np = name_parser(os.path.basename(f), has_ext=True, numbering_system=source_numbering)
+
+            if np.is_known:
+                target_filename = np.make_local_filename(numbering=numbering.TVDB_NUMBERING)
+
+                if np.is_special:
+                    logger.info('The file "%s" appears to be a special, forcing season folder zero' % (f,))
+                    season_folder_num = 0
+                else:
+                    # if the filename is parsable, then we use the season for the first
+                    # episode in the filename (using tvdb numbering)
+                    season_folder_num = np.episodes[0].tvdb_episodes[0][0]
+
+                # quick safety check: if the filename triggered any of our 'bad' regexes,
+                # then we had better ignore it.
+                if np.is_bad:
+                    logger.notice(u'Downloaded file "%s" triggered a bad regex, not copying.' % (f,))
+                    continue
+
+                has_known_video_file = True
+
+            elif len(all_tvdb_seasons) == 1:
                 # no option here but to use the original name and somehow hope that xbmc will work out what it is
                 target_filename = os.path.basename(f)
 
-            # file name is not parsable, but there is only one
-            # season in this download, so we know where to put it.
-            season = all_tvdb_seasons[0]
-        else:
-            logger.notice(u'Problem dealing with file %s after download. '
-                          u'The download spans seasons, and we cannot work out the season '
-                          u'for this particular file, so we don\'t know where to put it.' % (f,))
-            continue
+                # file name is not parsable, but there is only one
+                # season in this download, so we know where to put it.
+                season_folder_num = all_tvdb_seasons[0]
+            else:
+                logger.notice(u'Problem dealing with file "%s" after download. '
+                              u'The download spans seasons, and we cannot work out the season '
+                              u'for this particular file, so we don\'t know where to put it.' % (f,))
+                continue
 
-        dest_dir = os.path.join(tv_show_dir, 'Season %d' % (season,))
+        dest_dir = os.path.join(tv_show_dir, 'Season %d' % (season_folder_num,))
         if not xbmcvfs.exists(dest_dir + os.path.sep):  # xbmc requires the slash to know it's a dir
             xbmcvfs.mkdirs(dest_dir)
         dest_file = os.path.join(dest_dir, target_filename)
@@ -197,7 +206,7 @@ def on_download_downloaded(download):
                 else:
                     logger.info('Failed to copy file.  Attempt %d' % (attempt))
                     attempt = attempt + 1
-                    xbmc.sleep(5000)  # sometimes failure are temporary, give it a while and try again
+                    xbmc.sleep(5000)  # sometimes failures are temporary, give it a while and try again
     if any_files_copied:
         download.copied_to_library = True
         if (__addon__.getSetting('notify_download') == 'true'):

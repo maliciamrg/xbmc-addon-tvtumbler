@@ -135,6 +135,22 @@ class NameParser(object):
             self._parse()
         return self._quality
 
+    @property
+    def is_special(self):
+        '''
+        Is the file a 'special' (typically season zero or episode number zero).
+        Returns True if the filename is parseable, and *any* of the episodes is a special.
+
+        @rtype: bool
+        '''
+        if not self._parsed:
+            self._parse()
+        if self._known:
+            for e in self.episodes:
+                if e.special:
+                    return True
+        return False
+
 #     @property
 #     def air_date(self):
 #         '''

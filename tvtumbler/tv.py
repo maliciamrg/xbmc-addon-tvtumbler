@@ -660,6 +660,19 @@ class TvEpisode(object):
         '''
         return self._sc_episodes
 
+    @property
+    def special(self):
+        '''
+        Is the episode a 'special'?
+        Returns True if the season is zero, or any episode number is zero.
+
+        @rtype: bool
+        '''
+        for (s, e) in self.tvdb_episodes:
+            if s == 0 or e == 0:
+                return True
+        return False
+
     def is_wanted_in_quality(self, qual):
         '''
         @todo: FIXME!  This doesn't take into account yet if we have it in one quality, but want it
