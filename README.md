@@ -23,7 +23,7 @@ Setup:
 
 - Install this addon to your XBMC (get the [latest zip from here](http://repo.tvtumbler.com/service.tvtumbler/)).
 - Open the addon settings (System -> Settings -> Addons -> Enabled Addons -> Services -> TvTumbler -> Configure)
-- In **Feeders**: enable at least one (or several if you prefer).
+- In **Feeders**: enable at least one (or all if you prefer).
 - In **Libtorrent**: leave this disabled, it doesn't work for now.
 - In **Transmission**: enable it, and set all required settings.  The `Download Dir` is where XMBC will look for 
 completed downloads. (Preferably this should be a public share with password-less write access, or a directory on the
@@ -31,8 +31,8 @@ xbmc machine itself)
 
 When first run, none of the shows in your library will be 'followed'.  You'll need to follow at least a few:
 
-- Open the addon through 'Programs' or 'Video Addons'.  After a few seconds you should get a list of shows in your 
-library.
+- Open the addon through 'Programs' or 'Video Addons'.  Select 'Shows', and after a few seconds you should get a list
+of shows in your library.
 - Select a show to toggle the 'follow' status.  Right click (context menu) will allow you to change the desired quality.
 
 Notes:
@@ -45,8 +45,6 @@ Notes:
   contact me).
 - Frodo users will be prompted to restart XBMC after any addon update.  This is a bug with Frodo: http://trac.xbmc.org/ticket/14609
   (it's a bug with Gotham too, but we can work around it there by restarting the service)
-- The ShowRSS feeder is dead weight for now: use the other two.  (this will probably be removed in the near future, as 
-  it doesn't really add anything).
 - Users running XBMC on a Pi (raspbmc, openelec etc) - please expect some issues.  The Pi has several small quirks that
   break XBMC in unexpected ways. (You can alleviate some of these by enabling 'safe file copy' in advanced settings)
 

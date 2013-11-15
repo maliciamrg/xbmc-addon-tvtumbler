@@ -28,8 +28,8 @@ def get_enabled_feeders():
     '''
     global _enabled_feeders
     if _enabled_feeders is None:
-        from . import ezrss, showrss, publichd
-        _all_feeders = [ezrss.EZRSSFeeder, showrss.ShowRSSFeeder, publichd.PublicHDFeeder]
+        from . import ezrss, publichd
+        _all_feeders = [ezrss.EZRSSFeeder, publichd.PublicHDFeeder]
         _enabled_feeders = [f.get_instance() for f in _all_feeders if f.is_available() and f.is_enabled()]
     return _enabled_feeders
 

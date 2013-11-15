@@ -195,7 +195,7 @@ class SceneNameParser(NameParser):
                 check_string = '-'.join(bad_check_pieces)
                 for rx in get_bad_regexes():
                     if rx.match(check_string):
-                        logger.info(u'"%s" matched againstk %s, marking as bad' %
+                        logger.info(u'"%s" matched against %s, marking as bad' %
                                     (check_string, rx.pattern))
                         self._bad = True
                         break

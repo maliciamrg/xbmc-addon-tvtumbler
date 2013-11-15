@@ -11,6 +11,7 @@ import sys
 import time
 
 import dns.resolver
+import dns.exception
 import xbmc
 
 from . import logger, epdb, quality, links, downloaders, log
@@ -85,7 +86,8 @@ def run():
                             infohash = s
                             break
 
-                    except (dns.resolver.NoAnswer, IndexError, dns.resolver.NXDOMAIN):
+                    except (dns.resolver.NoAnswer, IndexError, dns.resolver.NXDOMAIN,
+                            dns.exception.Timeout):
                         logger.debug('no answer for ' + q)
                         pass
 

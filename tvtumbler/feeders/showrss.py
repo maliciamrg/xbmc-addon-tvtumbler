@@ -28,7 +28,8 @@ class ShowRSSFeeder(TorrentFeeder):
 
     @classmethod
     def is_available(cls):
-        return True
+        # permanently disabled for now, this feed adds nothing we don't have better elsewhere.
+        return False
 
     @classmethod
     def is_enabled(cls):

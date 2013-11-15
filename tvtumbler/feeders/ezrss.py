@@ -19,7 +19,11 @@ class EZRSSFeeder(TorrentFeeder):
 
     def __init__(self):
         super(EZRSSFeeder, self).__init__()
-        self.rss_url = 'http://www.ezrss.it/feed/'
+        self.rss_url = ['http://www.ezrss.it/feed/',
+                        'https://rss.thepiratebay.sx/user/d17c6a45441ce0bc0c057f19057f95e1',
+                        'http://www.ezrss.it.nyud.net/feed/',
+                        'http://show-api.tvtumbler.com/api/ezrss-mirror',
+                        ]
 
     @property
     def update_freq_secs(self):

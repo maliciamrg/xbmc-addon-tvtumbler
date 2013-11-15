@@ -93,19 +93,23 @@ class BaseFeeder(object):
     def _update(self):
         '''
         '''
-        feed = feedparser.parse(self.rss_url)
+        if isinstance(self.rss_url, basestring):
+            urls = [self.rss_url, ]
+
         self._last_update_timestamp = time.time()
         self._latest = []
 
-        if feed:
-            for entry in feed.entries:
-                i = self._parse_rss_item(entry)
-                if i:
-                    if i.is_blacklisted():
-                        logger.debug('Ignoring this downloadable, it has been blacklisted: ' + repr(i))
-                    else:
-                        self._latest.append(i)
-            return True
+        for rss_url in urls:
+            feed = feedparser.parse(rss_url)
+            if feed:
+                for entry in feed.entries:
+                    i = self._parse_rss_item(entry)
+                    if i:
+                        if i.is_blacklisted():
+                            logger.debug('Ignoring this downloadable, it has been blacklisted: ' + repr(i))
+                        else:
+                            self._latest.append(i)
+                return True
         return False
 
     def _parse_rss_item(self, item):
