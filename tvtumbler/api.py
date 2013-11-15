@@ -56,9 +56,9 @@ def show(tvdb_id):
 
 def exceptions():
     '''
-    /api/exceptions as a dict.
+    /api/scene-names as a dict.
 
-    @return: Returns the contents of /api/exceptions as a dict, or None on failure.
+    @return: Returns the contents of /api/scene-names as a dict, or None on failure.
     @rtype: dict
     '''
-    return utils.get_url_as_json(API_SERVER_BASE + 'exceptions')
+    return utils.get_url_as_json(API_SERVER_BASE + 'scene-names')
