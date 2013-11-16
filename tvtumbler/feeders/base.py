@@ -95,6 +95,8 @@ class BaseFeeder(object):
         '''
         if isinstance(self.rss_url, basestring):
             urls = [self.rss_url, ]
+        else:
+            urls = self.rss_url
 
         self._last_update_timestamp = time.time()
         self._latest = []
