@@ -33,7 +33,7 @@ _tvdb_infos = {}
 def get_tvdb_api_info(tvdb_id):
     global _Tvdb
     if _Tvdb is None:
-        _Tvdb = tvdb_api.Tvdb(apikey=TVDB_API_KEY, debug=False)
+        _Tvdb = tvdb_api.Tvdb(apikey=TVDB_API_KEY)
     return _Tvdb[int(tvdb_id)]
 
 
