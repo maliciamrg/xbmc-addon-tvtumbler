@@ -1,3 +1,10 @@
+[B]0.0.18[/B] (2013-11-16)
+  - Improved handling of 'specials'.  It should at least put them in the correct folder now, even
+    if it doesn't know which one they are.
+  - switch from using /api/exceptions to /api/scene-names (a bigger collection)
+  - disable/remove showrss, 
+  - add some backups for EZRSS
+
 [B]0.0.17[/B] (2013-11-09)
   - fix for shows which match on 'no_season', but without a show name.
   - change xbmcvfs.copy to a chunked read/write, in another attempt to workaround the pi lockup
@@ -98,7 +105,7 @@
   - New exception 'EpisodeNotFoundException' when querying for a tv episode that is no longer
     present.
   - Add a get_version method to the service. (returns a string like '0.0.6')
-  - Have the gui call the get_version when it starts.  It no match, fail to start gui (with warning
+  - Have the gui call the get_version when it starts.  If no match, fail to start gui (with warning
     about restart needed)
   - Service can now be stopped by sending it a 'SHUTDOWN' message (just that text, nothing more). 
   - Log start/finish/failure of downloads
