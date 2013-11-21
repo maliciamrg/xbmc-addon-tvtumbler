@@ -249,7 +249,7 @@ class TvShow(object):
     def thumbnail(self):
         if self._thumbnail is None and self.tvshowid:
             s = jsonrpc.get_tv_show_details(self.tvshowid, properties=['thumbnail'])
-            self._fanart = s['thumbnail']
+            self._thumbnail = s['thumbnail']
         return self._thumbnail
 
     def _load_art(self):
