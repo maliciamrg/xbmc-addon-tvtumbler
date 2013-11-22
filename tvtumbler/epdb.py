@@ -150,6 +150,7 @@ def refresh_needed_shows(cutoff_for_continuing=60 * 60 * 24,
         if xbmc.abortRequested or main.shutdownRequested:
             logger.debug('Shutdown in progress, aborting refresh')
             break
+        logger.debug('Refreshing tvdb data for :' + str(s[0]))
         refresh_show(s[0])
 
     return len(shows_to_refresh)

@@ -62,10 +62,11 @@ class TvTumblerCalendar(TvTumblerWindowXMLDialog):
     #         self.setFocus(self.getControl(120))
         except Exception, e:
             logger.error(e)
-            logger.error(traceback.format_exc)
+            logger.error(traceback.format_exc())
         self._hide_loading_dialog()
 
     def populate_for_date(self, day_index, airdate):
+        logger.debug('populate_for_date(%s, %s)' % (repr(day_index), repr(airdate)))
         if __addon__.getSetting('cal_enable_images') == 'true':
             properties = ['episodeid', 'tvdb_season', 'tvdb_episode', 'title',
                         'art', 'show_fanart', 'show_thumbnail', 'show_tvdb_id',
@@ -74,7 +75,7 @@ class TvTumblerCalendar(TvTumblerWindowXMLDialog):
             properties = ['episodeid', 'tvdb_season', 'tvdb_episode', 'title',
                          'show_tvdb_id', 'show_name', 'have_state']
 
-        eps = service_api.get_episodes_on_date(firstaired=airdate, properties=properties)
+        eps = service_api.get_episodes_on_date(firstaired=airdate.isoformat(), properties=properties)
         logger.debug('for ' + str(airdate) + ' got: ' + repr(eps))
 
         dayLabel = self.getControl(130 + day_index)
@@ -101,7 +102,7 @@ class TvTumblerCalendar(TvTumblerWindowXMLDialog):
                         image_path = ep['art'][k]
                         break
             if image_path == '':
-                for k in ['show_thumbnail', 'show_fanart']:
+                for k in ['show_fanart', 'show_thumbnail']:
                     if k in ep and ep[k]:
                         image_path = ep[k]
                         break

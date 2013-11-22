@@ -22,10 +22,15 @@ __addonpath__ = __addon__.getAddonInfo('path').decode('utf-8')
 libs = os.path.join(__addonpath__, 'resources', 'lib')
 sys.path.append(libs)
 
-from tvtumbler.gui.main import TvTumblerMain
+if len(sys.argv) > 1:
+    # if there are any params, then we are running in non-interactive mode
+    print "argv: " + repr(sys.argv)
+else:
+    from tvtumbler.gui.main import TvTumblerMain
 
-threading.current_thread().name = 'gui'
+    threading.current_thread().name = 'gui'
 
-w = TvTumblerMain('script-tvtumbler-main.xml', __addonpath__, "Default")
-w.doModal()
-del w
+    w = TvTumblerMain('script-tvtumbler-main.xml', __addonpath__, "Default")
+    w.doModal()
+    del w
+

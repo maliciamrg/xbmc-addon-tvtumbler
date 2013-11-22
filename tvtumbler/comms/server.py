@@ -18,16 +18,16 @@ import traceback
 
 import xbmc
 import xbmcvfs
+from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer
 
 from . import common
-from .. import logger, tv, quality, log, thetvdb, epdb
+from .. import logger, tv, quality, log, thetvdb, epdb, events
 from ..downloaders import get_enabled_downloaders, is_downloading
 
 
 __addon__ = sys.modules["__main__"].__addon__
 
 
-# from .. import events
 class Service(object):
     '''
     This is the server portion of the comms between gui and service.
@@ -136,12 +136,12 @@ class Service(object):
                                                            ]):
         '''
 
-        @param firstaired: Date to check.  Either a datetime.date, or an string in iso date format (yyyy-mm-dd)
-        @type firstaired: datetime.date|str
+        @param firstaired: Date to check.  A string in iso date format (yyyy-mm-dd)
+        @type firstaired: str
         @param properties:
-        @type properties:
-        @return: a list of episodes with the required properties that first aired on that date.
-        @rtype: [TvEpisode]
+        @type properties: [str]
+        @return: a list of episodes (each a dict) with the required properties that first aired on that date.
+        @rtype: [{}]
         '''
         eps = epdb.get_episodes_on_date(firstaired)
         result = []
@@ -183,32 +183,13 @@ class Service(object):
 
 service_api = Service()
 
-
-def _handle_message(msg):
-    logger.debug('Got message: ' + repr(msg))
-    result = {'error': False}
-    method = msg['method']
-    args = msg['parameters']
-    try:
-        fn = getattr(service_api, method)
-        if not fn:
-            raise Exception('Method %s not implemented' % (method,))
-        logger.debug('args are ' + repr(args))
-        result['result'] = fn(**args) if args is not None else fn()
-    except Exception, e:
-        logger.error('Error calling Service: ' + str(e))
-        logger.error(traceback.format_exc())
-        result['error'] = True
-        result['errorMessage'] = str(e)
-    return result
-
-_socket = None
+_rpc_server = None
 
 
 def run_server():
-    global _socket
-    if _socket:
-        logger.warning('_socket is already set, not starting a new server')
+    global _rpc_server
+    if _rpc_server:
+        logger.warning('_rpc_server is already set, not starting a new server')
         return
 
     # we run our socket code in its own thread so that it doesn't block this call
@@ -216,99 +197,20 @@ def run_server():
     thread.start()
 
 
-# def force_stop():
-#     logger.debug('force_stop()')
-#     from . import client
-#     client.send_shutdown()
-
-
 def _socket_server():
-    global _socket
-    socket_details = common.get_socket_details()
-    if sys.platform == 'win32':
-        _socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        _socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    else:
-        if xbmcvfs.exists(socket_details):
-            logger.debug('Removing stale socket: ' + socket_details)
-            xbmcvfs.delete(socket_details)
+    global _rpc_server
 
-        _socket = socket.socket(socket.AF_UNIX)
+    addr = ('', common.COMMS_PORT)
+    _rpc_server = SimpleJSONRPCServer(addr, address_family=socket.AF_INET)
+    _rpc_server.register_instance(service_api)
+    _rpc_server.serve_forever()
 
-    _socket.bind(socket_details)
-    _socket.listen(5)  # allow 5 waiting connections
-    _socket.setblocking(0)
 
-    # events.add_event_listener(events.ABORT_REQUESTED, force_stop)
+def _stop_server():
+    global _rpc_server
 
-    shutdown_sock = False
-    idle_since = time.time()
-    waiting = 0
-    deep_sleep_secs = 3
-    while not shutdown_sock and not xbmc.abortRequested:
-        if waiting == 0:
-            logger.debug('accepting')
-            waiting = 1
+    if _rpc_server:
+        _rpc_server.shutdown()
+        _rpc_server = None
 
-        try:
-            conn, addr = _socket.accept()  # @UnusedVariable
-            if waiting == 2:  # i.e. we were in deep sleep
-                logger.debug('waking up, slept for %f secs' % (time.time() - idle_since))
-            waiting = 0
-        except socket.error, e:
-            # these are not 'real' exceptions, they effectively mean no data
-            if e.errno == 11 or e.errno == 10035 or e.errno == 35:
-                if time.time() - idle_since > deep_sleep_secs:
-                    # if we've been waiting longer than deep_sleep_secs,
-                    # fall back to an xbmc.sleep for a while
-                    xbmc.sleep(500)
-                    waiting = 2
-                continue  # back to the start of the loop
-
-            # If we're here, we've had a 'real' exception
-            logger.error("EXCEPTION : " + repr(e))
-        except:
-            pass
-
-        if waiting:
-            logger.debug("Continue : " + repr(waiting))
-            continue
-
-        msg = common.recv(conn)
-
-        # Special handling for the 'SHUTDOWN' message.
-        if msg == 'SHUTDOWN':
-            logger.debug('Received SHUTDOWN message, setting main.shutdownRequested')
-            from .. import main
-            main.shutdownRequested = True
-            shutdown_sock = True
-            try:
-                common.send(conn, 'OK')
-            except:
-                # just ignore an error here, we're shutting down, so it doesn't matter
-                pass
-        else:
-            # This is the 'normal' message handling.
-            response = _handle_message(msg)
-            try:
-                common.send(conn, response)
-            except socket.error, e:
-                if e.errno == 32:  # broken pipe
-                    logger.notice('Error %s when sending response, assuming client timeout' % (repr(e)))
-                else:
-                    logger.error('Error sending response: ' + repr(e))
-                    logger.error(traceback.format_exc())
-                    # just fall through and list for new, there's nothing else we can do anyway.
-
-        idle_since = time.time()
-        logger.debug('done')
-
-    logger.debug('closing down')
-    # _socket.shutdown(_socket.SHUT_RDWR) # not needed, and only works for TCP sockets anyway
-    _socket.close()
-    if not sys.platform == "win32":
-        if xbmcvfs.exists(socket_details):
-            logger.debug("Deleting socket file: " + socket_details)
-            xbmcvfs.delete(socket_details)
-
-    _socket = None
+events.add_event_listener(events.ABORT_REQUESTED, _stop_server)

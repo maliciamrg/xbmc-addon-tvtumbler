@@ -41,6 +41,8 @@ Notes:
 - This is pre-alpha code.  Don't expect it to work without problems.
 - Libtorrent is broken for now, don't enable it (unless you're a dev and want to fix it).
 - Air-by-date shows are currently skipped when searching feeds.  (they are searched in backlog though)
+- Multi-episode torrents (e.g. doubles) won't be found in *backlog* unless they're available *somewhere* as single
+  episode torrents. (this will be fixed in the future)
 - Anime shows don't really work at all.  Sorry.  (if anyone who's into Anime is interested in fixing this, then please
   contact me).
 - Frodo users will be prompted to restart XBMC after any addon update.  This is a bug with Frodo: http://trac.xbmc.org/ticket/14609

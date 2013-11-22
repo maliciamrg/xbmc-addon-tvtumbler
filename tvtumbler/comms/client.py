@@ -16,6 +16,7 @@ import xbmc
 
 from . import common
 from .. import logger, jsonrpc
+from jsonrpclib import Server
 
 
 __addon__ = sys.modules["__main__"].__addon__
@@ -23,6 +24,9 @@ __addon__ = sys.modules["__main__"].__addon__
 
 class ServerNotRunningException(Exception):
     pass
+
+
+_rpc_client = None
 
 
 class Client(object):
@@ -46,31 +50,40 @@ class Client(object):
     'this is a nice little test message'
 
     '''
+    def _client(self):
+        global _rpc_client
+        if _rpc_client is None:
+            _rpc_client = Server('http://localhost:%d' % (common.COMMS_PORT,))
+        return _rpc_client
+
     def __getattr__(self, key):
         try:
+            logger.debug("You tried to call a method named: %s" % (key,))
             return object.__getattr__(self, key)
         except AttributeError:
-            def function(*args, **kwargs):
-                # print("You tried to call a method named: %s" % (key,))
-                # logger.debug(repr(kwargs))
-                result = send_message(method=key, params=kwargs)
-                if result['error']:
-                    if 'serverNotRunning' in result and result['serverNotRunning']:
-                        raise ServerNotRunningException(result['errorMessage'])
-                    raise Exception(result['errorMessage'])
-                else:
-                    return result['result']
-            return function
+            logger.debug('passing to _client')
+            return self._client().__getattr__(key)
+#             def function(*args, **kwargs):
+#                 # print("You tried to call a method named: %s" % (key,))
+#                 # logger.debug(repr(kwargs))
+#                 result = send_message(method=key, params=kwargs)
+#                 if result['error']:
+#                     if 'serverNotRunning' in result and result['serverNotRunning']:
+#                         raise ServerNotRunningException(result['errorMessage'])
+#                     raise Exception(result['errorMessage'])
+#                 else:
+#                     return result['result']
+#             return function
 
-    def stop_service(self):
-        try:
-            logger.debug('Telling the old server (if any) to shut down (any errors can be safely ignored)')
-            _send_raw('SHUTDOWN')
-            xbmc.sleep(5000)
-        except Exception, e:
-            logger.info('Shutdown got error: ' + str(e))
-
-        logger.debug('... done')
+#     def stop_service(self):
+#         try:
+#             logger.debug('Telling the old server (if any) to shut down (any errors can be safely ignored)')
+#             _send_raw('SHUTDOWN')
+#             xbmc.sleep(5000)
+#         except Exception, e:
+#             logger.info('Shutdown got error: ' + str(e))
+#
+#         logger.debug('... done')
 
     def start_service(self):
         try:
@@ -146,35 +159,35 @@ class Client(object):
 service_api = Client()
 
 
-def _send_raw(raw_data):
-    socket_details = common.get_socket_details()
-    if sys.platform == 'win32':
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    else:
-        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-
-    try:
-        s.connect(socket_details)
-        common.send(s, raw_data)
-
-        # wait for data back.
-        msg = common.recv(s)
-        s.close()
-        return msg
-    except socket.error, e:
-        result = {'error': True}
-        if e.errno in [111, 2]:
-            result['errorMessage'] = 'Failed to connect, server not running?'
-            result['serverNotRunning'] = True
-        else:
-            result['errorMessage'] = repr(e)
-        logger.error('socket.error: ' + str(e))
-        logger.error(traceback.format_exc())
-        return result
-
-
-def send_message(method, params=None):
-    return _send_raw({'method': method, 'parameters': params})
+# def _send_raw(raw_data):
+#     socket_details = common.get_socket_details()
+#     if sys.platform == 'win32':
+#         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#     else:
+#         s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+#
+#     try:
+#         s.connect(socket_details)
+#         common.send(s, raw_data)
+#
+#         # wait for data back.
+#         msg = common.recv(s)
+#         s.close()
+#         return msg
+#     except socket.error, e:
+#         result = {'error': True}
+#         if e.errno in [111, 2]:
+#             result['errorMessage'] = 'Failed to connect, server not running?'
+#             result['serverNotRunning'] = True
+#         else:
+#             result['errorMessage'] = repr(e)
+#         logger.error('socket.error: ' + str(e))
+#         logger.error(traceback.format_exc())
+#         return result
+#
+#
+# def send_message(method, params=None):
+#     return _send_raw({'method': method, 'parameters': params})
 
 
 # def send_shutdown():
