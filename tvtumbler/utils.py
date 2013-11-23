@@ -123,7 +123,7 @@ def get_user_agent():
     return _user_agent
 
 
-def copy_with_timeout(src, dest, timeout=60 * 15):
+def copy_with_timeout(src, dest, timeout=60 * 30):
     '''Performs a xbmcvfs.copy(), but with a timeout.
  
     @param src: Source file path
