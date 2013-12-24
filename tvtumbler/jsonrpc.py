@@ -24,6 +24,7 @@ def on_video_library_changed():
     clear_rpc_cache('VideoLibrary.GetTVShowDetails')
     clear_rpc_cache('VideoLibrary.GetSeasons')
     clear_rpc_cache('VideoLibrary.GetEpisodes')
+    clear_rpc_cache('VideoLibrary.GetEpisodeDetails')
 
 events.add_event_listener(events.VIDEO_LIBRARY_UPDATED, on_video_library_changed)
 
@@ -114,9 +115,13 @@ def get_seasons(tvshowid,
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetSeasons
     """
-    return exec_rpc_with_cache(method="VideoLibrary.GetSeasons",
+    result = exec_rpc_with_cache(method="VideoLibrary.GetSeasons",
                                params={'tvshowid': tvshowid,
                                        'properties': properties})
+    try:
+        return result['seasons']
+    except KeyError:
+        return []  # no seasons
 
 
 def get_episodes(tvshowid, season=-1,
@@ -143,7 +148,7 @@ def get_episode_details(episodeid,
     """
     http://wiki.xbmc.org/index.php?title=JSON-RPC_API/v6#VideoLibrary.GetEpisodeDetails
     """
-    result = exec_rpc(method="VideoLibrary.GetEpisodeDetails",
+    result = exec_rpc_with_cache(method="VideoLibrary.GetEpisodeDetails",
                     params={'episodeid': episodeid,
                             'properties': properties})
     return result['episodedetails']

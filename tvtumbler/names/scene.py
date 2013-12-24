@@ -130,7 +130,7 @@ class SceneNameParser(NameParser):
                 tmp_series_name = self.clean_series_name(match.group('series_name'))
                 tvdb_id = get_tvdb_id(tmp_series_name)
                 if tvdb_id:
-                    tmp_tv_show = TvShow.from_tvdbd_id(tvdb_id)
+                    tmp_tv_show = TvShow.from_tvdb_id(tvdb_id)
                     if tmp_tv_show is None:
                         # not a show we know locally
                         return
@@ -312,7 +312,7 @@ def get_tvdb_id(scene_name):
         test_tvdb_id = get_tvdb_id(new_scene_name)
         if test_tvdb_id:
             # we need to check if the starting year is correct also
-            test_tv_show = TvShow.from_tvdbd_id(test_tvdb_id)
+            test_tv_show = TvShow.from_tvdb_id(test_tvdb_id)
             if test_tv_show:
                 if test_tv_show.year == int(matching_year):
                     # success!! the years match!
@@ -335,7 +335,7 @@ def get_tvdb_id(scene_name):
         test_tvdb_id = get_tvdb_id(new_scene_name)
         if test_tvdb_id:
             # we need to check if the country code for this show matches the one in the scene_name
-            test_tv_show = TvShow.from_tvdbd_id(test_tvdb_id)
+            test_tv_show = TvShow.from_tvdb_id(test_tvdb_id)
             if test_tv_show:
                 if test_tv_show.country_code == matching_cc:
                     # success!! the countries match!

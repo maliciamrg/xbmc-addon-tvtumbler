@@ -66,7 +66,7 @@ class TvShow(object):
         return not self.__eq__(other)
 
     @classmethod
-    def from_tvdbd_id(cls, tvdb_id):
+    def from_tvdb_id(cls, tvdb_id):
         '''
         Create an instance of a TvShow from a tvdb_id.
         If the show in known to xbmc, the details will be loaded from there.  If not
@@ -75,7 +75,9 @@ class TvShow(object):
         @param tvdb_id: (int)
         @return: (TvShow|None)
         '''
+        # logger.debug('from_tvdb_id')
         shows = jsonrpc.get_tv_shows()
+        # logger.debug('from_tvdb_id - 2')
         show_matches = [s for s in shows if s['imdbnumber'] == str(tvdb_id)]
         if show_matches:
             s = show_matches[0]
@@ -305,6 +307,10 @@ class TvShow(object):
                 if len(self._country_code) == 2:
                     self._country_code = self._country_code.upper()
 
+            # lots of retards using 'UK' when they mean 'GB' now.
+            if self._country_code == 'UK':
+                self._country_code = 'GB'
+
         return self._country_code
 
     @property
@@ -330,6 +336,60 @@ class TvShow(object):
         '''
         return thetvdb.get_tvdb_field(self.tvdb_id, key_name, allow_remote_fetch)
 
+    def get_seasons(self):
+        '''
+        Get a list of all seasons for the show.  Includes all seasons known to xbmc, and
+        all seasons in the epdb.  Season 0 is used for 'specials'.
+        @rtype: [int]
+        '''
+        # logger.debug('a')
+        from . import epdb
+        # logger.debug('b')
+        # [{"label":"Season 1","season":1,"seasonid":179}]
+        x_all_season_data = jsonrpc.get_seasons(self.tvshowid) if self.tvshowid else []
+        if x_all_season_data:
+            x_seas = [x['season'] for x in x_all_season_data]
+        else:
+            x_seas = []
+        # logger.debug('c')
+        e_seas = epdb.get_seasons(self.tvdb_id)
+        # logger.debug('d')
+        return sorted(list(set(x_seas + e_seas)))  # remove duplicates, and sort.
+
+    def get_episodes(self, season):
+        '''
+        Get a list of TvEpisode objects in a season.
+        Returns entries from both xbmc (i.e. ones we have), and from thetvdb (one we don't), without duplicates,
+        and in order.
+
+        @param season: the season to retrieve.  Use 0 (zero) for specials.
+        @type season: int
+        @rtype: [TvEpisode]
+        '''
+        from . import epdb
+
+        # get the episodes that we have in xbmc library first
+        x_epis = jsonrpc.get_episodes(self.tvshowid, season, ['season', 'episode']) if self.tvshowid else []
+
+        # get a list with *just* the episode numbers (for later)
+        x_epi_nums = [x['episode'] for x in x_epis if x['season'] == season]
+
+        # Make a list of TvEpisode objects (and ensure the correct season)
+        x_epis = [TvEpisode.from_xbmc(x['episodeid']) for x in x_epis if x['season'] == season]
+
+        # also get a list of episodes from the epdb, as it will have missing/future entries also
+        d_epis = epdb.get_episodes(self.tvdb_id, season)
+
+        logger.debug('got d_epis: ' + repr(d_epis))
+
+        for d in d_epis:
+            d_ep_num = d.tvdb_episodes[0][1]  # there'll only be one episode in the object, so this is safe
+            if d_ep_num not in x_epi_nums:
+                x_epis.append(d)
+
+        logger.debug('returning x_epis: ' + repr(x_epis))
+        return x_epis
+
     @classmethod
     def get_followed_shows(cls):
         '''
@@ -340,7 +400,7 @@ class TvShow(object):
         '''
         shows = []
         for tid in showsettings.get_all_tvdb_ids(True):
-            shows.append(TvShow.from_tvdbd_id(tid))
+            shows.append(TvShow.from_tvdb_id(tid))
         return shows
 
     @classmethod
@@ -368,7 +428,7 @@ class TvShow(object):
             tvdb_ids.add(int(tid))
         for s in jsonrpc.get_tv_shows(properties=['imdbnumber']):
             tvdb_ids.add(int(s['imdbnumber']))
-        return [TvShow.from_tvdbd_id(t) for t in tvdb_ids]
+        return [TvShow.from_tvdb_id(t) for t in tvdb_ids]
 
 
 class TvEpisode(object):
@@ -411,6 +471,7 @@ class TvEpisode(object):
         self._art = None
         self._thumbnail = None
         self._fanart = None
+        self._firstaired = None
 
     def __repr__(self):
         return self.__class__.__name__ + '(episodeid=%s, tvshow=%s, tvdb_episodes=%s, scene_episodes=%s)' % (
@@ -459,7 +520,7 @@ class TvEpisode(object):
         @return: ([TvEpisode]) Generally only a single list entry will be returned - multiple entries will
             usually only occur if there are multiple matching episodes (files) in the xbmc database.
         '''
-        show = TvShow.from_tvdbd_id(tvdb_id)
+        show = TvShow.from_tvdb_id(tvdb_id)
 
         # if the show is known to xbmc, we need to check for multiple matching
         # episode entries
@@ -498,7 +559,7 @@ class TvEpisode(object):
 
         notinx_episodes = tvdb_episodes[:]
 
-        show = TvShow.from_tvdbd_id(tvdb_id)
+        show = TvShow.from_tvdb_id(tvdb_id)
         eps = []
 
         # If the show is known to xbmc
@@ -561,13 +622,13 @@ class TvEpisode(object):
             else:
                 return []
 
-
-
     def _populate_from_xbmc(self, overwrite=False):
         if self._episodeid is None:
             raise ValueError('episodeid needed to populate from xbmc')
 
-        xbmc_data = jsonrpc.get_episode_details(self._episodeid)
+        xbmc_data = jsonrpc.get_episode_details(self._episodeid,
+                                                properties=['title', 'season', 'episode', 'file',
+                                                            'tvshowid', 'fanart', 'thumbnail', 'art', 'firstaired'])
 
         if self._tvshow is None or overwrite:
             self._tvshow = TvShow.from_xbmc(tvshowid=xbmc_data['tvshowid'])
@@ -589,6 +650,9 @@ class TvEpisode(object):
 
         if self._art is None or overwrite:
             self._art = xbmc_data['art']
+
+        if self._firstaired is None or overwrite:
+            self._firstaired = xbmc_data['firstaired']
 
     def _populate_scene_numbering(self):
         if (self._tvshow is None or
@@ -620,7 +684,8 @@ class TvEpisode(object):
     @property
     def tvshow(self):
         '''
-        @return: (TvShow)
+        @return: The tv show to which this episode belongs
+        @rtype: TvShow
         '''
         return self._tvshow
 
@@ -629,9 +694,12 @@ class TvEpisode(object):
         '''
         @rtype: str
         '''
+        # logger.debug('in title, with epis: ' + repr(self.tvdb_episodes))
         if self._title is not None:
             return self._title
-        self._title = ' & '.join([thetvdb.get_episode_name(self.tvshow.tvdb_id, s, e) for s, e in self.tvdb_episodes])
+
+        from . import epdb
+        self._title = ' & '.join([epdb.get_episode_name(self.tvshow.tvdb_id, s, e) for s, e in self.tvdb_episodes])
         return self._title
 
     @property
@@ -672,6 +740,27 @@ class TvEpisode(object):
             if s == 0 or e == 0:
                 return True
         return False
+
+    @property
+    def firstaired(self):
+        '''
+        Get the first aired date (as a string).  Format is probably yyyy-mm-dd, but is not very reliable.
+
+        @rtype: str
+        '''
+        if self._firstaired is not None:
+            return self._firstaired
+
+        from . import epdb
+
+        for (s, e) in self.tvdb_episodes:
+            some_date = epdb.get_episode_firstaired(self.tvshow.tvdb_id, s, e)
+            if some_date:
+                self._firstaired = some_date
+                return self._firstaired
+
+        # if we get to here, we've failed.
+        return None
 
     def is_wanted_in_quality(self, qual):
         '''

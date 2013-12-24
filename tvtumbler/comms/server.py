@@ -57,7 +57,7 @@ class Service(object):
         '''Return a list of dicts with the properties of the shows with the tvdb_ids given.'''
         l = []
         for tvdb_id in tvdb_ids:
-            s = tv.TvShow.from_tvdbd_id(tvdb_id)
+            s = tv.TvShow.from_tvdb_id(tvdb_id)
             d = {}
             for p in properties:
                 d[p] = getattr(s, p)
@@ -66,8 +66,8 @@ class Service(object):
 
     def set_show_followed(self, tvdb_id, followed):
         '''Flag a show as followed/ignored'''
-        oldvalue = tv.TvShow.from_tvdbd_id(tvdb_id).followed
-        show = tv.TvShow.from_tvdbd_id(tvdb_id)
+        oldvalue = tv.TvShow.from_tvdb_id(tvdb_id).followed
+        show = tv.TvShow.from_tvdb_id(tvdb_id)
         show.followed = followed
         if show.wanted_quality == 0:
             # ensure that the quality is a valid value
@@ -76,11 +76,11 @@ class Service(object):
 
     def get_show_wanted_quality(self, tvdb_id):
         '''Get the current wanted_quality for a show'''
-        return tv.TvShow.from_tvdbd_id(tvdb_id).wanted_quality
+        return tv.TvShow.from_tvdb_id(tvdb_id).wanted_quality
 
     def set_show_wanted_quality(self, tvdb_id, wanted_quality):
         '''Set the wanted_quality for a show'''
-        show = tv.TvShow.from_tvdbd_id(tvdb_id)
+        show = tv.TvShow.from_tvdb_id(tvdb_id)
         oldvalue = show.wanted_quality
         show.wanted_quality = wanted_quality
         return oldvalue
@@ -122,7 +122,7 @@ class Service(object):
         return thetvdb.search_series_by_name(searchstring)
 
     def add_show(self, tvdb_id, followed=True, wanted_quality=quality.SD_COMP):
-        show = tv.TvShow.from_tvdbd_id(tvdb_id)
+        show = tv.TvShow.from_tvdb_id(tvdb_id)
         show.followed = followed
         show.wanted_quality = wanted_quality
         return True
@@ -149,7 +149,7 @@ class Service(object):
             for t_ep in ep.tvdb_episodes:  # this is actually a list of tuples [season, episode]
                 d = dict()
                 for k in properties:
-                    if k in ['episodeid', 'title', 'fanart', 'thumbnail', 'art']:
+                    if k in ['episodeid', 'title', 'fanart', 'thumbnail', 'art', 'firstaired']:
                         d[k] = getattr(ep, k, None)
                     elif k == 'tvdb_season':
                         d[k] = t_ep[0]
@@ -180,6 +180,76 @@ class Service(object):
                         logger.notice('Attempt to get unknown property: ' + str(k))
                 result.append(d)
         return result
+
+    def get_seasons(self, tvdb_id):
+        '''Get a list of seasons for this show (a list of ints)'''
+        # logger.debug('get_seasons: ' + repr(tvdb_id))
+        # logger.debug('ssss')
+        s = tv.TvShow.from_tvdb_id(tvdb_id)
+        logger.debug(repr(s))
+        return s.get_seasons()
+
+    def get_episodes_in_season(self, tvdb_id, tvdb_season, properties=['episodeid', 'tvdb_season', 'tvdb_episode', 'title',
+                                                           #'art', 'show_fanart', 'show_thumbnail',
+                                                           #'show_tvdb_id', 'show_name',  # 'show_status',
+                                                           # 'fanart', 'thumbnail',
+                                                           # 'show_banner', 'show_fanart', 'show_thumbnail', 'show_poster',
+                                                           'have_state',
+                                                           ]):
+        '''
+
+        @param tvdb_id: tvdb_id of the show
+        @type tvdb_id: int
+        @param tvdb_season: season number
+        @type tvdb_season: int
+        @param properties:
+        @type properties: [str]
+        @return: a list of episodes (each a dict) with the required properties that first aired on that date.
+        @rtype: [{}]
+        '''
+        show = tv.TvShow.from_tvdb_id(tvdb_id)
+        eps = show.get_episodes(tvdb_season)
+        result = []
+        for ep in eps:
+            for t_ep in ep.tvdb_episodes:  # this is actually a list of tuples [season, episode]
+                d = dict()
+                for k in properties:
+                    if k in ['episodeid', 'title', 'fanart', 'thumbnail', 'art', 'firstaired']:
+                        d[k] = getattr(ep, k, None)
+                    elif k == 'tvdb_season':
+                        d[k] = t_ep[0]
+                    elif k == 'tvdb_episode':
+                        d[k] = t_ep[1]
+                    elif k == 'show_tvdb_id':
+                        d[k] = ep.tvshow.tvdb_id
+                    elif k == 'show_name':
+                        d[k] = ep.tvshow.name
+                    elif k == 'show_status':
+                        d[k] = ep.tvshow.status
+                    elif k == 'show_banner':
+                        d[k] = ep.tvshow.banner
+                    elif k == 'show_fanart':
+                        d[k] = ep.tvshow.fanart
+                    elif k == 'show_thumbnail':
+                        d[k] = ep.tvshow.thumbnail
+                    elif k == 'show_poster':
+                        d[k] = ep.tvshow.poster
+                    elif k == 'have_state':
+                        if ep.episodeid:
+                            d[k] = 'downloaded'
+                        elif is_downloading(ep):
+                            d[k] = 'downloading'
+                        else:
+                            d[k] = 'missing'
+                    else:
+                        logger.notice('Attempt to get unknown property: ' + str(k))
+                result.append(d)
+        return result
+
+    def refresh_episodes(self, tvdb_id):
+        '''Refresh the episode list for the show tvdb_id'''
+        epdb.refresh_show(tvdb_id)
+        return True
 
 service_api = Service()
 

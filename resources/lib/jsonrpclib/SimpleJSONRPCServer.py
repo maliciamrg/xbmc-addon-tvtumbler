@@ -137,8 +137,9 @@ class SimpleJSONRPCDispatcher(SimpleXMLRPCServer.SimpleXMLRPCDispatcher):
                 else:
                     response = func(**params)
                 return response
-            except TypeError:
-                return Fault(-32602, 'Invalid parameters.')
+            except TypeError, te:
+                print traceback.format_exc()
+                return Fault(-32602, 'Invalid parameters: "' + str(te) + '"')
             except:
                 err_lines = traceback.format_exc().splitlines()
                 trace_string = '%s | %s' % (err_lines[-3], err_lines[-1])

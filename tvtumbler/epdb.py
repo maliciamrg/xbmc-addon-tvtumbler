@@ -64,15 +64,40 @@ def get_episode_name(tvdb_id, season, episode):
                      'WHERE tvdb_id = ? '
                      'AND seasonnumber = ? '
                      'AND episodenumber = ?', [tvdb_id, season, episode])
-    if rows:
+    if rows and rows[0]['episodename'] is not None:
+        # logger.debug('returning ep name :' + repr(rows[0]['episodename']))
         return rows[0]['episodename']
     else:
         t = thetvdb.get_tvdb_api_info(tvdb_id)
         try:
-            return t[season][episode]['episodename']
+            ename = t[season][episode]['episodename']
+            if ename is None:
+                # logger.debug('returning fake ep name ')
+                return 'Episode ' + str(episode)
+            # logger.debug('returning ep name :' + repr(ename))
+            return ename
         except tvdb_api.tvdb_episodenotfound, e:
             logger.error('tvdb_api reported: "' + str(e) + '", using Episode N as the episode name')
             return 'Episode ' + str(episode)
+
+
+@fastcache.func_cache(60 * 60 * 12)
+def get_episode_firstaired(tvdb_id, season, episode):
+    db = _get_db()
+    rows = db.select('SELECT firstaired '
+                     'FROM episode '
+                     'WHERE tvdb_id = ? '
+                     'AND seasonnumber = ? '
+                     'AND episodenumber = ?', [tvdb_id, season, episode])
+    if rows:
+        return rows[0]['firstaired']
+    else:
+        t = thetvdb.get_tvdb_api_info(tvdb_id)
+        try:
+            return t[season][episode]['firstaired']
+        except tvdb_api.tvdb_episodenotfound, e:
+            logger.error('tvdb_api reported: "' + str(e) + '", using None as the firsraired')
+            return None
 
 
 @fastcache.func_cache(60 * 60 * 6)
@@ -106,6 +131,40 @@ def get_episodes_on_date(firstaired, followed_only=True):
     return results
 
 events.add_event_listener(events.VIDEO_LIBRARY_UPDATED, get_episodes_on_date.cache_clear)
+
+
+@fastcache.func_cache(60 * 60 * 6)
+def get_seasons(tvdb_id):
+    '''
+    Returns a list of all season numbers for a show.
+
+    '''
+    _db = _get_db()
+
+    sql = ('SELECT distinct seasonnumber FROM episode WHERE tvdb_id = ? '
+           'ORDER BY seasonnumber')
+    rows = _db.select(sql, [tvdb_id, ])
+    logger.debug('got rows: ' + repr(rows))
+
+    return [r['seasonnumber'] for r in rows]
+
+
+@fastcache.func_cache(60 * 60 * 6)
+def get_episodes(tvdb_id, season):
+    '''
+    Get a list of all episodes in a season
+    @rtype: [TvEpisode]
+    '''
+    _db = _get_db()
+    sql = 'SELECT episodenumber FROM episode WHERE tvdb_id = ? AND seasonnumber = ? ORDER BY episodenumber ASC'
+    rows = _db.select(sql, [tvdb_id, season])
+
+    result = []
+    for r in rows:
+        result.extend(TvEpisode.from_tvdb(tvdb_id, season, r['episodenumber']))
+    return result
+
+events.add_event_listener(events.VIDEO_LIBRARY_UPDATED, get_episodes.cache_clear)
 
 
 def refresh_needed_shows(cutoff_for_continuing=60 * 60 * 24,
@@ -209,6 +268,9 @@ def refresh_show(tvdb_id):
                '(tvdb_id, last_refreshed) '
                'VALUES (?,?)',
                [str(tvdb_id), time.time()])
+
+    get_seasons.cache_clear()
+    get_episodes.cache_clear()
 
 
 def _get_show_last_refreshed(tvdb_id):
