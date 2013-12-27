@@ -48,4 +48,7 @@ Notes:
 - Users running XBMC on a Pi (raspbmc, openelec etc) - please expect some issues.  The Pi has several small quirks that
   break XBMC in unexpected ways. (You can alleviate some of these by enabling 'safe file copy' in advanced settings)
 
+Contribute:
+----------
 
+Bitcoin: <a href="bitcoin:15Vh5ZiQpXuymRf46JAELnZPNbLaTKLduc">15Vh5ZiQpXuymRf46JAELnZPNbLaTKLduc</a>
