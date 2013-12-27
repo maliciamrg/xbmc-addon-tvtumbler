@@ -1,3 +1,11 @@
+[B]0.1.0[/B]
+  - Change the IPC from using a simple socket to a full jsonrcp server.  (mostly for the benefit
+  	of the web gui.
+  - Change the backlogger interval from 16 hours to 8 hours.
+  - Many fixes for shows with no episodes, tweaks for the web ui, and a whole bunch of other
+    things.
+  - Add a donations link to the readme.
+
 [B]0.0.18[/B] (2013-11-16)
   - Improved handling of 'specials'.  It should at least put them in the correct folder now, even
     if it doesn't know which one they are.
